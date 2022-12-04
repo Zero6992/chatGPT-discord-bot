@@ -4,7 +4,6 @@ from revChatGPT.revChatGPT import Chatbot
 config = {
         # Put your OPENAI Bearer token here
         "Authorization": ""
-
     }
 
 chatbot = Chatbot(config, conversation_id=None)
