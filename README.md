@@ -20,6 +20,7 @@ Reverse Engineered ChatGPT by OpenAI [here](https://github.com/acheong08/ChatGPT
 5. Turn MESSAGE CONTENT INTENT `ON`
 ![1670176647431](image/README/1670176647431.png)
 6. Invite your bot through OAuth2 URL Generator
+
    ![1670176722801](image/README/1670176722801.png)
 
 ## Get your session token
