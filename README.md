@@ -34,8 +34,6 @@ Go to https://chat.openai.com/chat sign up and log in
 ![image](https://user-images.githubusercontent.com/36258159/205494773-32ef651a-994d-435a-9f76-a26699935dac.png)
 3. Copy the value for `__Secure-next-auth.session-token` and paste it into `config.json` under `session_token`. You do not need to fill out `Authorization`
 
-![image](https://user-images.githubusercontent.com/36258159/205495076-664a8113-eda5-4d1e-84d3-6fad3614cfd8.png)
-
 ![1670176444011](image/README/1670176444011.png)
 )
 
