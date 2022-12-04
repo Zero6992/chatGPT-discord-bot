@@ -26,7 +26,7 @@ Go to https://chat.openai.com/chat and log in or sign up
 3. Find session request (Might need refresh)
 4. Store the token to responses.py config.
    ![image](https://user-images.githubusercontent.com/36258159/205446680-b3f40499-9757-428b-9e2f-23e89ca99461.png)
-   ![image](https://user-images.githubusercontent.com/36258159/205446730-793f8187-316c-4ae8-962c-0f4c1ee00bd1.png)
+   ![1670156581359](image/README/1670156581359.png)
 
 # Known issues
 
