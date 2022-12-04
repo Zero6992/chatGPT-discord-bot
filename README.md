@@ -6,28 +6,32 @@ Reverse Engineered ChatGPT by OpenAI [here](https://github.com/acheong08/ChatGPT
 
 
 ## Install
-
+`pip install discord.py`
 `pip3 install revChatGPT`
 
 ## Create a discord bot
 
-1. Go to https://discord.com/developers/applications create a bot
-2. Get the token from Bot setting.
-3. Store the token to bot.py TOKEN.
+1. Go to https://discord.com/developers/applications create an application.
+2. And build a bot under the application.
+3. Get the token from Bot setting.
+4. Store the token to config.json under `discord_bot_token`
    ![1670143818339](image/README/1670143818339.png)
-   ![1670143869537](image/README/1670143869537.png)
+   ![1670176461891](image/README/1670176461891.png)
+5. Turn MESSAGE CONTENT INTENT `ON`
+![1670176647431](image/README/1670176647431.png)
+6. Invite your bot through OAuth2 URL Generator
+![1670176722801](image/README/1670176722801.png)
 
-## Get your Bearer token
-
-Go to https://chat.openai.com/chat and log in or sign up
-
+## Get your session token
+Go to https://chat.openai.com/chat sign up and log in
 1. Open console with `F12`
-2. Go to Network tab in console
-3. Find session request (Might need refresh)
-4. Store the token to responses.py config.
-   ![image](https://user-images.githubusercontent.com/36258159/205446680-b3f40499-9757-428b-9e2f-23e89ca99461.png)
-   ![1670156581359](image/README/1670156581359.png)
+2. Open `Application` tab > Cookies
+![image](https://user-images.githubusercontent.com/36258159/205494773-32ef651a-994d-435a-9f76-a26699935dac.png)
+3. Copy the value for `__Secure-next-auth.session-token` and paste it into `config.json.example` under `session_token`. You do not need to fill out `Authorization`
+![image](https://user-images.githubusercontent.com/36258159/205495076-664a8113-eda5-4d1e-84d3-6fad3614cfd8.png)
+![1670176444011](image/README/1670176444011.png)
+)
 
-# Known issues
+# Have A Good Chat !
 
-- Access token expires in one hour
+![1670177247310](image/README/1670177247310.jpg)

@@ -1,6 +1,9 @@
 import discord
 import responses
+import json
 
+with open('config.json', 'r') as f:
+    data = json.load(f)
 
 # Send messages
 async def send_message(message, user_message, is_private):
@@ -15,7 +18,7 @@ intents = discord.Intents.default()
 intents.message_content = True
 def run_discord_bot():
     # Change your token here
-    TOKEN = ''
+    TOKEN = data['discord_bot_token']
     client = discord.Client(intents=intents)
 
     @client.event

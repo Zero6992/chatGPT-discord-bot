@@ -1,12 +1,17 @@
 from revChatGPT.revChatGPT import Chatbot
+import json
 
+with open('config.json', 'r') as f:
+    data = json.load(f)
 
 config = {
-        # Put your OPENAI Bearer token here
-        "Authorization": ""
-    }
+    "Authorization": data['Authorization'],
+    "session_token": data['session_token']
+}
+
 
 chatbot = Chatbot(config, conversation_id=None)
+chatbot.refresh_session() 
 
 def handle_response(message) -> str:
     prompt = message
