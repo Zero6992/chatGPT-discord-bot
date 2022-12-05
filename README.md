@@ -31,7 +31,8 @@ Save both in `config.json`
 
 ![1670250583265](image/README/1670250583265.png)
 
-NOTICE : If you are logging in with a Google or Microsoft account, please use the session token method below.
+> **Warning**
+> If you are logging in with a Google or Microsoft account, please use the session token method below.
 
 ## Session token authentication
 
