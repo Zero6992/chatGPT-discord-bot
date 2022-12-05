@@ -1,5 +1,5 @@
 {
     "Authorization": "<API_KEY>",
-    "discord_bot_token":"",
+    "discord_bot_token": "",
     "session_token": ""
 }
