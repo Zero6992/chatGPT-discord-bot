@@ -9,7 +9,14 @@ with open('config.json', 'r') as f:
 async def send_message(message, user_message, is_private):
     try:
         response = responses.handle_response(user_message)
-        await message.author.send(response) if is_private else await message.channel.send(response)
+        if len(response) > 2000:
+            # Split the response into smaller chunks of no more than 2000 characters each
+            response_chunks = [response[i:i+2000] for i in range(0, len(response), 2000)]
+            for chunk in response_chunks:
+                # Send each chunk separately
+                await message.author.send(chunk) if is_private else await message.channel.send(chunk)
+        else:
+            await message.author.send(response) if is_private else await message.channel.send(response)
 
     except Exception as e:
         print(e)
