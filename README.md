@@ -19,7 +19,7 @@ Reverse Engineered ChatGPT by OpenAI [here](https://github.com/acheong08/ChatGPT
    ![1670143818339](image/README/1670143818339.png)
 4. Store the token to `config.json` under the `discord_bot_token`
 
-![1670250610205](image/README/1670250610205.png)
+   ![1670250610205](image/README/1670250610205.png)
 5. Turn MESSAGE CONTENT INTENT `ON`
 
    ![1670176647431](image/README/1670176647431.png)
