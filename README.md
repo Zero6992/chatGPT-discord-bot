@@ -29,7 +29,7 @@ Reverse Engineered ChatGPT by OpenAI [here](https://github.com/acheong08/ChatGPT
 ## Email and password authentication
 Save both in `config.json`
 
-![1670250583265](image/README/1670250583265.png)
+   ![1670250583265](image/README/1670250583265.png)
 
 > **Warning**
 > 
@@ -45,7 +45,7 @@ Go to https://chat.openai.com/chat log in
    ![image](https://user-images.githubusercontent.com/36258159/205494773-32ef651a-994d-435a-9f76-a26699935dac.png)
 3. Copy the value for `__Secure-next-auth.session-token` and paste it into `config.json` under `session_token`. You do not need to fill out `email` and `password`
 
-![1670250561033](image/README/1670250561033.png)
+   ![1670250561033](image/README/1670250561033.png)
 
 
 ## Have A Good Chat !
