@@ -6,7 +6,7 @@ Reverse Engineered ChatGPT by OpenAI [here](https://github.com/acheong08/ChatGPT
 
 
 ## Install
-`pip install discord.py`
+`pip install -U discord.py`
 `pip3 install revChatGPT`
 
 ## Create a discord bot
