@@ -47,7 +47,11 @@ Go to https://chat.openai.com/chat log in
 
    ![1670250561033](image/README/1670250561033.png)
 
+## Chat bot functions
 
+* `! [message]` The bot will respond to you via private message
+
+* `!reset` The bot will be reset.
 ## Have A Good Chat !
 
    ![1670177247310](image/README/1670177247310.jpg)
