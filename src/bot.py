@@ -1,12 +1,9 @@
 import discord
-import responses
 import json
+from src import responses
 
 with open('config.json', 'r') as f:
     data = json.load(f)
-
-# Send messages
-
 
 async def send_message(message, user_message, is_private):
     try:
@@ -22,11 +19,11 @@ async def send_message(message, user_message, is_private):
             await message.author.send(response) if is_private else await message.channel.send(response)
 
     except Exception as e:
+        await message.channel.send("**Error: I think there are something went wrong. Please try again later!**")
         print(e)
 
 intents = discord.Intents.default()
 intents.message_content = True
-
 
 def run_discord_bot():
     TOKEN = data['discord_bot_token']
@@ -49,6 +46,7 @@ def run_discord_bot():
 
         if user_message == '!reset':
             responses.chatbot.reset_chat()
+            await message.channel.send("**Info: I have forgotten everything.**")
             print("The CHAT BOT has been successfully reset")
         elif user_message[0] == '!':
             user_message = user_message[1:]

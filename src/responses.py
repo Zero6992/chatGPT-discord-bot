@@ -17,6 +17,6 @@ chatbot.refresh_session()
 
 def handle_response(prompt) -> str:
     response = chatbot.get_chat_response(prompt, output="text")
-    responseMessage = response["message"]
+    responseMessage = response['message']
 
     return responseMessage
