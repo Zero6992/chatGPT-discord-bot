@@ -1,7 +1,8 @@
 # chatGPT-discord-bot
 
 > ### This is a project that provides you to build your own Discord bot using chatGPT
-
+>
+>  :star: A star would be highly appreciated
 # Setup
 
 ## Install
