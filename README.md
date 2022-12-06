@@ -11,11 +11,11 @@
 
 dependencies: Reverse Engineered ChatGPT by OpenAI [here](https://github.com/acheong08/ChatGPT) and discord.py
 
-## Create a discord bot
+## Step 1: Create a Discord bot
 
 1. Go to https://discord.com/developers/applications create an application
-2. And build a bot under the application
-3. Get the token from Bot setting
+2. Build a Discord bot under the application
+3. Get the token from bot setting
 
    ![1670143818339](image/README/1670143818339.png)
 4. Store the token to `config.json` under the `discord_bot_token`
@@ -27,7 +27,7 @@ dependencies: Reverse Engineered ChatGPT by OpenAI [here](https://github.com/ach
 6. Invite your bot through OAuth2 URL Generator
 
    ![1670176722801](image/README/1670176722801.png)
-## Email and password authentication
+## Step 2: Email and password authentication
 Save both in `config.json`
 
    ![1670250583265](image/README/1670250583265.png)
@@ -36,7 +36,7 @@ Save both in `config.json`
 > 
 > If you are logging in with a Google or Microsoft account, please use the session token method below.
 
-## Session token authentication
+## Step 2: Session token authentication
 
 Go to https://chat.openai.com/chat log in
 
@@ -48,11 +48,17 @@ Go to https://chat.openai.com/chat log in
 
    ![1670250561033](image/README/1670250561033.png)
 
+## Step 3: Run the bot
+
+1. Open a terminal or command prompt
+2. Navigate to the directory where you installed the ChatGPT Discord bot
+3. Run `python main.py` to start the bot.
+
 ## Chat bot functions
 
 * `! [message]` The bot will respond to you via private message
 
-* `!reset` The bot will be reset.
+* `!reset` The bot will be reset
 
 ## Have A Good Chat !
 
