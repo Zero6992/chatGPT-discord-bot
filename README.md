@@ -1,6 +1,6 @@
 # chatGPT-discord-bot
 
-> ### This is a project that provides you with the ability to integrate your own Discord bot using chatGPT
+> ### This is a project that provides you to build your own Discord bot using chatGPT
 
 # Setup
 
