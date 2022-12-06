@@ -1,14 +1,14 @@
 # chatGPT-discord-bot
 
-> This is a project that provides you with the ability to integrate your own Discord bot using chatGPT
-
-Reverse Engineered ChatGPT by OpenAI [here](https://github.com/acheong08/ChatGPT)
+> ### This is a project that provides you with the ability to integrate your own Discord bot using chatGPT
 
 # Setup
 
 ## Install
 
 `pip install -r requirements.txt`
+
+dependencies: Reverse Engineered ChatGPT by OpenAI [here](https://github.com/acheong08/ChatGPT) and discord.py
 
 ## Create a discord bot
 
