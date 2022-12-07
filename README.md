@@ -8,17 +8,18 @@
 
 * `/chat [message]` Chat with ChatGPT!
 * `/private` ChatGPT switch to private mode
-* `/public`  ChatGPT will send messages to the channel
+* `/public`  ChatGPT switch to public  mode
 * `/reset`   ChatGPT conversation history will be erased
 
 
 ### Mode
-* private mode: the bot's reply can only be seen by who send the message
-
-   ![image](https://user-images.githubusercontent.com/89479282/206289934-eacdf8aa-53fa-49af-b3ba-fe2feb7bc8a9.gif)
-* public mode: the bot directly reply on the channel
+* `public mode (default)`  the bot directly reply on the channel
 
    ![image](https://user-images.githubusercontent.com/89479282/206289981-24c91212-f951-4d07-aefd-961f08f0531b.gif)
+* `private mode` the bot's reply can only be seen by who send the message
+
+   ![image](https://user-images.githubusercontent.com/89479282/206289934-eacdf8aa-53fa-49af-b3ba-fe2feb7bc8a9.gif)
+
 # Setup
 
 ## Install
