@@ -9,7 +9,7 @@
 * `/chat [message]` Chat with chatGPT!
 * `/private` chatGPT will send messages to you with private mode
 * `/public`  chatGPT will send messages to the channel
-* `/reset`   ChatGPT conversation history will be erased
+* `/reset`   hatGPT conversation history will be erased
 
 # Setup
 
