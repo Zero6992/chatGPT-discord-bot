@@ -1,15 +1,15 @@
 # chatGPT-discord-bot
 
-> ### This is a project that provides you to build your own Discord bot using chatGPT
+> ### This is a project that provides you to build your own Discord bot using ChatGPT
 >
 > ⭐️ A star would be highly appreciated
 
 ## Features
 
-* `/chat [message]` Chat with chatGPT!
-* `/private` chatGPT will send messages to you with private mode
-* `/public`  chatGPT will send messages to the channel
-* `/reset`   chatGPT conversation history will be erased
+* `/chat [message]` Chat with ChatGPT!
+* `/private` ChatGPT will send messages to you with private mode
+* `/public`  ChatGPT will send messages to the channel
+* `/reset`   ChatGPT conversation history will be erased
 
 # Setup
 
@@ -61,7 +61,7 @@ Go to https://chat.openai.com/chat log in
 ## Step 3: Run the bot
 
 1. Open a terminal or command prompt
-2. Navigate to the directory where you installed the chatGPT Discord bot
+2. Navigate to the directory where you installed the ChatGPT Discord bot
 3. Run `python main.py` to start the bot
 
 ## Have A Good Chat !
