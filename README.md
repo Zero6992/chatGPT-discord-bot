@@ -16,7 +16,7 @@
 * `public mode (default)`  the bot directly reply on the channel
 
    ![image](https://user-images.githubusercontent.com/89479282/206289981-24c91212-f951-4d07-aefd-961f08f0531b.gif)
-* `private mode` the bot's reply can only be seen by who send the message
+* `private mode` the bot's reply can only be seen by who use the command
 
    ![image](https://user-images.githubusercontent.com/89479282/206289934-eacdf8aa-53fa-49af-b3ba-fe2feb7bc8a9.gif)
 
