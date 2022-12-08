@@ -31,10 +31,9 @@ async def send_message(message, user_message):
         await message.followup.send("> **Error: There are something went wrong. Please try again later!**")
         print(e)
 
-intents = discord.Intents.default()
-intents.message_content = True
-
 def run_discord_bot():
+    intents = discord.Intents.default()
+    intents.message_content = True
     activity = discord.Activity(type=discord.ActivityType.watching, name="/chat | /private | /public | /reset")
     client = commands.Bot(command_prefix='!', intents=intents, activity=activity)
             
