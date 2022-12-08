@@ -42,7 +42,7 @@ def run_discord_bot():
     @client.event
     async def on_ready():
         await client.tree.sync()
-        print(f'{client.user} is now running!')
+        logger.info(f'{client.user} is now running!')
 
     @client.tree.command(name="chat", description="Have a chat with chatGPT")
     async def chat(interaction: discord.Interaction, *, message: str):
