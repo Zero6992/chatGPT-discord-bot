@@ -12,7 +12,6 @@ with open('config.json', 'r') as f:
 
 is_private = False
 
-
 async def send_message(message, user_message):
     await message.response.defer(ephemeral=is_private)
     try:
@@ -33,7 +32,6 @@ async def send_message(message, user_message):
 
 intents = discord.Intents.default()
 intents.message_content = True
-
 
 def run_discord_bot():
     activity = discord.Activity(type=discord.ActivityType.watching, name="/chat | /private | /public | /reset")
@@ -79,13 +77,13 @@ def run_discord_bot():
             await interaction.followup.send("> **Warn: You already on public mode. If you want to switch to private mode, use `/private`**")
             logger.info("You already on public mode!")
 
-    @client.tree.command(name="reset", description="Complete reset gptChat conversation history")
+    @client.tree.command(name="reset", description="Complete reset ChatGPT conversation history")
     async def reset(interaction: discord.Interaction):
         responses.chatbot.reset_chat()
         await interaction.response.defer(ephemeral=False)
         await interaction.followup.send("> **Info: I have forgotten everything.**")
         logger.warning(
-            "\x1b[31mThe CHAT BOT has been successfully reset\x1b[0m")
+            "\x1b[31mChatGPT bot has been successfully reset\x1b[0m")
 
     TOKEN = data['discord_bot_token']
     client.run(TOKEN)
