@@ -3,15 +3,22 @@ import json
 from discord import app_commands
 from discord.ext import commands
 from src import responses
+from src import custom_formatter
+
+logger = custom_formatter.setup_logger()
 
 with open('config.json', 'r') as f:
     data = json.load(f)
 
 is_private = False
+
+
 async def send_message(message, user_message):
-    await message.response.defer(ephemeral = is_private)
+    await message.response.defer(ephemeral=is_private)
     try:
-        response = '> **' + user_message + '** - <@' + str(message.user.id)  + '>\n\n' + responses.handle_response(user_message)
+        response = '> **' + user_message + '** - <@' + \
+            str(message.user.id) + '>\n\n' + \
+            responses.handle_response(user_message)
         if len(response) > 1900:
             # Split the response into smaller chunks of no more than 1900 characters each(Discord limit is 2000 per chunk)
             response_chunks = [response[i:i+1900]
@@ -27,10 +34,11 @@ async def send_message(message, user_message):
 intents = discord.Intents.default()
 intents.message_content = True
 
+
 def run_discord_bot():
     TOKEN = data['discord_bot_token']
     client = commands.Bot(command_prefix='!', intents=intents)
-            
+
     @client.event
     async def on_ready():
         await client.tree.sync()
@@ -43,40 +51,40 @@ def run_discord_bot():
         username = str(interaction.user)
         user_message = message
         channel = str(interaction.channel)
-        print(f"{username} said: '{user_message}' ({channel})")
+        logger.info(
+            f"\x1b[31m{username}\x1b[0m : '{user_message}' ({channel})")
         await send_message(interaction, user_message)
-        
+
     @client.tree.command(name="private", description="Toggle private access")
     async def private(interaction: discord.Interaction):
-            global is_private
-            await interaction.response.defer(ephemeral = False)
-            if not is_private:
-                is_private = not is_private
-                print("Switch to private mode")
-                await interaction.followup.send("> **Info: Next, the response will be sent via private message. If you want to switch back to public mode, use `/public`**")
-            else:
-                print("You already on private mode!")
-                await interaction.followup.send("> **Warn: You already on private mode. If you want to switch to public mode, use `/public`**")
-
+        global is_private
+        await interaction.response.defer(ephemeral=False)
+        if not is_private:
+            is_private = not is_private
+            logger.warning("\x1b[31mSwitch to private mode\x1b[0m")
+            await interaction.followup.send("> **Info: Next, the response will be sent via private message. If you want to switch back to public mode, use `/public`**")
+        else:
+            logger.info("You already on private mode!")
+            await interaction.followup.send("> **Warn: You already on private mode. If you want to switch to public mode, use `/public`**")
 
     @client.tree.command(name="public", description="Toggle public access")
     async def public(interaction: discord.Interaction):
-            global is_private
-            await interaction.response.defer(ephemeral = False)
-            if is_private:
-                is_private =  not is_private
-                await interaction.followup.send("> **Info: Next, the response will be sent to the channel directly. If you want to switch back to private mode, use `/private`**")
-                print("Switch to public mode")
-            else:
-                await interaction.followup.send("> **Warn: You already on public mode. If you want to switch to private mode, use `/private`**")            
-                print("You already on public mode!")
+        global is_private
+        await interaction.response.defer(ephemeral=False)
+        if is_private:
+            is_private = not is_private
+            await interaction.followup.send("> **Info: Next, the response will be sent to the channel directly. If you want to switch back to private mode, use `/private`**")
+            logger.warning("\x1b[31mSwitch to public mode\x1b[0m")
+        else:
+            await interaction.followup.send("> **Warn: You already on public mode. If you want to switch to private mode, use `/private`**")
+            logger.info("You already on public mode!")
 
     @client.tree.command(name="reset", description="Complete reset gptChat conversation history")
     async def reset(interaction: discord.Interaction):
         responses.chatbot.reset_chat()
-        await interaction.response.defer(ephemeral = False)
+        await interaction.response.defer(ephemeral=False)
         await interaction.followup.send("> **Info: I have forgotten everything.**")
-        print("The CHAT BOT has been successfully reset")
-
+        logger.warning(
+            "\x1b[31mThe CHAT BOT has been successfully reset\x1b[0m")
 
     client.run(TOKEN)
