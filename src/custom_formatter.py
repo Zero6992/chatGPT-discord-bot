@@ -35,7 +35,7 @@ class CustomFormatter(logging.Formatter):
         return output
 
 
-def init_logger() -> logging.Logger:
+def setup_logger() -> logging.Logger:
     # create logger
     library, _, _ = __name__.partition('.')
     logger = logging.getLogger(library)
