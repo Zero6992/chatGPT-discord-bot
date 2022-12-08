@@ -4,11 +4,12 @@ from discord import app_commands
 from discord.ext import commands
 from src import responses
 
-
 with open('config.json', 'r') as f:
     data = json.load(f)
 
+is_private = False
 async def send_message(message, user_message):
+    await message.response.defer(ephemeral = is_private)
     try:
         response = '> **' + user_message + '** - <@' + str(message.user.id)  + '>\n\n' + responses.handle_response(user_message)
         if len(response) > 1900:
@@ -25,7 +26,6 @@ async def send_message(message, user_message):
 
 intents = discord.Intents.default()
 intents.message_content = True
-is_private = False
 
 def run_discord_bot():
     TOKEN = data['discord_bot_token']
@@ -44,7 +44,6 @@ def run_discord_bot():
         user_message = message
         channel = str(interaction.channel)
         print(f"{username} said: '{user_message}' ({channel})")
-        await interaction.response.defer(ephemeral = is_private)
         await send_message(interaction, user_message)
         
     @client.tree.command(name="private", description="Toggle private access")
