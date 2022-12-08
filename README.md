@@ -17,10 +17,10 @@
 ### Mode
 * `public mode (default)`  the bot directly reply on the channel
 
-   ![image](https://user-images.githubusercontent.com/89479282/206289981-24c91212-f951-4d07-aefd-961f08f0531b.gif)
+   ![image](https://user-images.githubusercontent.com/89479282/206565977-d7c5d405-fdb4-4202-bbdd-715b7c8e8415.gif)
 * `private mode` the bot's reply can only be seen by who use the command
 
-   ![image](https://user-images.githubusercontent.com/89479282/206289934-eacdf8aa-53fa-49af-b3ba-fe2feb7bc8a9.gif)
+   ![image](https://user-images.githubusercontent.com/89479282/206565873-b181e600-e793-4a94-a978-47f806b986da.gif)
 
 # Setup
 
