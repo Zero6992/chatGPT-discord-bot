@@ -75,6 +75,5 @@ Go to https://chat.openai.com/chat log in
 2. Navigate to the directory where you installed the ChatGPT Discord bot
 3. Run `python main.py` to start the bot
 
-## Have A Good Chat !
+### Have A Good Chat !
 
-   ![image](https://user-images.githubusercontent.com/89479282/206192125-f9aa1f0a-98cb-471d-9e7c-83e0bdcff05c.PNG)
