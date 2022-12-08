@@ -16,8 +16,8 @@ async def send_message(message, user_message):
     await message.response.defer(ephemeral=is_private)
     try:
         response = '> **' + user_message + '** - <@' + \
-            str(message.user.id) + '>\n\n' + \
-            responses.handle_response(user_message)
+            str(message.user.id) + '>\n\n'
+        response += await responses.handle_response(user_message)
         if len(response) > 1900:
             # Split the response into smaller chunks of no more than 1900 characters each(Discord limit is 2000 per chunk)
             response_chunks = [response[i:i+1900]
