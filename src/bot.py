@@ -3,9 +3,9 @@ import json
 from discord import app_commands
 from discord.ext import commands
 from src import responses
-from src import custom_formatter
+from src import log
 
-logger = custom_formatter.setup_logger()
+logger = log.setup_logger()
 
 with open('config.json', 'r') as f:
     data = json.load(f)
