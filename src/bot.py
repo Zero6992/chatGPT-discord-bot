@@ -36,9 +36,9 @@ intents.message_content = True
 
 
 def run_discord_bot():
-    TOKEN = data['discord_bot_token']
-    client = commands.Bot(command_prefix='!', intents=intents)
-
+    activity = discord.Activity(type=discord.ActivityType.watching, name="/chat | /private | /public | /reset")
+    client = commands.Bot(command_prefix='!', intents=intents, activity=activity)
+            
     @client.event
     async def on_ready():
         await client.tree.sync()
@@ -87,4 +87,5 @@ def run_discord_bot():
         logger.warning(
             "\x1b[31mThe CHAT BOT has been successfully reset\x1b[0m")
 
+    TOKEN = data['discord_bot_token']
     client.run(TOKEN)
