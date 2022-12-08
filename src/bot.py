@@ -5,15 +5,16 @@ from discord.ext import commands
 from src import responses
 from src import log
 
+
 logger = log.setup_logger()
 
 with open('config.json', 'r') as f:
     data = json.load(f)
 
-is_private = False
+isPrivate = False
 
 async def send_message(message, user_message):
-    await message.response.defer(ephemeral=is_private)
+    await message.response.defer(ephemeral=isPrivate)
     try:
         response = '> **' + user_message + '** - <@' + \
             str(message.user.id) + '>\n\n'
@@ -55,10 +56,10 @@ def run_discord_bot():
 
     @client.tree.command(name="private", description="Toggle private access")
     async def private(interaction: discord.Interaction):
-        global is_private
+        global isPrivate
         await interaction.response.defer(ephemeral=False)
-        if not is_private:
-            is_private = not is_private
+        if not isPrivate:
+            isPrivate = not isPrivate
             logger.warning("\x1b[31mSwitch to private mode\x1b[0m")
             await interaction.followup.send("> **Info: Next, the response will be sent via private message. If you want to switch back to public mode, use `/public`**")
         else:
@@ -67,10 +68,10 @@ def run_discord_bot():
 
     @client.tree.command(name="public", description="Toggle public access")
     async def public(interaction: discord.Interaction):
-        global is_private
+        global isPrivate
         await interaction.response.defer(ephemeral=False)
-        if is_private:
-            is_private = not is_private
+        if isPrivate:
+            isPrivate = not isPrivate
             await interaction.followup.send("> **Info: Next, the response will be sent to the channel directly. If you want to switch back to private mode, use `/private`**")
             logger.warning("\x1b[31mSwitch to public mode\x1b[0m")
         else:
