@@ -28,7 +28,7 @@ async def send_message(message, user_message):
         else:
             await message.followup.send(response)
     except Exception as e:
-        await message.followup.send("> **Error: There are something went wrong. Please try again later!**")
+        await message.followup.send("> **Error: Something went wrong, please try again later!**")
         print(e)
 
 def run_discord_bot():
@@ -42,7 +42,7 @@ def run_discord_bot():
         await client.tree.sync()
         logger.info(f'{client.user} is now running!')
 
-    @client.tree.command(name="chat", description="Have a chat with chatGPT")
+    @client.tree.command(name="chat", description="Have a chat with ChatGPT")
     async def chat(interaction: discord.Interaction, *, message: str):
         if interaction.user == client.user:
             return
