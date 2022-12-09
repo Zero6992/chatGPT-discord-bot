@@ -1,5 +1,4 @@
 import discord
-import json
 from discord import app_commands
 from discord.ext import commands
 from src import responses
@@ -8,10 +7,10 @@ from src import log
 
 logger = log.setup_logger()
 
-with open('config.json', 'r') as f:
-    data = json.load(f)
+data = responses.get_config()
 
 isPrivate = False
+
 
 async def send_message(message, user_message):
     await message.response.defer(ephemeral=isPrivate)
@@ -31,12 +30,13 @@ async def send_message(message, user_message):
         await message.followup.send("> **Error: Something went wrong, please try again later!**")
         print(e)
 
+
 def run_discord_bot():
     intents = discord.Intents.default()
     intents.message_content = True
     activity = discord.Activity(type=discord.ActivityType.watching, name="/chat | /private | /public | /reset")
     client = commands.Bot(command_prefix='!', intents=intents, activity=activity)
-            
+
     @client.event
     async def on_ready():
         await client.tree.sync()
