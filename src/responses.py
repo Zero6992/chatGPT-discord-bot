@@ -13,9 +13,9 @@ async def handle_response(prompt) -> str:
 def get_config() -> dict:
     import os
     # get config.json path
-    script_dir = os.path.abspath(__file__ + "/../../")
-    file_name = 'config.json'
-    config_path = os.path.join(script_dir, file_name)
+    config_dir = os.path.abspath(__file__ + "/../../")
+    config_name = 'config.json'
+    config_path = os.path.join(config_dir, config_name)
 
     with open(config_path, 'r') as f:
         data = json.load(f)
