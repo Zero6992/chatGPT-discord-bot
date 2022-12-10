@@ -87,4 +87,11 @@ Go to https://chat.openai.com/chat log in
    * Use `docker ps` to see the list of running services
    * Use `docker stop <BOT CONTAINER ID>` to stop the running bot
 
+## Optional: Setup starting prompt
+
+* A starting prompt would be invoked when the bot is first started or reset
+* You can set it up by modifying the content in `starting-prompt.txt`
+* All the text in the file will be fired as a prompt to the bot  
+
 ### Have A Good Chat !
+
