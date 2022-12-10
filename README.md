@@ -77,7 +77,7 @@ Go to https://chat.openai.com/chat log in
 2. Navigate to the directory where you installed the ChatGPT Discord bot
 3. Run `python main.py` to start the bot
 
-## Step3: Run the bot with docker
+## Step 3: Run the bot with docker
 
 1. Build the Docker image `docker build -t chatgpt-discord-bot --platform linux/amd64 .`
 2. Run the Docker container  `docker run --platform linux/amd64 -d chatgpt-discord-bot`
