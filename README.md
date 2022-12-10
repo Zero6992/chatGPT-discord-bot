@@ -14,13 +14,15 @@
 ### Chat
 
 ![image](https://user-images.githubusercontent.com/89479282/206497774-47d960cd-1aeb-4fba-9af5-1f9d6ff41f00.gif)
+
 ### Mode
+
 * `public mode (default)`  the bot directly reply on the channel
 
-   ![image](https://user-images.githubusercontent.com/89479282/206565977-d7c5d405-fdb4-4202-bbdd-715b7c8e8415.gif)
+  ![image](https://user-images.githubusercontent.com/89479282/206565977-d7c5d405-fdb4-4202-bbdd-715b7c8e8415.gif)
 * `private mode` the bot's reply can only be seen by who use the command
 
-   ![image](https://user-images.githubusercontent.com/89479282/206565873-b181e600-e793-4a94-a978-47f806b986da.gif)
+  ![image](https://user-images.githubusercontent.com/89479282/206565873-b181e600-e793-4a94-a978-47f806b986da.gif)
 
 # Setup
 
@@ -75,9 +77,21 @@ Go to https://chat.openai.com/chat log in
 2. Navigate to the directory where you installed the ChatGPT Discord bot
 3. Run `python main.py` to start the bot
 
-### Have A Good Chat !
+## Step 3: Run the bot with docker
+
+1. Build the Docker image `docker build -t chatgpt-discord-bot --platform linux/amd64 .`
+2. Run the Docker container  `docker run --platform linux/amd64 -d chatgpt-discord-bot`
+
+   ### Stop the bot:
+
+   * Use `docker ps` to see the list of running services
+   * Use `docker stop <BOT CONTAINER ID>` to stop the running bot
 
 ## Optional: Setup starting prompt
-* A starting prompt would be invoked when the bot is first started or reset.
+
+* A starting prompt would be invoked when the bot is first started or reset
 * You can set it up by modifying the content in `starting-prompt.txt`
-* All the text in the file will be fired as a prompt to the bot.  
+* All the text in the file will be fired as a prompt to the bot  
+
+### Have A Good Chat !
+
