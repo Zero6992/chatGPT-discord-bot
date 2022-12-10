@@ -77,3 +77,6 @@ Go to https://chat.openai.com/chat log in
 
 ### Have A Good Chat !
 
+## Optional: Setup starting prompt
+* A starting prompt would be invoked when the bot is first started or reset. All the text in the file will be fired as a prompt to the bot.  
+* You can set it up by adding a `starting-prompt.txt` file in the same directory as `config.json`.

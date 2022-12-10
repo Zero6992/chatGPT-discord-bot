@@ -31,6 +31,23 @@ async def send_message(message, user_message):
         print(e)
 
 
+async def send_start_prompt() :
+    import os
+    import os.path
+
+    config_dir = os.path.abspath(__file__ + "/../../")
+    prompt_name = 'starting-prompt.txt'
+    prompt_path = os.path.join(config_dir, prompt_name)
+    if os.path.isfile(prompt_path):
+        with open(prompt_path, "r") as f:
+            prompt = f.read()
+            logger.info(f"Send starting prompt with size {len(prompt)}")
+            responseMessage = await responses.handle_response(prompt)
+        logger.info(f"Starting prompt response: {responseMessage}")
+    else:
+        logger.info(f"No {prompt_name}. Skip sending starting prompt.")
+
+
 def run_discord_bot():
     intents = discord.Intents.default()
     intents.message_content = True
@@ -39,6 +56,7 @@ def run_discord_bot():
 
     @client.event
     async def on_ready():
+        await send_start_prompt()
         await client.tree.sync()
         logger.info(f'{client.user} is now running!')
 
@@ -84,6 +102,7 @@ def run_discord_bot():
         await interaction.followup.send("> **Info: I have forgotten everything.**")
         logger.warning(
             "\x1b[31mChatGPT bot has been successfully reset\x1b[0m")
+        await send_start_prompt()
 
     TOKEN = data['discord_bot_token']
     client.run(TOKEN)
