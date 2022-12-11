@@ -28,17 +28,24 @@ async def send_message(message, user_message):
                 code_block = parts[1].split("\n")
                 formatted_code_block = ""
                 for line in code_block:
-                    while len(line) > 50:
+                    while len(line) > 1900:
                     # Split the line at the 50th character
-                        formatted_code_block += line[:50] + "\n"
-                        line = line[50:]
+                        formatted_code_block += line[:1900] + "\n"
+                        line = line[1900:]
                     formatted_code_block += line + "\n" # Add the line and seperate with new line
 
                 # Send the code block in a separate message
-                await message.followup.send("```" + formatted_code_block + "```") 
+                if (len(formatted_code_block) > 2000):
+                    code_block_chunks = [formatted_code_block[i:i+1900] for i in range(0, len(formatted_code_block), 1900)]
+                    for chunk in code_block_chunks:
+                        await message.followup.send("```" + chunk + "```")
+                else:
+                    await message.followup.send("```" + formatted_code_block + "```") 
 
                 # Send the remaining of the response in another message
-                await message.followup.send(parts[2])
+                
+                if len(parts) >= 3:
+                    await message.followup.send(parts[2])
             else:
                 response_chunks = [response[i:i+1900]
                                for i in range(0, len(response), 1900)]
