@@ -20,10 +20,38 @@ async def send_message(message, user_message):
         response += await responses.handle_response(user_message)
         if len(response) > 1900:
             # Split the response into smaller chunks of no more than 1900 characters each(Discord limit is 2000 per chunk)
-            response_chunks = [response[i:i+1900]
+            if "```" in response:
+                # Split the response if the code block exists
+                parts = response.split("```")
+                # Send the first message
+                await message.followup.send(parts[0])
+                # Send the code block in a seperate message
+                code_block = parts[1].split("\n")
+                formatted_code_block = ""
+                for line in code_block:
+                    while len(line) > 1900:
+                    # Split the line at the 50th character
+                        formatted_code_block += line[:1900] + "\n"
+                        line = line[1900:]
+                    formatted_code_block += line + "\n" # Add the line and seperate with new line
+
+                # Send the code block in a separate message
+                if (len(formatted_code_block) > 2000):
+                    code_block_chunks = [formatted_code_block[i:i+1900] for i in range(0, len(formatted_code_block), 1900)]
+                    for chunk in code_block_chunks:
+                        await message.followup.send("```" + chunk + "```")
+                else:
+                    await message.followup.send("```" + formatted_code_block + "```") 
+
+                # Send the remaining of the response in another message
+                
+                if len(parts) >= 3:
+                    await message.followup.send(parts[2])
+            else:
+                response_chunks = [response[i:i+1900]
                                for i in range(0, len(response), 1900)]
-            for chunk in response_chunks:
-                await message.followup.send(chunk)
+                for chunk in response_chunks:
+                    await message.followup.send(chunk)
         else:
             await message.followup.send(response)
     except Exception as e:
