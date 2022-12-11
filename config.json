@@ -1,6 +1,6 @@
 {
     "email": "",
     "password": "",
-    "discord_bot_token":"discord_bot_token",
-    "session_token": "session_token"
+    "discord_bot_token":"",
+    "session_token": ""
 }
