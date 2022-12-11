@@ -1,4 +1,4 @@
-from asyncChatGPT.asyncChatGPT import Chatbot
+from revChatGPT.revChatGPT import AsyncChatbot as Chatbot
 import json
 
 
