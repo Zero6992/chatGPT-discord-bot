@@ -4,4 +4,5 @@ COPY ./ /DiscordBot
 WORKDIR /DiscordBot
 
 RUN pip install -r requirements.txt
-CMD ["python", "-u", "main.py"]
+
+CMD ["python3", "-u", "main.py"]
