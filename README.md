@@ -11,7 +11,7 @@
 In the `requirments.txt`
 
     revChatGPT==0.0.a42
-### Server
+### Server & Docker
 > The server and client must use the same IP address. Use your server as a self-hosted VPN if necessary
 
 In the `requirments.txt`
@@ -75,7 +75,7 @@ Go to https://chat.openai.com/chat log in
 
 3. Copy the value for `__Secure-next-auth.session-token` from cookies and paste it into `config.json` under `session_token`
 
-## Step 3: Cloudflare token authentication (Server only)
+## Step 3: Cloudflare token authentication (Server & Docker only)
 
   
    1. Find your `cf_clearance` from cookies and paste it into `config.json` under `cf_clearance`
@@ -102,7 +102,7 @@ Go to https://chat.openai.com/chat log in
 2. Navigate to the directory where you installed the ChatGPT Discord bot
 3. Run `python3 main.py` to start the bot
 
-## Step 4: Run the bot with docker (Currently not available)
+## Step 4: Run the bot with docker
 
 1. Build the Docker image `docker build -t chatgpt-discord-bot --platform linux/amd64 .`
 2. Run the Docker container  `docker run --platform linux/amd64 -d chatgpt-discord-bot`
