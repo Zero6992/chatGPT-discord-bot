@@ -56,6 +56,124 @@ async def send_message(message, user_message):
         await message.followup.send("> **Error: Something went wrong, please try again later!**")
         logger.exception(f"Error while sending message: {e}")
 
+async def read_prompt(message) :
+    import os
+    import os.path
+
+    await message.response.defer(ephemeral=isPrivate)
+
+    try:
+        config_dir = os.path.abspath(__file__ + "/../../")
+        prompt_name = 'starting-prompt.txt'
+        prompt_path = os.path.join(config_dir, prompt_name)
+        response = ""
+        if os.path.isfile(prompt_path):
+            with open(prompt_path, "r") as f:
+                for i, line in enumerate(f):
+                    response += f'{i}: {line}'
+        else:
+            logger.info(f"No {prompt_name}. Skip sending starting prompt.")
+        
+        if response != "":
+            await message.followup.send(response)
+        else:
+            await message.followup.send(f"입력된 설정이 없습니다")
+        f.close()
+    except Exception as e:
+        await message.followup.send("> **Error: Something went wrong, please try again later!**")
+        print(e)
+
+async def write_prompt(message, user_message) :
+    import os
+    import os.path
+
+    try:
+        config_dir = os.path.abspath(__file__ + "/../../")
+        prompt_name = 'starting-prompt.txt'
+        prompt_path = os.path.join(config_dir, prompt_name)
+        if os.path.isfile(prompt_path):
+            with open(prompt_path, "a+") as f:
+                f.write(user_message + "\n")
+        else:
+            logger.info(f"No {prompt_name}. Skip sending starting prompt.")
+    except Exception as e:
+        await message.response.defer(ephemeral=isPrivate)
+        await message.followup.send("> **Error: Something went wrong, please try again later!**")
+        print(e)
+    await send_message(message, user_message)
+
+async def insert_prompt(message, user_message, line_number) :
+    import os
+    import os.path
+
+    try:
+        await message.response.defer(ephemeral=isPrivate)
+        config_dir = os.path.abspath(__file__ + "/../../")
+        prompt_name = 'starting-prompt.txt'
+        prompt_path = os.path.join(config_dir, prompt_name)
+        if os.path.isfile(prompt_path):
+            with open(prompt_path, "r") as f:
+                lines = f.readlines()
+
+            if line_number < 1 or line_number > len(lines):
+                logger.warning(f"Invalid line number {str(line_number)}")
+                await message.followup.send(f"유효하지 않은 순서 값입니다")
+            else:
+                lines.insert(line_number, user_message + "\n")
+                with open(prompt_path, "w") as f:
+                    f.writelines(lines)
+                    await message.followup.send(f"> 설정이 추가되었습니다: {user_message}")
+        else:
+            logger.info(f"No {prompt_name}. Skip sending starting prompt.")
+    except Exception as e:
+        await message.followup.send("> **Error: Something went wrong, please try again later!**")
+        print(e)
+
+
+async def delete_prompt(message, line_number) :
+    import os
+    import os.path
+    
+    await message.response.defer(ephemeral=isPrivate)
+    try:
+        config_dir = os.path.abspath(__file__ + "/../../")
+        prompt_name = 'starting-prompt.txt'
+        prompt_path = os.path.join(config_dir, prompt_name)
+        if os.path.isfile(prompt_path):
+            with open(prompt_path, "r") as f:
+                lines = f.readlines()
+
+            if line_number < 1 or line_number > len(lines):
+                logger.warning(f"Invalid line number {str(line_number)}")
+                await message.followup.send(f"유효하지 않은 순서 값입니다")
+            else:
+                line = lines[line_number]
+                del lines[line_number]
+                await message.followup.send(f"> 설정이 삭제되었습니다: {line_number}: {line}")
+        else:
+            logger.info(f"No {prompt_name}. Skip sending starting prompt.")
+    except Exception as e:
+        await message.followup.send("> **Error: Something went wrong, please try again later!**")
+        print(e)
+
+
+async def send_start_prompt_line_by_line() :
+    import os
+    import os.path
+
+    config_dir = os.path.abspath(__file__ + "/../../")
+    prompt_name = 'starting-prompt.txt'
+    prompt_path = os.path.join(config_dir, prompt_name)
+    if os.path.isfile(prompt_path):
+        with open(prompt_path, "r") as f:
+            prompt = f.readline()
+            while prompt:
+                logger.info(f"Send starting prompt with size {len(prompt)}")
+                response_message = await responses.handle_response(prompt)
+                logger.info(f"Starting prompt response: {response_message}")
+                prompt = f.readline()
+    else:
+        logger.info(f"No {prompt_name}. Skip sending starting prompt.")
 
 async def send_start_prompt() :
     import os
@@ -84,7 +202,7 @@ def run_discord_bot():
 
     @client.event
     async def on_ready():
-        await send_start_prompt()
+        await send_start_prompt_line_by_line()
         await client.tree.sync()
         logger.info(f'{client.user} is now running!')
 
@@ -130,8 +248,48 @@ def run_discord_bot():
         await interaction.followup.send("> **Info: I have forgotten everything.**")
         logger.warning(
             "\x1b[31mChatGPT bot has been successfully reset\x1b[0m")
-        await send_start_prompt()
+        await send_start_prompt_line_by_line()
 
-        
+    @client.tree.command(name="질문", description="스토리에 대하여 질문합니다(설정으로 기록하지 않습니다)")
+    async def chat(interaction: discord.Interaction, *, message: str):
+        if interaction.user == client.user:
+            return
+        username = str(interaction.user)
+        user_message = message
+        channel = str(interaction.channel)
+        logger.info(
+            f"\x1b[31m{username}\x1b[0m : '{user_message}' ({channel})")
+        await send_message(interaction, user_message)
+
+    @client.tree.command(name="설정입력", description="설정을 기록합니다")
+    async def write_p(interaction: discord.Interaction, *, message: str):
+        if interaction.user == client.user:
+            return
+        username = str(interaction.user)
+        user_message = message
+        channel = str(interaction.channel)
+        logger.info(
+            f"\x1b[31m{username}\x1b[0m : '{user_message}' ({channel})")
+        await write_prompt(interaction, user_message)
+
+    @client.tree.command(name="설정추가", description="설정을 지정한 순서에 추가합니다. (다음 실행에 적용됩니다)")
+    async def write_p(interaction: discord.Interaction, *, message: str, linenumber: int):
+        if interaction.user == client.user:
+            return
+        user_message = message
+        await insert_prompt(interaction, user_message, linenumber)
+
+    @client.tree.command(name="설정삭제", description="지정한 순서의 설정을 삭제합니다. (다음 실행에 적용됩니다)")
+    async def delete_p(interaction: discord.Interaction, *, linenumber: int):
+        if interaction.user == client.user:
+            return
+        await delete_prompt(interaction, linenumber)
+
+    @client.tree.command(name="설정읽기", description="현재 설정을 읽습니다")
+    async def read(interaction: discord.Interaction):
+        if interaction.user == client.user:
+            return
+        await read_prompt(interaction)
+    
     TOKEN = data['discord_bot_token']
     client.run(TOKEN)
