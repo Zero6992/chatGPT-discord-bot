@@ -7,7 +7,7 @@
 ## Notice
 > #### OpenAI added Cloudflare protections to their API, here are some differences in using it on server and desktop environment
 
-### Desktop(default)
+### Desktop (default)
 In the `requirments.txt`
 
     revChatGPT==0.0.a42
@@ -78,6 +78,11 @@ Go to https://chat.openai.com/chat log in
 ## Step 3: cf_clearance token authentication (Server only)
 
   4. Find your `cf_clearance` from cookies and paste it into `config.json` under `cf_clearance`
+        > **Warning**
+        > 
+        > Cloudflare `cf_clearance` have a 2-hour expiration, so you will need to manually log in and retrieve it periodically for now
+        > 
+        > Currently solving this issue
 
   5. Get your `user-agent` from network and paste it into `config.json` under `user-agent`
 
