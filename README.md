@@ -50,11 +50,9 @@ dependencies: Reverse Engineered ChatGPT by OpenAI [here](https://github.com/ach
 
    ![image](https://user-images.githubusercontent.com/89479282/205949600-0c7ddb40-7e82-47a0-b59a-b089f929d177.png)
 
-## Step 2: Session token authentication
+## Step 2: Token authentication
 
 Go to https://chat.openai.com/chat log in
-
-Go to https://chat.openai.com/chat and log in or sign up
 
 1. Open console with `F12`
 
