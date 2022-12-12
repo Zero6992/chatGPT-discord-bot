@@ -65,7 +65,7 @@ async def send_start_prompt() :
     prompt_name = 'starting-prompt.txt'
     prompt_path = os.path.join(config_dir, prompt_name)
     try:
-        if os.path.isfile(prompt_path):
+        if os.path.isfile(prompt_path) and os.path.getsize(prompt_path) > 0:
             with open(prompt_path, "r") as f:
                 prompt = f.read()
                 logger.info(f"Send starting prompt with size {len(prompt)}")
