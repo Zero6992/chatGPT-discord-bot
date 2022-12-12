@@ -1,3 +1,4 @@
+import os
 import logging
 import logging.handlers
 
@@ -22,7 +23,7 @@ class CustomFormatter(logging.Formatter):
     def format(self, record):
         formatter = self.FORMATS.get(record.levelno)
         if formatter is None:
-            formatter = self.FORMARS[logging.DEBUG]
+            formatter = self.FORMATS[logging.DEBUG]
 
         # Override the traceback to always print in red
         if record.exc_info:
@@ -36,24 +37,28 @@ class CustomFormatter(logging.Formatter):
         return output
 
 
-def setup_logger() -> logging.Logger:
+def setup_logger(module_name:str) -> logging.Logger:
     # create logger
-    library, _, _ = __name__.partition('.')
+    library, _, _ = module_name.partition('.py')
     logger = logging.getLogger(library)
     logger.setLevel(logging.INFO)
     # create console handler
     console_handler = logging.StreamHandler()
     console_handler.setLevel(logging.INFO)
     console_handler.setFormatter(CustomFormatter())
-    # create local log
+     # specify log file path as `main.py`
+    grandparent_dir = os.path.abspath(__file__ + "/../../")
+    log_name='chatgpt_discord_bot.log'
+    log_path = os.path.join(grandparent_dir, log_name)
+    # create local log handler
     log_handler = logging.handlers.RotatingFileHandler(
-        filename='chatgpt_discord_bot.log',
+        filename=log_path,
         encoding='utf-8',
         maxBytes=32 * 1024 * 1024,  # 32 MiB
         backupCount=2,  # Rotate through 5 files
     )
     log_handler.setFormatter(CustomFormatter())
-    # Add console handler to logger
+    # Add handlers to logger
     logger.addHandler(log_handler)
     logger.addHandler(console_handler)
 

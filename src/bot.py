@@ -3,7 +3,7 @@ from discord.ext import commands
 from src import responses
 from src import log
 
-logger = log.setup_logger()
+logger = log.setup_logger(__name__)
 
 data = responses.get_config()
 
