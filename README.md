@@ -60,11 +60,11 @@ Go to https://chat.openai.com/chat log in
 
 ![image](https://user-images.githubusercontent.com/36258159/206955081-8a8e1ff9-d12c-456c-9a67-5c1a7438f76c.png)
 
-3. Copy the value for `__Secure-next-auth.session-token` and paste it into `config.json` under `session_token`
+3. Copy the value for `__Secure-next-auth.session-token` from cookies and paste it into `config.json` under `session_token`
 
-4. Find your `cf_clearance` cookie and  paste it into `config.json` under `cf_clearance`
+4. Find your `cf_clearance` from cookies and paste it into `config.json` under `cf_clearance`
 
-5. Get your `user-agent` and paste it into `config.json` under `user-agent`
+5. Get your `user-agent` from network and paste it into `config.json` under `user-agent`
 
 ![image](https://user-images.githubusercontent.com/36258159/206944853-3a99fb3b-1081-4a8a-87ea-ab6cadb5a1c4.png)
 
