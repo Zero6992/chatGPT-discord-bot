@@ -3,7 +3,7 @@ from discord.ext import commands
 from src import responses
 from src import log
 
-logger = log.setup_logger()
+logger = log.setup_logger(__name__)
 
 data = responses.get_config()
 
@@ -54,7 +54,7 @@ async def send_message(message, user_message):
             await message.followup.send(response)
     except Exception as e:
         await message.followup.send("> **Error: Something went wrong, please try again later!**")
-        print(e)
+        logger.exception(f"Error while sending message: {e}")
 
 
 async def send_start_prompt() :
@@ -64,15 +64,17 @@ async def send_start_prompt() :
     config_dir = os.path.abspath(__file__ + "/../../")
     prompt_name = 'starting-prompt.txt'
     prompt_path = os.path.join(config_dir, prompt_name)
-    if os.path.isfile(prompt_path):
-        with open(prompt_path, "r") as f:
-            prompt = f.read()
-            logger.info(f"Send starting prompt with size {len(prompt)}")
-            responseMessage = await responses.handle_response(prompt)
-        logger.info(f"Starting prompt response: {responseMessage}")
-    else:
-        logger.info(f"No {prompt_name}. Skip sending starting prompt.")
-
+    try:
+        if os.path.isfile(prompt_path) and os.path.getsize(prompt_path) > 0:
+            with open(prompt_path, "r") as f:
+                prompt = f.read()
+                logger.info(f"Send starting prompt with size {len(prompt)}")
+                responseMessage = await responses.handle_response(prompt)
+            logger.info(f"Starting prompt response: {responseMessage}")
+        else:
+            logger.info(f"No {prompt_name}. Skip sending starting prompt.")
+    except Exception as e:
+        logger.exception(f"Error while sending starting prompt: {e}")
 
 def run_discord_bot():
     intents = discord.Intents.default()
