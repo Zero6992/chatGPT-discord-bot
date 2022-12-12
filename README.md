@@ -64,10 +64,6 @@ Go to https://chat.openai.com/chat log in
 
 4. Find your `cf_clearance` from cookies and paste it into `config.json` under `cf_clearance`
 
-    > **Warning**
-    > 
-    > Cloudflare `cf_clearance` have a 2-hour expiration, so you will need to manually log in and retrieve it periodically
-
 5. Get your `user-agent` from network and paste it into `config.json` under `user-agent`
 
     Network > Headers > Request Headers > `User-Agent`
@@ -86,7 +82,7 @@ Go to https://chat.openai.com/chat log in
 2. Navigate to the directory where you installed the ChatGPT Discord bot
 3. Run `python3 main.py` to start the bot
 
-## Step 3: Run the bot with docker
+## Step 3: Run the bot with docker(currently not available)
 
 1. Build the Docker image `docker build -t chatgpt-discord-bot --platform linux/amd64 .`
 2. Run the Docker container  `docker run --platform linux/amd64 -d chatgpt-discord-bot`
