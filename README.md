@@ -66,7 +66,7 @@ Go to https://chat.openai.com/chat log in
 
 5. Get your `user-agent` from network and paste it into `config.json` under `user-agent`
 
-    Network > Headers > Response Headers
+    Network > Headers > Request Headers > `User-Agent`
   
     ![image](https://user-images.githubusercontent.com/89479282/207018691-da7de05e-89c1-4111-a2d6-c220fa35754b.png
 )
