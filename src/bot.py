@@ -9,6 +9,16 @@ data = responses.get_config()
 
 isPrivate = False
 
+async def send_notification(client):
+    default_channel = None
+    for guild in client.guilds:
+        for channel in guild.text_channels:
+            default_channel = channel
+            break
+        break
+    if default_channel != None:
+        await default_channel.send("⏰");
+
 
 async def send_message(message, user_message):
     await message.response.defer(ephemeral=isPrivate)
@@ -157,23 +167,53 @@ async def delete_prompt(message, line_number) :
         print(e)
 
 
-async def send_start_prompt_line_by_line() :
+async def send_start_prompt_line_by_line(client) :
     import os
     import os.path
+
+    default_channel = None
+    for guild in client.guilds:
+        for channel in guild.text_channels:
+            default_channel = channel
+            break
+        break
 
     config_dir = os.path.abspath(__file__ + "/../../")
     prompt_name = 'starting-prompt.txt'
     prompt_path = os.path.join(config_dir, prompt_name)
-    if os.path.isfile(prompt_path):
-        with open(prompt_path, "r") as f:
-            prompt = f.readline()
-            while prompt:
-                logger.info(f"Send starting prompt with size {len(prompt)}")
-                response_message = await responses.handle_response(prompt)
-                logger.info(f"Starting prompt response: {response_message}")
-                prompt = f.readline()
-    else:
-        logger.info(f"No {prompt_name}. Skip sending starting prompt.")
+
+    try:
+        if os.path.isfile(prompt_path):
+            with open(prompt_path, "r") as f:
+                lines = f.readlines()
+                total_num = len(lines)
+                
+                if default_channel:
+                    message = f"대화를 시작하기 위하여 미리 저장된 설정을 분석합니다. 총 문구 수: {str(total_num)}\n"
+                    discord_message = await channel.send(message) 
+                for index, prompt in enumerate(lines):
+                    try:
+                        if default_channel:
+                            message += f"Send prompt[{str(index + 1)}/{str(total_num)}]: {prompt}"
+                            discord_message = await discord_message.edit(content=message + " 기다리는 중 ...")
+                        logger.info(f"Send starting prompt with size {len(prompt)}")
+                        response_message = await responses.handle_response(prompt)
+                        logger.info(f"Starting prompt response: {response_message}")
+                        if default_channel:
+                            message += f"Receive prompt[{str(index + 1)}/{str(total_num)}]: {response_message}\n"
+                            discord_message = await discord_message.edit(content=message)
+                        prompt = f.readline()
+                    except Exception as e:
+                        message += f"질문 [{str(index + 1)}]을 처리하는데 문제가 발생했습니다\n"
+                        discord_message = await discord_message.edit(content=message)
+                        print(e)
+                if default_channel:
+                    message = f"설정 세팅 완료. 이제 대화를 시작할 수 있습니다\n"
+                    discord_message = await channel.send(message) 
+        else:
+            logger.info(f"No {prompt_name}. Skip sending starting prompt.")
+    except Exception as e:
+        print(e)
 
 async def send_start_prompt() :
     import os
@@ -202,7 +242,7 @@ def run_discord_bot():
 
     @client.event
     async def on_ready():
-        await send_start_prompt_line_by_line()
+        await send_start_prompt_line_by_line(client)
         await client.tree.sync()
         logger.info(f'{client.user} is now running!')
 
@@ -216,6 +256,7 @@ def run_discord_bot():
         logger.info(
             f"\x1b[31m{username}\x1b[0m : '{user_message}' ({channel})")
         await send_message(interaction, user_message)
+        await send_notification(client)
 
     @client.tree.command(name="private", description="Toggle private access")
     async def private(interaction: discord.Interaction):
@@ -248,7 +289,7 @@ def run_discord_bot():
         await interaction.followup.send("> **Info: I have forgotten everything.**")
         logger.warning(
             "\x1b[31mChatGPT bot has been successfully reset\x1b[0m")
-        await send_start_prompt_line_by_line()
+        await send_start_prompt_line_by_line(client)
 
     @client.tree.command(name="질문", description="스토리에 대하여 질문합니다(설정으로 기록하지 않습니다)")
     async def chat(interaction: discord.Interaction, *, message: str):
@@ -260,6 +301,7 @@ def run_discord_bot():
         logger.info(
             f"\x1b[31m{username}\x1b[0m : '{user_message}' ({channel})")
         await send_message(interaction, user_message)
+        await send_notification(client)
 
     @client.tree.command(name="설정입력", description="설정을 기록합니다")
     async def write_p(interaction: discord.Interaction, *, message: str):
@@ -271,6 +313,7 @@ def run_discord_bot():
         logger.info(
             f"\x1b[31m{username}\x1b[0m : '{user_message}' ({channel})")
         await write_prompt(interaction, user_message)
+        await send_notification(client)
 
     @client.tree.command(name="설정추가", description="설정을 지정한 순서에 추가합니다. (다음 실행에 적용됩니다)")
     async def write_p(interaction: discord.Interaction, *, message: str, linenumber: int):
