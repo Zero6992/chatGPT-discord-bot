@@ -68,7 +68,7 @@ Go to https://chat.openai.com/chat log in
 
 ![image](https://user-images.githubusercontent.com/36258159/206944853-3a99fb3b-1081-4a8a-87ea-ab6cadb5a1c4.png)
 
-6. It should be looks like this
+6. It should be look likes this
 
 ![image](https://user-images.githubusercontent.com/89479282/206976671-31c989d1-c1af-494f-876a-3dc632ffc4da.PNG)
 ## Step 3: Run the bot
