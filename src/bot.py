@@ -54,7 +54,7 @@ async def send_message(message, user_message):
             await message.followup.send(response)
     except Exception as e:
         await message.followup.send("> **Error: Something went wrong, please try again later!**")
-        print(e)
+        logger.exception(e)
 
 
 async def send_start_prompt() :
