@@ -50,28 +50,29 @@ dependencies: Reverse Engineered ChatGPT by OpenAI [here](https://github.com/ach
 
    ![image](https://user-images.githubusercontent.com/89479282/205949600-0c7ddb40-7e82-47a0-b59a-b089f929d177.png)
 
-## Step 2: Email and password authentication
-
-Save both in `config.json`
-
-   ![image](https://user-images.githubusercontent.com/89479282/205949713-8c0dbcca-9f63-4150-850d-bb21bac06158.png)
-
-> **Warning**
->
-> If you are logging in with a Google or Microsoft account, please use the session token method below.
-
 ## Step 2: Session token authentication
 
 Go to https://chat.openai.com/chat log in
 
+Go to https://chat.openai.com/chat and log in or sign up
+
 1. Open console with `F12`
+
 2. Open `Application` tab > Cookies
 
-   ![image](https://user-images.githubusercontent.com/36258159/205494773-32ef651a-994d-435a-9f76-a26699935dac.png)
-3. Copy the value for `__Secure-next-auth.session-token` and paste it into `config.json` under `session_token`. You do not need to fill out `email` and `password`
+![image](https://user-images.githubusercontent.com/36258159/206955081-8a8e1ff9-d12c-456c-9a67-5c1a7438f76c.png)
 
-   ![image](https://user-images.githubusercontent.com/89479282/205950188-96ae9b35-539a-4246-857d-e97e9a0bf8fd.png)
+3. Copy the value for `__Secure-next-auth.session-token` and paste it into `config.json` under `session_token`
 
+4. Find your `cf_clearance` cookie and  paste it into `config.json` under `cf_clearance`
+
+5. Get your `user-agent` and paste it into `config.json` under `user-agent`
+
+![image](https://user-images.githubusercontent.com/36258159/206944853-3a99fb3b-1081-4a8a-87ea-ab6cadb5a1c4.png)
+
+6. It should be looks like this
+
+![image](https://user-images.githubusercontent.com/89479282/206976671-31c989d1-c1af-494f-876a-3dc632ffc4da.PNG)
 ## Step 3: Run the bot
 
 1. Open a terminal or command prompt
