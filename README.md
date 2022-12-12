@@ -4,6 +4,19 @@
 >
 > ⭐️ A star would be highly appreciated
 
+## Notice
+> #### OpenAI added Cloudflare protections to their API, here are some differences in using it on server and desktop environment
+
+### Desktop(default)
+In the `requirments.txt`
+
+    revChatGPT==0.0.a42
+### Server
+> The server and client must use the same IP address. Use your server as a self-hosted VPN if necessary
+
+In the `requirments.txt`
+
+    revChatGPT==0.0.38.8
 ## Features
 
 * `/chat [message]` Chat with ChatGPT!
@@ -50,7 +63,7 @@ dependencies: Reverse Engineered ChatGPT by OpenAI [here](https://github.com/ach
 
    ![image](https://user-images.githubusercontent.com/89479282/205949600-0c7ddb40-7e82-47a0-b59a-b089f929d177.png)
 
-## Step 2: Token authentication
+## Step 2: Session token authentication
 
 Go to https://chat.openai.com/chat log in
 
@@ -62,27 +75,29 @@ Go to https://chat.openai.com/chat log in
 
 3. Copy the value for `__Secure-next-auth.session-token` from cookies and paste it into `config.json` under `session_token`
 
-4. Find your `cf_clearance` from cookies and paste it into `config.json` under `cf_clearance`
+## Step 3: cf_clearance token authentication (Server only)
 
-5. Get your `user-agent` from network and paste it into `config.json` under `user-agent`
+  4. Find your `cf_clearance` from cookies and paste it into `config.json` under `cf_clearance`
 
-    Network > Headers > Request Headers > `User-Agent`
-  
-    ![image](https://user-images.githubusercontent.com/89479282/207018691-da7de05e-89c1-4111-a2d6-c220fa35754b.png
-)
+  5. Get your `user-agent` from network and paste it into `config.json` under `user-agent`
+
+      Network > Headers > Request Headers > `User-Agent`
+
+      ![image](https://user-images.githubusercontent.com/89479282/207018691-da7de05e-89c1-4111-a2d6-c220fa35754b.png
+  )
 
 
 6. It should be look like this
 
     ![image](https://user-images.githubusercontent.com/89479282/206976671-31c989d1-c1af-494f-876a-3dc632ffc4da.PNG)
 
-## Step 3: Run the bot
+## Step 4: Run the bot
 
 1. Open a terminal or command prompt
 2. Navigate to the directory where you installed the ChatGPT Discord bot
 3. Run `python3 main.py` to start the bot
 
-## Step 3: Run the bot with docker(currently not available)
+## Step 4: Run the bot with docker (Currently not available)
 
 1. Build the Docker image `docker build -t chatgpt-discord-bot --platform linux/amd64 .`
 2. Run the Docker container  `docker run --platform linux/amd64 -d chatgpt-discord-bot`
@@ -91,6 +106,7 @@ Go to https://chat.openai.com/chat log in
 
    * `docker ps` to see the list of running services
    * `docker stop <BOT CONTAINER ID>` to stop the running bot
+
 ## Optional: Setup starting prompt
 
 * A starting prompt would be invoked when the bot is first started or reset
@@ -98,4 +114,3 @@ Go to https://chat.openai.com/chat log in
 * All the text in the file will be fired as a prompt to the bot  
 
 ### Have A Good Chat !
-
