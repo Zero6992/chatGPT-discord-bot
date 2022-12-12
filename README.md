@@ -58,7 +58,7 @@ Go to https://chat.openai.com/chat log in
 
 2. Open `Application` tab > Cookies
 
-![image](https://user-images.githubusercontent.com/36258159/206955081-8a8e1ff9-d12c-456c-9a67-5c1a7438f76c.png)
+    ![image](https://user-images.githubusercontent.com/36258159/206955081-8a8e1ff9-d12c-456c-9a67-5c1a7438f76c.png)
 
 3. Copy the value for `__Secure-next-auth.session-token` from cookies and paste it into `config.json` under `session_token`
 
@@ -66,11 +66,16 @@ Go to https://chat.openai.com/chat log in
 
 5. Get your `user-agent` from network and paste it into `config.json` under `user-agent`
 
-![image](https://user-images.githubusercontent.com/36258159/206944853-3a99fb3b-1081-4a8a-87ea-ab6cadb5a1c4.png)
+    Network > Headers > Response Headers
+  
+    ![image](https://user-images.githubusercontent.com/89479282/207018691-da7de05e-89c1-4111-a2d6-c220fa35754b.png
+)
 
-6. It should be look likes this
 
-![image](https://user-images.githubusercontent.com/89479282/206976671-31c989d1-c1af-494f-876a-3dc632ffc4da.PNG)
+6. It should be look like this
+
+  ![image](https://user-images.githubusercontent.com/89479282/206976671-31c989d1-c1af-494f-876a-3dc632ffc4da.PNG)
+
 ## Step 3: Run the bot
 
 1. Open a terminal or command prompt
