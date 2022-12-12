@@ -75,26 +75,26 @@ Go to https://chat.openai.com/chat log in
 
 3. Copy the value for `__Secure-next-auth.session-token` from cookies and paste it into `config.json` under `session_token`
 
-## Step 3: cf_clearance token authentication (Server only)
+## Step 3: Cloudflare token authentication (Server only)
 
-  4. Find your `cf_clearance` from cookies and paste it into `config.json` under `cf_clearance`
+  
+   1. Find your `cf_clearance` from cookies and paste it into `config.json` under `cf_clearance`
         > **Warning**
         > 
         > Cloudflare `cf_clearance` have a 2-hour expiration, so you will need to manually log in and retrieve it periodically for now
         > 
         > Currently solving this issue
 
-  5. Get your `user-agent` from network and paste it into `config.json` under `user-agent`
+   2. Get your `user-agent` from network and paste it into `config.json` under `user-agent`
 
-      Network > Headers > Request Headers > `User-Agent`
+        Network > Headers > Request Headers > `User-Agent`
 
-      ![image](https://user-images.githubusercontent.com/89479282/207018691-da7de05e-89c1-4111-a2d6-c220fa35754b.png
+        ![image](https://user-images.githubusercontent.com/89479282/207018691-da7de05e-89c1-4111-a2d6-c220fa35754b.png
   )
+  
+   3. It should be look like this
 
-
-6. It should be look like this
-
-    ![image](https://user-images.githubusercontent.com/89479282/206976671-31c989d1-c1af-494f-876a-3dc632ffc4da.PNG)
+        ![image](https://user-images.githubusercontent.com/89479282/206976671-31c989d1-c1af-494f-876a-3dc632ffc4da.PNG)
 
 ## Step 4: Run the bot
 
