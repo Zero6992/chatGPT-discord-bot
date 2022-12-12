@@ -45,7 +45,8 @@ dependencies: Reverse Engineered ChatGPT by OpenAI [here](https://github.com/ach
 5. Turn MESSAGE CONTENT INTENT `ON`
 
    ![image](https://user-images.githubusercontent.com/89479282/205949323-4354bd7d-9bb9-4f4b-a87e-deb9933a89b5.png)
-6. Invite your bot through OAuth2 URL Generator
+   
+6. Invite your bot to your server via OAuth2 URL Generator
 
    ![image](https://user-images.githubusercontent.com/89479282/205949600-0c7ddb40-7e82-47a0-b59a-b089f929d177.png)
 
@@ -63,6 +64,10 @@ Go to https://chat.openai.com/chat log in
 
 4. Find your `cf_clearance` from cookies and paste it into `config.json` under `cf_clearance`
 
+    > **Warning**
+    > 
+    > Cloudflare `cf_clearance` have a 2-hour expiration, so you will need to manually log in and retrieve it periodically
+
 5. Get your `user-agent` from network and paste it into `config.json` under `user-agent`
 
     Network > Headers > Request Headers > `User-Agent`
@@ -73,7 +78,7 @@ Go to https://chat.openai.com/chat log in
 
 6. It should be look like this
 
-  ![image](https://user-images.githubusercontent.com/89479282/206976671-31c989d1-c1af-494f-876a-3dc632ffc4da.PNG)
+    ![image](https://user-images.githubusercontent.com/89479282/206976671-31c989d1-c1af-494f-876a-3dc632ffc4da.PNG)
 
 ## Step 3: Run the bot
 
