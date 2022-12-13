@@ -33,7 +33,7 @@
 
 `pip install -r requirements.txt`
 
-dependencies: Reverse Engineered ChatGPT by OpenAI [here](https://github.com/acheong08/ChatGPT) and discord.py
+Run `playwright install` or `python -m playwright install` after installing revChatGPT
 
 ## Step 1: Create a Discord bot
 
@@ -109,3 +109,5 @@ Go to https://chat.openai.com/chat log in
 * You can set it up by modifying the content in `starting-prompt.txt`
 * All the text in the file will be fired as a prompt to the bot  
 
+---
+#### Big thanks to Reverse Engineered ChatGPT by OpenAI [here](https://github.com/acheong08/ChatGPT)
