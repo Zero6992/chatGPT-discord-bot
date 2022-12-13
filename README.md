@@ -2,7 +2,7 @@
 
 > ### This is a project that provides you to build your own Discord bot using ChatGPT
 >
-> ⭐️ If this project has helped you, a star is the biggest support for me and also helps you stay up-to-date 
+> ⭐️ If this repo help you, a star is the biggest support for me and also helps you stay up-to-date 
 ---
 > **Warning**
 >
