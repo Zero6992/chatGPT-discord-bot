@@ -18,7 +18,7 @@ def check_verion() -> None:
     else:
         requirementFile = 'requirements.txt'
     
-    with open('requirements.txt') as f:
+    with open(requirementFile) as f:
         required = f.read().splitlines()
 
     # For each library listed in requirements.txt, check if the corresponding version is installed
