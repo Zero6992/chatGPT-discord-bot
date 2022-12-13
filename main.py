@@ -11,14 +11,7 @@ def check_verion() -> None:
     logger = src.log.setup_logger(__name__)
 
     # Read the requirements.txt file and add each line to a list
-    
-    requirementFile = ""    
-    if "DOCKER_HOST" in os.environ:
-        requirementFile = 'requirementsDocker.txt'
-    else:
-        requirementFile = 'requirements.txt'
-    
-    with open(requirementFile) as f:
+    with open('requirements.txt') as f:
         required = f.read().splitlines()
 
     # For each library listed in requirements.txt, check if the corresponding version is installed
