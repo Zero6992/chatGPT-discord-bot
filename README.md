@@ -2,10 +2,11 @@
 
 > ### This is a project that provides you to build your own Discord bot using ChatGPT
 >
-> ⭐️ A star would be highly appreciated
-
-## Notice
-> #### OpenAI added Cloudflare protections to their API, here are some differences in using it on server and desktop environment
+> ⭐️ If this project has helped you, a star is the biggest support for me and also helps you stay up-to-date 
+---
+> **Warning**
+>
+> OpenAI added Cloudflare protections to their API in 2022-12-12, there are some differences in using it on server and desktop environment
 
 ## Features
 
