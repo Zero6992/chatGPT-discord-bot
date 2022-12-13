@@ -26,8 +26,6 @@ def get_config() -> dict:
 data = get_config()
 
 config = {
-    "cf_clearance": data['cf_clearance'],
-    "user_agent": data['user_agent'],
     "session_token" : data['session_token']
 }
 
