@@ -67,12 +67,13 @@ dependencies: Reverse Engineered ChatGPT by OpenAI [here](https://github.com/ach
 3. Log into OpenAI via the open browser (Your account)
 4. It should automatically redirect you to https://chat.openai.com/chat after logging in. If it doesn't, go to this link manually after logging in.
 5. The window should close automatically
-##### Have A Good Chat !
+
+### Have A Good Chat !
 
  
 ## Server & Docker
 
-> You must fill the session token in the `config.json`
+> You must fill the session token in `config.json`
 
 ### Step 2: Session token authentication
 
@@ -86,8 +87,9 @@ Go to https://chat.openai.com/chat log in
 
 3. Copy the value for `__Secure-next-auth.session-token` from cookies and paste it into `config.json` under `session_token`
 
+> You can use `Xvfb` to emulate a desktop environment. It should automatically get the cf_clearance given no captcha
 
-## Step 3: Run the bot with docker
+### Step 3: Run the bot with docker
 
 1. Build the Docker image `docker build -t chatgpt-discord-bot --platform linux/amd64 .`
 2. Run the Docker container  `docker run --platform linux/amd64 -d chatgpt-discord-bot`
@@ -97,7 +99,7 @@ Go to https://chat.openai.com/chat log in
    * `docker ps` to see the list of running services
    * `docker stop <BOT CONTAINER ID>` to stop the running bot
 
-##### Have A Good Chat !
+### Have A Good Chat !
 
 ## Optional: Setup starting prompt
 
