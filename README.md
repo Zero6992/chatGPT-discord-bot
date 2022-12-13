@@ -43,7 +43,7 @@ Run `playwright install` or `python -m playwright install` after installing revC
 
    ![image](https://user-images.githubusercontent.com/89479282/205949161-4b508c6d-19a7-49b6-b8ed-7525ddbef430.png)
 4. Change the file name of `config.dev.json` to `config.json`
-Store the token to `config.json` under the `discord_bot_token`
+5. Store the token to `config.json` under the `discord_bot_token`
 
    ![image](https://user-images.githubusercontent.com/89479282/207357762-94234aa7-aa55-4504-8dfd-9c68ae23a826.png)
    
