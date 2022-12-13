@@ -34,7 +34,7 @@
 
 1. `pip install -r requirements.txt`
 
-2. Run `playwright install` or `python -m playwright install` after installing revChatGPT
+2. Run `playwright install` or `python -m playwright install`
 
 ## Step 1: Create a Discord bot
 
