@@ -83,13 +83,13 @@ Go to https://chat.openai.com/chat log in
 
 2. Open `Application` tab > Cookies
 
-    ![image](https://user-images.githubusercontent.com/36258159/206955081-8a8e1ff9-d12c-456c-9a67-5c1a7438f76c.png)
+    ![image](https://user-images.githubusercontent.com/36258159/205494773-32ef651a-994d-435a-9f76-a26699935dac.png)
 
 3. Copy the value for `__Secure-next-auth.session-token` from cookies and paste it into `config.json` under `session_token`
 
-> You can use `Xvfb` to emulate a desktop environment. It should automatically get the cf_clearance given no captcha
-
 ### Step 3: Run the bot with docker
+
+> I use `Xvfb` to emulate a desktop environment. It should automatically get the cf_clearance given no captcha
 
 1. Build the Docker image `docker build -t chatgpt-discord-bot --platform linux/amd64 .`
 2. Run the Docker container  `docker run --platform linux/amd64 -d chatgpt-discord-bot`
