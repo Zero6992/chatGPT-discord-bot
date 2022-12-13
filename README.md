@@ -52,7 +52,8 @@ dependencies: Reverse Engineered ChatGPT by OpenAI [here](https://github.com/ach
 3. Get the token from bot setting
 
    ![image](https://user-images.githubusercontent.com/89479282/205949161-4b508c6d-19a7-49b6-b8ed-7525ddbef430.png)
-4. Store the token to `config.json` under the `discord_bot_token`
+4. Change the file name of `config.dev.json` to `config.json`
+Store the token to `config.json` under the `discord_bot_token`
 
    ![image](https://user-images.githubusercontent.com/89479282/205949488-f3f2903d-7fb8-4be3-a703-2174535b3cd7.png)
 5. Turn MESSAGE CONTENT INTENT `ON`
