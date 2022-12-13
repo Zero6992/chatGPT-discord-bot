@@ -1,6 +1,4 @@
 from src import bot
-import subprocess
-import os
 import sys
 
 def check_verion() -> None:
