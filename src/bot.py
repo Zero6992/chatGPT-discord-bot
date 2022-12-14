@@ -14,6 +14,7 @@ class aclient(discord.Client):
     def __init__(self) -> None:
         super().__init__(intents=discord.Intents.default())
         self.tree = app_commands.CommandTree(self)
+        self.activity = discord.Activity(type=discord.ActivityType.watching, name="/chat | /private | /public | /reset")
 
     async def on_ready(self) -> None:
         await self.wait_until_ready()
