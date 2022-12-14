@@ -1,4 +1,5 @@
 {
     "discord_bot_token":"",
+    "discord_channel_id":"",
     "session_token": ""
 }
