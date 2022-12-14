@@ -109,6 +109,12 @@ Go to https://chat.openai.com/chat log in
 * A starting prompt would be invoked when the bot is first started or reset
 * You can set it up by modifying the content in `starting-prompt.txt`
 * All the text in the file will be fired as a prompt to the bot  
+* Get the first message from ChatGPT in your discord channel!
+   1. Right-click the channel you want to recieve the message, `Copy  ID`
+   ![channel-id](https://user-images.githubusercontent.com/89479282/207697217-e03357b3-3b3d-44d0-b880-163217ed4a49.PNG)
+   2. paste it into `config.json` under `discord_channel_id `
+
+
 
 ---
 #### Big thanks to Reverse Engineered ChatGPT by OpenAI [here](https://github.com/acheong08/ChatGPT)
