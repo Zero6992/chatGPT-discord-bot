@@ -18,15 +18,15 @@ def get_config() -> dict:
     config_path = os.path.join(config_dir, config_name)
 
     with open(config_path, 'r') as f:
-        data = json.load(f)
+        config = json.load(f)
 
-    return data
+    return config
 
 
-data = get_config()
+config = get_config()
 
 config = {
-    "session_token" : data['session_token']
+    "session_token" : config['session_token']
 }
 
 chatbot = Chatbot(config, conversation_id=None)

@@ -5,7 +5,7 @@ from src import log
 
 logger = log.setup_logger(__name__)
 
-data = responses.get_config()
+config = responses.get_config()
 
 isPrivate = False
 
@@ -144,5 +144,5 @@ def run_discord_bot():
         await send_start_prompt()
 
 
-    TOKEN = data['discord_bot_token']
+    TOKEN = config['discord_bot_token']
     client.run(TOKEN)
