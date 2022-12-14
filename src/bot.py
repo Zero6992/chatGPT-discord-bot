@@ -14,7 +14,7 @@ class aclient(discord.Client):
     def __init__(self) -> None:
         super().__init__(intents=discord.Intents.default())
         self.tree = app_commands.CommandTree(self)
-        self.activity = discord.Activity(type=discord.ActivityType.watching, name="/chat | /private | /public | /reset")
+        self.activity = discord.Activity(type=discord.ActivityType.watching, name="/chat | /reset | /help")
 
     async def on_ready(self) -> None:
         await self.wait_until_ready()
@@ -147,6 +147,12 @@ def run_discord_bot():
             "\x1b[31mChatGPT bot has been successfully reset\x1b[0m")
         await send_start_prompt()
 
+    @client.tree.command(name="help", description="Show help for the bot")
+    async def help(interaction: discord.Interaction):
+        await interaction.response.defer(ephemeral=False)
+        await interaction.followup.send(":star:**BASIC COMMANDS** \n   `/chat [message]` Chat with ChatGPT!\n   `/reset` ChatGPT conversation history will be erased \n   `/private` ChatGPT switch to private mode \n   `/public` ChatGPT switch to public mode")
+        logger.info(
+            "\x1b[31mSomeone need help!\x1b[0m")
 
     TOKEN = config['discord_bot_token']
     client.run(TOKEN)
