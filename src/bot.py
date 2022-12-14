@@ -1,5 +1,5 @@
 import discord
-from discord.ext import commands
+from discord import app_commands
 from src import responses
 from src import log
 
@@ -8,6 +8,18 @@ logger = log.setup_logger(__name__)
 data = responses.get_config()
 
 isPrivate = False
+
+
+class aclient(discord.Client):
+    def __init__(self) -> None:
+        super().__init__(intents=discord.Intents.default())
+        self.tree = app_commands.CommandTree(self)
+
+    async def on_ready(self) -> None:
+        await self.wait_until_ready()
+        await self.tree.sync()
+        await send_start_prompt()
+        logger.info(f'{self.user} is now running!')
 
 
 async def send_message(message, user_message):
@@ -28,26 +40,27 @@ async def send_message(message, user_message):
                 formatted_code_block = ""
                 for line in code_block:
                     while len(line) > 1900:
-                    # Split the line at the 50th character
+                        # Split the line at the 50th character
                         formatted_code_block += line[:1900] + "\n"
                         line = line[1900:]
-                    formatted_code_block += line + "\n" # Add the line and seperate with new line
+                    formatted_code_block += line + "\n"  # Add the line and seperate with new line
 
                 # Send the code block in a separate message
                 if (len(formatted_code_block) > 2000):
-                    code_block_chunks = [formatted_code_block[i:i+1900] for i in range(0, len(formatted_code_block), 1900)]
+                    code_block_chunks = [formatted_code_block[i:i+1900]
+                                         for i in range(0, len(formatted_code_block), 1900)]
                     for chunk in code_block_chunks:
                         await message.followup.send("```" + chunk + "```")
                 else:
-                    await message.followup.send("```" + formatted_code_block + "```") 
+                    await message.followup.send("```" + formatted_code_block + "```")
 
                 # Send the remaining of the response in another message
-                
+
                 if len(parts) >= 3:
                     await message.followup.send(parts[2])
             else:
                 response_chunks = [response[i:i+1900]
-                               for i in range(0, len(response), 1900)]
+                                   for i in range(0, len(response), 1900)]
                 for chunk in response_chunks:
                     await message.followup.send(chunk)
         else:
@@ -57,7 +70,7 @@ async def send_message(message, user_message):
         logger.exception(f"Error while sending message: {e}")
 
 
-async def send_start_prompt() :
+async def send_start_prompt():
     import os
     import os.path
 
@@ -76,11 +89,9 @@ async def send_start_prompt() :
     except Exception as e:
         logger.exception(f"Error while sending starting prompt: {e}")
 
+
 def run_discord_bot():
-    intents = discord.Intents.default()
-    intents.message_content = True
-    activity = discord.Activity(type=discord.ActivityType.watching, name="/chat | /private | /public | /reset")
-    client = commands.Bot(command_prefix='!', intents=intents, activity=activity)
+    client = aclient()
 
     @client.event
     async def on_ready():
@@ -132,6 +143,6 @@ def run_discord_bot():
             "\x1b[31mChatGPT bot has been successfully reset\x1b[0m")
         await send_start_prompt()
 
-        
+
     TOKEN = data['discord_bot_token']
     client.run(TOKEN)
