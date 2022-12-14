@@ -71,7 +71,7 @@ async def send_message(message, user_message):
         logger.exception(f"Error while sending message: {e}")
 
 
-async def send_start_prompt():
+async def send_start_prompt(client):
     import os
     import os.path
 
@@ -84,6 +84,9 @@ async def send_start_prompt():
                 prompt = f.read()
                 logger.info(f"Send starting prompt with size {len(prompt)}")
                 responseMessage = await responses.handle_response(prompt)
+                if(config['discord_channel_id']):
+                    channel = client.get_channel(int(config['discord_channel_id']))
+                    await channel.send(responseMessage)
             logger.info(f"Starting prompt response: {responseMessage}")
         else:
             logger.info(f"No {prompt_name}. Skip sending starting prompt.")
@@ -96,7 +99,7 @@ def run_discord_bot():
 
     @client.event
     async def on_ready():
-        await send_start_prompt()
+        await send_start_prompt(client)
         await client.tree.sync()
         logger.info(f'{client.user} is now running!')
 
