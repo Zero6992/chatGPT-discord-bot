@@ -1,0 +1,9 @@
+version: "3"
+
+services:
+  chatgpt-discord-bot:
+    build: .
+    image: chatgpt-discord-bot
+    container_name: chatgpt-discord-bot
+    volumes:
+      - ./config.json:/DiscordBot/config.json
