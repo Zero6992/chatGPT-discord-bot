@@ -14,7 +14,7 @@ class aclient(discord.Client):
     def __init__(self) -> None:
         super().__init__(intents=discord.Intents.default())
         self.tree = app_commands.CommandTree(self)
-        self.activity = discord.Activity(type=discord.ActivityType.watching, name="/chat | /reset | /help")
+        self.activity = discord.Activity(type=discord.ActivityType.watching, name="/chat | /help")
 
     async def on_ready(self) -> None:
         await self.wait_until_ready()
@@ -138,19 +138,12 @@ def run_discord_bot():
             await interaction.followup.send("> **Warn: You already on public mode. If you want to switch to private mode, use `/private`**")
             logger.info("You already on public mode!")
 
-    @client.tree.command(name="reset", description="Complete reset ChatGPT conversation history")
-    async def reset(interaction: discord.Interaction):
-        responses.chatbot.reset_chat()
-        await interaction.response.defer(ephemeral=False)
-        await interaction.followup.send("> **Info: I have forgotten everything.**")
-        logger.warning(
-            "\x1b[31mChatGPT bot has been successfully reset\x1b[0m")
-        await send_start_prompt(client)
+
 
     @client.tree.command(name="help", description="Show help for the bot")
     async def help(interaction: discord.Interaction):
         await interaction.response.defer(ephemeral=False)
-        await interaction.followup.send(":star:**BASIC COMMANDS** \n   `/chat [message]` Chat with ChatGPT!\n   `/reset` ChatGPT conversation history will be erased \n   `/private` ChatGPT switch to private mode \n   `/public` ChatGPT switch to public mode \n   For complete documentation, please visit https://github.com/Zero6992/chatGPT-discord-bot")
+        await interaction.followup.send(":star:**BASIC COMMANDS** \n    `/chat [message]` Chat with ChatGPT!\n    `/public` ChatGPT switch to public mode \n    For complete documentation, please visit https://github.com/Zero6992/chatGPT-discord-bot")
         logger.info(
             "\x1b[31mSomeone need help!\x1b[0m")
 
