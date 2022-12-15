@@ -98,4 +98,4 @@
 
 
 ---
-#### Big thanks to Reverse Engineered ChatGPT by OpenAI [here](https://github.com/acheong08/ChatGPT)
+#### RIP to Reverse Engineered ChatGPT by OpenAI [here](https://github.com/acheong08/ChatGPT)
