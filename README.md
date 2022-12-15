@@ -5,9 +5,9 @@
 > ⭐️ If this repo helps you, a star is the biggest support for me and also helps you stay up-to-date 
 ---
 > **Warning**
-> #### 2022-12-15 Update: Cloudflare are currently preventing the bot from receiving any further messages, so I am considering using the official GPT-3 API until this chaos about cat catching mice ends
+> #### 2022-12-15 Update: Cloudflare are currently preventing the bot from receiving any further messages, so the bot is using the official GPT-3 API until this chaos about cat catching mice ends
 > 
-> OpenAI added Cloudflare protections to their API in 2022-12-12, there are some differences in using it on server and desktop environment
+> 2022-12-12 Update: OpenAI added Cloudflare protections to their API in ChatGPT, there are some differences in using it on server and desktop environment
  
 
 ## Features
@@ -15,7 +15,6 @@
 * `/chat [message]` Chat with ChatGPT!
 * `/private` ChatGPT switch to private mode
 * `/public`  ChatGPT switch to public  mode
-* `/reset`   ChatGPT conversation history will be erased
 
 ### Chat
 
@@ -35,8 +34,6 @@
 ## Install
 
 1. `pip install -r requirements.txt`
-
-2. Run `playwright install` or `python -m playwright install`
 
 ## Step 1: Create a Discord bot
 
@@ -58,43 +55,20 @@
 
    ![image](https://user-images.githubusercontent.com/89479282/205949600-0c7ddb40-7e82-47a0-b59a-b089f929d177.png)
 
-## Desktop environments
+## Step 2: Geanerate a OpenAI API key
 
-> You do not need to fill out `session_token` in `config.json`
+1. Go to https://beta.openai.com/account/api-keys create an application
 
-### Step 2: Run the bot
+   ![image](https://user-images.githubusercontent.com/89479282/207970699-2e0cb671-8636-4e27-b1f3-b75d6db9b57e.PNG)
+
+2. Store the SECRET KEY to `config.json` under the `openAI_key`
+
+## Step 3: Run the bot on the desktop
 1. Open a terminal or command prompt
 2. Navigate to the directory where you installed the ChatGPT Discord bot
 3. Run `python3 main.py` to start the bot
-### Step 3: log in
-1. Wait for the Cloudflare checks to pass
-2. Reload if show `ChatGPT is at capacity right now`
-3. Log into OpenAI via the open browser (Your account)
-4. It should automatically redirect you to https://chat.openai.com/chat after logging in. If it doesn't, go to this link manually after logging in.
-5. The window should close automatically
 
-### Have A Good Chat !
-
- 
-## Server & Docker
-
-> You must fill the session token in `config.json`
-
-### Step 2: Session token authentication
-
-Go to https://chat.openai.com/chat log in
-
-1. Open console with `F12`
-
-2. Open `Application` tab > Cookies
-
-    ![image](https://user-images.githubusercontent.com/36258159/205494773-32ef651a-994d-435a-9f76-a26699935dac.png)
-
-3. Copy the value for `__Secure-next-auth.session-token` from cookies and paste it into `config.json` under `session_token`
-
-### Step 3: Run the bot with docker
-
-> I use `Xvfb` to emulate a desktop environment. It should automatically get the cf_clearance given no captcha
+## Step 3: Run the bot with docker
 
 1. Build the Dcoker image & Run the Docker container `docker compose up -d`
 2. Inspect whether the bot works well `docker logs -t chatgpt-discord-bot`
