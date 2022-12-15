@@ -57,7 +57,9 @@
 
 ## Step 2: Geanerate a OpenAI API key
 
-1. Go to https://beta.openai.com/account/api-keys create an application
+1. Go to https://beta.openai.com/account/api-keys
+
+2. Click Create new secret key
 
    ![image](https://user-images.githubusercontent.com/89479282/207970699-2e0cb671-8636-4e27-b1f3-b75d6db9b57e.PNG)
 
