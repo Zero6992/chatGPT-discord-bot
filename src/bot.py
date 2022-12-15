@@ -16,13 +16,6 @@ class aclient(discord.Client):
         self.tree = app_commands.CommandTree(self)
         self.activity = discord.Activity(type=discord.ActivityType.watching, name="/chat | /help")
 
-    async def on_ready(self) -> None:
-        await self.wait_until_ready()
-        await self.tree.sync()
-        await send_start_prompt()
-        logger.info(f'{self.user} is now running!')
-
-
 async def send_message(message, user_message):
     await message.response.defer(ephemeral=isPrivate)
     try:
