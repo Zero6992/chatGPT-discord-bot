@@ -94,8 +94,8 @@ Go to https://chat.openai.com/chat log in
 
 > I use `Xvfb` to emulate a desktop environment. It should automatically get the cf_clearance given no captcha
 
-1. Build the Docker image `docker build -t chatgpt-discord-bot .`
-2. Run the Docker container  `docker run -d chatgpt-discord-bot`
+1. Build the Dcoker image & Run the Docker container `docker compose up -d`
+2. Inspect whether the bot works well `docker logs -t chatgpt-discord-bot`
 
    ### Stop the bot:
 
