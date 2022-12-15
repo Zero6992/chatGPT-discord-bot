@@ -1,5 +1,6 @@
 *.log
 config.dev.json
+config.json
 # Git
 .git
 .gitignore
