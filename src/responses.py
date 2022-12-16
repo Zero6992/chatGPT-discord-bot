@@ -14,12 +14,14 @@ def get_config() -> dict:
 
     return config
 
+
 config = get_config()
 openai.api_key = config['openAI_key']
 
+
 async def handle_response(message) -> str:
 
-    response =  openai.Completion.create(
+    response = openai.Completion.create(
         model="text-davinci-003",
         prompt=message,
         temperature=0.7,
@@ -29,6 +31,7 @@ async def handle_response(message) -> str:
         presence_penalty=0.0,
     )
 
-    responseMessage = response.choices[0].text
+    # remove newline characters
+    responseMessage = response.choices[0].text.strip()
 
     return responseMessage
