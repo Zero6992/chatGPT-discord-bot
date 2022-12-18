@@ -11,5 +11,4 @@ WORKDIR /DiscordBot
 
 RUN pip install -r requirements.txt
 
-ENV DISPLAY :0
 CMD python3 -u main.py
