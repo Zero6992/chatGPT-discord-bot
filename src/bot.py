@@ -16,12 +16,13 @@ class aclient(discord.Client):
         self.tree = app_commands.CommandTree(self)
         self.activity = discord.Activity(type=discord.ActivityType.watching, name="/chat | /help")
 
+
 async def send_message(message, user_message):
     await message.response.defer(ephemeral=isPrivate)
     try:
         response = '> **' + user_message + '** - <@' + \
             str(message.user.id) + '>\n\n'
-        response += await responses.handle_response(user_message)
+        response += f"{user_message} {await responses.handle_response(user_message)}"
         if len(response) > 1900:
             # Split the response into smaller chunks of no more than 1900 characters each(Discord limit is 2000 per chunk)
             if "```" in response:
@@ -77,7 +78,7 @@ async def send_start_prompt(client):
                 prompt = f.read()
                 logger.info(f"Send starting prompt with size {len(prompt)}")
                 responseMessage = await responses.handle_response(prompt)
-                if(config['discord_channel_id']):
+                if (config['discord_channel_id']):
                     channel = client.get_channel(int(config['discord_channel_id']))
                     await channel.send(responseMessage)
             logger.info(f"Starting prompt response: {responseMessage}")
@@ -130,8 +131,6 @@ def run_discord_bot():
         else:
             await interaction.followup.send("> **Warn: You already on public mode. If you want to switch to private mode, use `/private`**")
             logger.info("You already on public mode!")
-
-
 
     @client.tree.command(name="help", description="Show help for the bot")
     async def help(interaction: discord.Interaction):

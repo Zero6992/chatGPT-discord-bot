@@ -31,7 +31,6 @@ async def handle_response(message) -> str:
         presence_penalty=0.0,
     )
 
-    # remove newline characters
-    responseMessage = response.choices[0].text.strip()
+    responseMessage = response.choices[0].text
 
     return responseMessage
