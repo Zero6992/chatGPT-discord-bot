@@ -22,7 +22,7 @@ async def send_message(message, user_message):
     try:
         response = '> **' + user_message + '** - <@' + \
             str(message.user.id) + '>\n\n'
-        response += f"{user_message} {await responses.handle_response(user_message)}"
+        response += f"{user_message}{await responses.handle_response(user_message)}"
         if len(response) > 1900:
             # Split the response into smaller chunks of no more than 1900 characters each(Discord limit is 2000 per chunk)
             if "```" in response:
