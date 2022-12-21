@@ -1,5 +1,6 @@
 import openai
 import json
+from asgiref.sync import sync_to_async
 
 
 def get_config() -> dict:
@@ -14,14 +15,11 @@ def get_config() -> dict:
 
     return config
 
-
 config = get_config()
 openai.api_key = config['openAI_key']
 
-
 async def handle_response(message) -> str:
-
-    response = openai.Completion.create(
+    response = await sync_to_async(openai.Completion.create)(
         model="text-davinci-003",
         prompt=message,
         temperature=0.7,
