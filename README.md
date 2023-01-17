@@ -5,10 +5,11 @@
 > ⭐️ If this repo helps you, a star is the biggest support for me and also helps you stay up-to-date 
 ---
 > **Warning**
-> #### 2022-12-15 Update: Cloudflare are currently preventing the bot from receiving any further messages, so the bot is using the official GPT-3 API until this chaos about cat catching mice ends
-> 
-> 2022-12-12 Update: OpenAI added Cloudflare protections to their API in ChatGPT, there are some differences in using it on server and desktop environment
- 
+### Thank for [Reverse Engineered ChatGPT](https://github.com/acheong08/ChatGPT) efforts in updating the new API. I have tried to implement it, but encountered some issues using xvfb and chrome in a docker environment, so the update was not successfully completed
+
+> #### 2023-01-17 Update: [OpenAI releasing official API soon](https://twitter.com/GodlyIgnorance/status/1615193797423697920), wait for the official API to be released before proceeding with further updates
+>
+> #### 2022-12-15 Update: Cloudflare are currently preventing the bot from receiving any further messages, the bot is using the official GPT-3 API now
 
 ## Features
 
@@ -94,8 +95,3 @@
         ![channel-id](https://user-images.githubusercontent.com/89479282/207697217-e03357b3-3b3d-44d0-b880-163217ed4a49.PNG)
     
    2. paste it into `config.json` under `discord_channel_id `
-
-
-
----
-#### RIP to Reverse Engineered ChatGPT by OpenAI [here](https://github.com/acheong08/ChatGPT)
