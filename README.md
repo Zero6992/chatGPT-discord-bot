@@ -7,7 +7,7 @@
 > **Warning**
 > ### Thank for [Reverse Engineered ChatGPT](https://github.com/acheong08/ChatGPT) efforts in updating the new API. I have tried to implement it, but encountered some issues using xvfb and chrome in a docker environment, so the update was not successfully completed
 
-> #### 2023-01-17 Update: [OpenAI releasing official API soon](https://twitter.com/GodlyIgnorance/status/1615193797423697920), wait for the official API to be released before proceeding with further updates
+> #### 2023-01-17 Update: [OpenAI releasing official API soon](https://twitter.com/OpenAI/status/1615160228366147585?s=20&t=jWxfpTMFQBHgsSZAA_IDng), wait for the official API to be released before proceeding with further updates
 >
 > #### 2022-12-15 Update: Cloudflare are currently preventing the bot from receiving any further messages, the bot is using the official GPT-3 API now
 
