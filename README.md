@@ -5,7 +5,7 @@
 > ⭐️ If this repo helps you, a star is the biggest support for me and also helps you stay up-to-date 
 ---
 > **Warning**
-### Thank for [Reverse Engineered ChatGPT](https://github.com/acheong08/ChatGPT) efforts in updating the new API. I have tried to implement it, but encountered some issues using xvfb and chrome in a docker environment, so the update was not successfully completed
+> #### 2023-02-01 Update: Now using the official ChatGPT API
 
 > #### 2023-01-17 Update: [OpenAI releasing official API soon](https://twitter.com/GodlyIgnorance/status/1615193797423697920), wait for the official API to be released before proceeding with further updates
 >
