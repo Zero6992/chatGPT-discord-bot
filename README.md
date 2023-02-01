@@ -5,11 +5,8 @@
 > ⭐️ If this repo helps you, a star is the biggest support for me and also helps you stay up-to-date 
 ---
 > **Warning**
-> #### 2023-02-01 Update: Now using the official ChatGPT API
-
-> #### 2023-01-17 Update: [OpenAI releasing official API soon](https://twitter.com/OpenAI/status/1615160228366147585?s=20&t=jWxfpTMFQBHgsSZAA_IDng), wait for the official API to be released before proceeding with further updates
 >
-> #### 2022-12-15 Update: Cloudflare are currently preventing the bot from receiving any further messages, the bot is using the official GPT-3 API now
+> #### 2023-02-01 Update: Now using the official ChatGPT API
 
 ## Features
 
