@@ -21,7 +21,7 @@ async def send_message(message, user_message):
     await message.response.defer(ephemeral=isPrivate)
     try:
         response = '> **' + user_message + '** - <@' + \
-            str(message.user.id) + '>\n\n'
+            str(message.user.id) + '> \n\n'
         response = f"{response}{await responses.handle_response(user_message)}"
         if len(response) > 1900:
             # Split the response into smaller chunks of no more than 1900 characters each(Discord limit is 2000 per chunk)
@@ -132,6 +132,15 @@ def run_discord_bot():
             await interaction.followup.send("> **Warn: You already on public mode. If you want to switch to private mode, use `/private`**")
             logger.info("You already on public mode!")
 
+    @client.tree.command(name="reset", description="Complete reset ChatGPT conversation history")
+    async def reset(interaction: discord.Interaction):
+        responses.chatbot.reset()
+        await interaction.response.defer(ephemeral=False)
+        await interaction.followup.send("> **Info: I have forgotten everything.**")
+        logger.warning(
+            "\x1b[31mChatGPT bot has been successfully reset\x1b[0m")
+        await send_start_prompt(client)
+        
     @client.tree.command(name="help", description="Show help for the bot")
     async def help(interaction: discord.Interaction):
         await interaction.response.defer(ephemeral=False)
