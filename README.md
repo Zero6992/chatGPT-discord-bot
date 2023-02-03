@@ -16,7 +16,7 @@
 * `/private` ChatGPT switch to private mode
 * `/public`  ChatGPT switch to public  mode
 * `/reset` ChatGPT conversation history will be erased
-* 
+
 ### Chat
 
 ![image](https://user-images.githubusercontent.com/89479282/206497774-47d960cd-1aeb-4fba-9af5-1f9d6ff41f00.gif)
