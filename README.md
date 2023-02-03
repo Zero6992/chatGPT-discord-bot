@@ -5,8 +5,9 @@
 > ⭐️ If this repo helps you, a star is the biggest support for me and also helps you stay up-to-date 
 ---
 > **Warning**
-
-> #### 2023-02-02 Update: OpenAI has closed ChatGPT API, temporarily switching to using the GPT-3 model until the official ChatGPT API is out
+> 
+> #### 2023-02-03 Update: ChatGPT API working again
+> #### 2023-02-02 Update: OpenAI has closed ChatGPT API, temporarily switching to using GPT-3 model
 > #### 2023-02-01 Update: Now using the official ChatGPT API
 
 ## Features
@@ -14,7 +15,8 @@
 * `/chat [message]` Chat with ChatGPT!
 * `/private` ChatGPT switch to private mode
 * `/public`  ChatGPT switch to public  mode
-
+* `/reset` ChatGPT conversation history will be erased
+* 
 ### Chat
 
 ![image](https://user-images.githubusercontent.com/89479282/206497774-47d960cd-1aeb-4fba-9af5-1f9d6ff41f00.gif)
