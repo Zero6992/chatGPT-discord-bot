@@ -1,8 +1,6 @@
 # ChatGPT Discord Bot
 
 > ### This is a project that provides you to build your own Discord bot using ChatGPT
->
-> ⭐️ If this repo helps you, a star is the biggest support for me and also helps you stay up-to-date 
 ---
 > **Warning**
 > 
@@ -35,7 +33,7 @@
 ## Install
 
 1. `pip install -r requirements.txt`
-2. **Change the `config.dev.json`'s file name to `config.json`**
+2. **Rename the file `config.dev.json` to `config.json`**
 
 ## Step 1: Create a Discord bot
 
