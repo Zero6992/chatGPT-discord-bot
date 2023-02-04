@@ -1,4 +1,4 @@
-# chatGPT-discord-bot
+# ChatGPT Discord Bot
 
 > ### This is a project that provides you to build your own Discord bot using ChatGPT
 >
@@ -26,7 +26,7 @@
 * `public mode (default)`  the bot directly reply on the channel
 
   ![image](https://user-images.githubusercontent.com/89479282/206565977-d7c5d405-fdb4-4202-bbdd-715b7c8e8415.gif)
-* `private mode` the bot's reply can only be seen by who use the command
+* `private mode` the bot's reply can only be seen by the person who used the command
 
   ![image](https://user-images.githubusercontent.com/89479282/206565873-b181e600-e793-4a94-a978-47f806b986da.gif)
 
@@ -35,7 +35,7 @@
 ## Install
 
 1. `pip install -r requirements.txt`
-2. **Change the file name of `config.dev.json` to `config.json`**
+2. **Change the `config.dev.json`'s file name to `config.json`**
 
 ## Step 1: Create a Discord bot
 
@@ -71,9 +71,9 @@
 2. Navigate to the directory where you installed the ChatGPT Discord bot
 3. Run `python3 main.py` to start the bot
 
-## Step 3: Run the bot with docker
+## Step 3: Run the bot with Docker
 
-1. Build the Dcoker image & Run the Docker container `docker compose up -d`
+1. Build the Docker image & Run the Docker container `docker compose up -d`
 2. Inspect whether the bot works well `docker logs -t chatgpt-discord-bot`
 
    ### Stop the bot:
@@ -81,7 +81,7 @@
    * `docker ps` to see the list of running services
    * `docker stop <BOT CONTAINER ID>` to stop the running bot
 
-### Have A Good Chat !
+### Have a good chat!
 
 ## Optional: Setup starting prompt
 
