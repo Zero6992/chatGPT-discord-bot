@@ -1,6 +1,6 @@
 # ChatGPT Discord Bot
 
-> ### This is a project that provides you to build your own Discord bot using ChatGPT
+> ### Build your own Discord bot using ChatGPT
 ---
 > **Warning**
 > 
