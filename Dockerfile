@@ -1,8 +1,8 @@
-FROM python:3.8
+FROM python:3.9-slim-bullseye
 
 COPY ./ /DiscordBot
 WORKDIR /DiscordBot
 
 RUN pip install -r requirements.txt
 
-CMD ["python3", "main.py"]
+CMD ["python3", "-m", "main"]
