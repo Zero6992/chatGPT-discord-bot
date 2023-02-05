@@ -1,7 +1,5 @@
-from revChatGPT.Official import Chatbot
+from revChatGPT.Official import AsyncChatbot
 import json
-from asgiref.sync import sync_to_async
-
 
 def get_config() -> dict:
     import os
@@ -17,10 +15,10 @@ def get_config() -> dict:
 
 
 config = get_config()
-chatbot = Chatbot(api_key=config['openAI_key'])
+chatbot = AsyncChatbot(api_key=config['openAI_key'])
 
 async def handle_response(message) -> str:
-    response = await sync_to_async(chatbot.ask)(message)
+    response = await chatbot.ask(message)
     responseMessage = response["choices"][0]["text"]
 
     return responseMessage
