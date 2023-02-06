@@ -32,7 +32,6 @@ RUN pip install cryptography
 
 COPY ./ /DiscordBot
 WORKDIR /DiscordBot
-
 RUN pip3 install -r requirements.txt
 
 
