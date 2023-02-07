@@ -1,2 +1,2 @@
 discord.py==2.1.0
-revChatGPT==1.1.5
+revChatGPT==1.1.6
