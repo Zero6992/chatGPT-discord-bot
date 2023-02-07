@@ -13,6 +13,7 @@
 * `/chat [message]` Chat with ChatGPT!
 * `/private` ChatGPT switch to private mode
 * `/public`  ChatGPT switch to public  mode
+* `/replyall`  ChatGPT switch to replyall  mode
 * `/reset` ChatGPT conversation history will be erased
 
 ### Chat
@@ -24,9 +25,15 @@
 * `public mode (default)`  the bot directly reply on the channel
 
   ![image](https://user-images.githubusercontent.com/89479282/206565977-d7c5d405-fdb4-4202-bbdd-715b7c8e8415.gif)
+
 * `private mode` the bot's reply can only be seen by the person who used the command
 
   ![image](https://user-images.githubusercontent.com/89479282/206565873-b181e600-e793-4a94-a978-47f806b986da.gif)
+
+* `replyall mode` the bot will reply to all messages in the server
+
+   > **Warning**
+   > In replyall mode, the bot can easily be triggered, causing program malfunctions
 
 # Setup
 
