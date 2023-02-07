@@ -70,7 +70,9 @@
    ![image](https://user-images.githubusercontent.com/89479282/207970699-2e0cb671-8636-4e27-b1f3-b75d6db9b57e.PNG)
 
 2. Store the SECRET KEY to `config.json` under the `openAI_key`
-
+    
+   ![image](https://user-images.githubusercontent.com/75292632/217277927-342086f8-9531-412d-88f0-4c354b7605ca.png)
+   
 ## Step 3: Run the bot on the desktop
 1. Open a terminal or command prompt
 2. Navigate to the directory where you installed the ChatGPT Discord bot
