@@ -30,10 +30,10 @@
 
   ![image](https://user-images.githubusercontent.com/89479282/206565873-b181e600-e793-4a94-a978-47f806b986da.gif)
 
-* `replyall mode` the bot will reply to all messages in the server
+* `replyall mode` the bot will reply to all messages in the server without using slash commands
 
    > **Warning**
-   > In replyall mode, the bot can easily be triggered, causing program malfunctions
+   >  In replyall mode, the bot can easily be triggered, causing program malfunctions
 
 # Setup
 
