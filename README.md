@@ -13,8 +13,8 @@
 * `/chat [message]` Chat with ChatGPT!
 * `/private` ChatGPT switch to private mode
 * `/public`  ChatGPT switch to public  mode
-* `/replyall`  ChatGPT switch to replyall  mode
-* `/reset` ChatGPT conversation history will be erased
+* `/replyall`  ChatGPT switch between replyall mode and default mode
+* `/reset` Clear ChatGPT conversation history
 
 ### Chat
 
@@ -33,7 +33,7 @@
 * `replyall mode` the bot will reply to all messages in the server without using slash commands
 
    > **Warning**
-   >  In replyall mode, the bot can easily be triggered, causing program malfunctions
+   > The bot will easily be triggered in `replyall` mode, which could cause program failures
 
 # Setup
 
