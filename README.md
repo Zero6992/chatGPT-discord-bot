@@ -3,7 +3,8 @@
 > ### Build your own Discord bot using ChatGPT
 ---
 > **Warning**
-> 
+>
+> #### 2023-02-08 Update: ChatGPT API I is highly unstable now
 > #### 2023-02-03 Update: ChatGPT API working again
 > #### 2023-02-02 Update: OpenAI has closed ChatGPT API, temporarily switching to using GPT-3 model
 > #### 2023-02-01 Update: Now using the official ChatGPT API
