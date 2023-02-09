@@ -1,4 +1,5 @@
 from src import bot
+from dotenv import load_dotenv
 import sys
 
 def check_verion() -> None:
@@ -26,4 +27,5 @@ def check_verion() -> None:
 
 if __name__ == '__main__': 
     check_verion()
+    load_dotenv()
     bot.run_discord_bot()
