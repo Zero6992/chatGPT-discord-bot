@@ -4,7 +4,8 @@
 ---
 > **Warning**
 >
-> #### 2023-02-09 Update: Temporarily using the GPT-3 model,which requires payment, please be aware
+> #### 2023-02-09 Update: Temporarily using the GPT-3 model
+> (Requires payment, please be aware)
 > #### 2023-02-08 Update: ChatGPT API is highly unstable now
 > #### 2023-02-03 Update: ChatGPT API working again
 > #### 2023-02-02 Update: OpenAI has closed ChatGPT API, temporarily switching to using GPT-3 model
