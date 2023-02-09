@@ -1,5 +1,4 @@
 from revChatGPT.Official import AsyncChatbot
-import json
 
 async def handle_response(message) -> str:
     import os
