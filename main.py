@@ -6,6 +6,7 @@ def check_verion() -> None:
     import pkg_resources
     import src.log
 
+    load_dotenv()
     logger = src.log.setup_logger(__name__)
 
     # Read the requirements.txt file and add each line to a list
@@ -26,5 +27,4 @@ def check_verion() -> None:
 
 if __name__ == '__main__': 
     check_verion()
-    load_dotenv()
     bot.run_discord_bot()
