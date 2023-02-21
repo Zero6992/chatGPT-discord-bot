@@ -8,7 +8,13 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: digitalocean/action-doctl@v2.3.0
+      - name: Install SSH Key
+        uses: shimataro/ssh-key-action@v2
+        with:
+            key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2.3.0
         with:
           token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
 
