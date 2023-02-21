@@ -21,4 +21,4 @@ jobs:
 
       - run: |
           doctl compute ssh chatGPT-discord-bot
-          ls
+          ls -a
