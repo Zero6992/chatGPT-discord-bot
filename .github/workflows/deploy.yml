@@ -4,6 +4,9 @@ on:
       - main
       - jake # for testing
 
+concurrency:
+  group: "deploy"
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -19,9 +22,5 @@ jobs:
         with:
           token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
 
-      - run: |
-          doctl compute ssh chatGPT-discord-bot
-          mkdir -p .deploy
-          cd .deploy
-
-      - uses: actions/checkout@v3
+      - name: Run deploy script
+        run: doctl compute ssh chatGPT-discord-bot --ssh-command ./deploy.sh
