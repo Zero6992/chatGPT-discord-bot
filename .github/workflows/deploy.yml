@@ -2,7 +2,6 @@ on:
   push:
     branches:
       - main
-      - jake # for testing
 
 concurrency:
   group: "deploy"
