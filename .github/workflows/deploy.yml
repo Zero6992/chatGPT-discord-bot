@@ -21,4 +21,7 @@ jobs:
 
       - run: |
           doctl compute ssh chatGPT-discord-bot
-          ls
+          mkdir -p .deploy
+          cd .deploy
+
+      - uses: actions/checkout@v3
