@@ -1,3 +1,5 @@
-discord.py==2.1.0
+openai==0.26.5
+requests==2.28.2
+discord.py==2.1.1
 python-dotenv==0.21.1
-revChatGPT==1.2.1
+Flask==2.2.3

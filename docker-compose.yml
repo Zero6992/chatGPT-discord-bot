@@ -1,9 +1,9 @@
 version: "3"
 
 services:
-  chatgpt-discord-bot:
+  app:
+    container_name: discord-chatgpt-ai-assistant
     build: .
-    image: chatgpt-discord-bot
-    container_name: chatgpt-discord-bot
-    volumes:
-      - ./.env:/DiscordBot/.env
+    restart: always
+    ports:
+      - "${APP_PORT}:${APP_PORT}"

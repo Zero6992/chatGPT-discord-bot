@@ -1,30 +1,59 @@
-from src import bot
+import os
+
 from dotenv import load_dotenv
-import sys
+import discord
 
-def check_verion() -> None:
-    import pkg_resources
-    import src.log
+from src.discordBot import DiscordClient, Sender
+from src.logger import logger
+from src.chatgpt import ChatGPT, DALLE
+from src.models import OpenAIModel
+from src.memory import Memory
+from src.server import keep_alive
 
-    load_dotenv()
-    logger = src.log.setup_logger(__name__)
+load_dotenv()
 
-    # Read the requirements.txt file and add each line to a list
-    with open('requirements.txt') as f:
-        required = f.read().splitlines()
+models = OpenAIModel(api_key=os.getenv('OPENAI_API'), model_engine=os.getenv('OPENAI_MODEL_ENGINE'), max_tokens=int(os.getenv('OPENAI_MAX_TOKENS')))
 
-    # For each library listed in requirements.txt, check if the corresponding version is installed
-    for package in required:
-        # Use the pkg_resources library to get information about the installed version of the library
-        package_name, package_verion = package.split('==')
-        installed = pkg_resources.get_distribution(package_name)
-        # Extract the library name and version number
-        name, version = installed.project_name, installed.version
-        # Compare the version number to see if it matches the one in requirements.txt
-        if package != f'{name}=={version}':
-            logger.error(f'{name} version {version} is installed but does not match the requirements')
-            sys.exit();
+memory = Memory()
+chatgpt = ChatGPT(models, memory)
+dalle = DALLE(models)
 
-if __name__ == '__main__': 
-    check_verion()
-    bot.run_discord_bot()
+
+def run():
+    client = DiscordClient()
+    sender = Sender()
+
+    @client.tree.command(name="chat", description="Have a chat with ChatGPT")
+    async def chat(interaction: discord.Interaction, *, message: str):
+        if interaction.user == client.user:
+            return
+        await interaction.response.defer()
+        receive = chatgpt.get_response(interaction.user, message)
+        await sender.send_message(interaction, message, receive)
+
+    @client.tree.command(name="imagine", description="Generate image from text")
+    async def imagine(interaction: discord.Interaction, *, prompt: str):
+        if interaction.user == client.user:
+            return
+        await interaction.response.defer()
+        image_url = dalle.generate(prompt)
+        await sender.send_image(interaction, prompt, image_url)
+
+    @client.tree.command(name="reset", description="Reset ChatGPT conversation history")
+    async def reset(interaction: discord.Interaction):
+        user_id = interaction.user.id
+        logger.info(f"resetting memory from {user_id}")
+        try:
+            chatgpt.clean_history(user_id)
+            await interaction.response.defer(ephemeral=True)
+            await interaction.followup.send(f'> Reset ChatGPT conversation history < - <@{user_id}>')
+        except Exception as e:
+            logger.error(f"Error resetting memory: {e}")
+            await interaction.followup.send('> Oops! Something went wrong. <')
+
+    client.run(os.getenv('DISCORD_TOKEN'))
+
+
+if __name__ == '__main__':
+    keep_alive()
+    run()
