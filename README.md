@@ -89,7 +89,9 @@
    * `docker stop <BOT CONTAINER ID>` to stop the running bot
 
 ### Have a good chat!
+## Optional: Disable logging
 
+* Set the value of `LOGGING` in the `.env` to False
 ## Optional: Setup starting prompt
 
 * A starting prompt would be invoked when the bot is first started or reset
