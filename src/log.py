@@ -4,7 +4,6 @@ import logging.handlers
 
 
 class CustomFormatter(logging.Formatter):
-
     LEVEL_COLORS = [
         (logging.DEBUG, '\x1b[40;1m'),
         (logging.INFO, '\x1b[34;1m'),
@@ -31,7 +30,6 @@ class CustomFormatter(logging.Formatter):
             record.exc_text = f'\x1b[31m{text}\x1b[0m'
 
         output = formatter.format(record)
-
         # Remove the cache layer
         record.exc_text = None
         return output
@@ -49,7 +47,7 @@ def setup_logger(module_name:str) -> logging.Logger:
     # Add console handler to logger
     logger.addHandler(console_handler)
 
-    if os.getenv("LOGGING")=="True": #Check if logging setting is enabled
+    if os.getenv("LOGGING")=="True": #Check if logging is enabled
         # specify that the log file path is the same as `main.py` file path
         grandparent_dir = os.path.abspath(__file__ + "/../../")
         log_name='chatgpt_discord_bot.log'
