@@ -46,20 +46,22 @@ def setup_logger(module_name:str) -> logging.Logger:
     console_handler = logging.StreamHandler()
     console_handler.setLevel(logging.INFO)
     console_handler.setFormatter(CustomFormatter())
-     # specify that the log file path is the same as `main.py` file path
-    grandparent_dir = os.path.abspath(__file__ + "/../../")
-    log_name='chatgpt_discord_bot.log'
-    log_path = os.path.join(grandparent_dir, log_name)
-    # create local log handler
-    log_handler = logging.handlers.RotatingFileHandler(
-        filename=log_path,
-        encoding='utf-8',
-        maxBytes=32 * 1024 * 1024,  # 32 MiB
-        backupCount=2,  # Rotate through 5 files
-    )
-    log_handler.setFormatter(CustomFormatter())
-    # Add handlers to logger
-    logger.addHandler(log_handler)
+    # Add console handler to logger
     logger.addHandler(console_handler)
+
+    if os.getenv("LOGGING")=="True": #Check if logging setting is enabled
+        # specify that the log file path is the same as `main.py` file path
+        grandparent_dir = os.path.abspath(__file__ + "/../../")
+        log_name='chatgpt_discord_bot.log'
+        log_path = os.path.join(grandparent_dir, log_name)
+        # create local log handler
+        log_handler = logging.handlers.RotatingFileHandler(
+            filename=log_path,
+            encoding='utf-8',
+            maxBytes=32 * 1024 * 1024,  # 32 MiB
+            backupCount=2,  # Rotate through 5 files
+        )
+        log_handler.setFormatter(CustomFormatter())
+        logger.addHandler(log_handler)
 
     return logger
