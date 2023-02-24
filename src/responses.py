@@ -7,7 +7,7 @@ load_dotenv()
 openAI_key = os.getenv("OPENAI_KEY")
 openAI_model = os.getenv("ENGINE")
 
-openai.api_key = "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"
+openai.api_key = openAI_key
 
 async def handle_response(message) -> str:
     response = openai.Completion.create(
