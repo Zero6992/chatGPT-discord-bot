@@ -1,1 +1,1 @@
-Hi I am listening to the chat room please ask me a question with /chat
+Hello world
