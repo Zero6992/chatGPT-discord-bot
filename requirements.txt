@@ -1,4 +1,4 @@
 discord.py==2.1.0
-python-dotenv==0.19.2
+python-dotenv==0.21.1
 revChatGPT==1.2.1
 openai==0.19.0
