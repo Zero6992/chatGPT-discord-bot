@@ -64,7 +64,7 @@
 ## Step 2: ChatGPT(website) authentication - 2 approaches
 
 ### Email/Password authentication (Not supported for Google/Microsoft accounts)
-1. Create account on https://chat.openai.com/chat
+1. Create an account on https://chat.openai.com/chat
 
 2. Save your email into `.env` under `OPENAI_EMAIL`
 
