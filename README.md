@@ -4,11 +4,8 @@
 ---
 > **Warning**
 >
-> #### 2023-02-10 Update: ChatGPT model but requires payment
+> #### 2023-02-25 Update: Free ChatGPT model
 > #### 2023-02-08 Update: ChatGPT API is highly unstable now
-> #### 2023-02-03 Update: ChatGPT API working again
-> #### 2023-02-02 Update: OpenAI has closed ChatGPT API, temporarily switching to using GPT-3 model
-> #### 2023-02-01 Update: Now using the official ChatGPT API
 
 ## Features
 
@@ -63,7 +60,7 @@
 
    ![image](https://user-images.githubusercontent.com/89479282/205949600-0c7ddb40-7e82-47a0-b59a-b089f929d177.png)
 
-## Step 2: Generate a OpenAI API key
+## Step 2: Generate a ChatGPT account
 
 1. Go to https://beta.openai.com/account/api-keys
 
