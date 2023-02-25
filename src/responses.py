@@ -1,14 +1,14 @@
-from revChatGPT.Official import AsyncChatbot
+from revChatGPT.V1 import AsyncChatbot
 from dotenv import load_dotenv
 import os
 
 load_dotenv()
-openAI_key = os.getenv("OPENAI_KEY")
-openAI_model = os.getenv("ENGINE")
-chatbot = AsyncChatbot(api_key=openAI_key, engine=openAI_model)
+openAI_email = os.getenv("OPENAI_ENAIL")
+openAI_password = os.getenv("OPENAI_PASSWORD")
+chatbot = AsyncChatbot(config={"email":openAI_email, "password":openAI_password})
 
 async def handle_response(message) -> str:
-    response = await chatbot.ask(message)
-    responseMessage = response["choices"][0]["text"]
+    async for response in chatbot.ask(message):
+        responseMessage = response["message"]
 
     return responseMessage
