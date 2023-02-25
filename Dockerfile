@@ -1,32 +1,34 @@
-FROM python:3.10-alpine
+FROM python:3.10-bullseye
 
 ENV PYTHONUNBUFFERED 1
-RUN apk add --update \
-  build-base \
-  cairo \
-  cairo-dev \
+RUN apt-get update && apt-get install -y \
+  build-essential \
+  libcairo2-dev \
   cargo \
-  freetype-dev \
+  libfreetype6-dev \
   gcc \
-  gdk-pixbuf-dev \
+  libgdk-pixbuf2.0-dev \
   gettext \
-  jpeg-dev \
-  lcms2-dev \
+  libjpeg-dev \
+  liblcms2-dev \
   libffi-dev \
   musl-dev \
-  openjpeg-dev \
-  openssl-dev \
-  pango-dev \
+  libopenjp2-7-dev \
+  libssl-dev \
+  libpango1.0-dev \
   poppler-utils \
   postgresql-client \
-  postgresql-dev \
-  py-cffi \
+  libpq-dev \
   python3-dev \
-  rust \
+  rustc \
   tcl-dev \
-  tiff-dev \
+  libtiff5-dev \
   tk-dev \
-  zlib-dev
+  zlib1g-dev
+
+RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
+ENV PATH="/root/.cargo/bin:${PATH}"
+RUN rustup update
 
 RUN pip install cryptography
 COPY ./ /DiscordBot
