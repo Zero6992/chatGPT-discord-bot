@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 import os
 
 load_dotenv()
-openAI_email = os.getenv("OPENAI_ENAIL")
+openAI_email = os.getenv("OPENAI_EMAIL")
 openAI_password = os.getenv("OPENAI_PASSWORD")
 chatbot = AsyncChatbot(config={"email":openAI_email, "password":openAI_password})
 
