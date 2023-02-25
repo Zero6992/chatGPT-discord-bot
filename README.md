@@ -36,9 +36,10 @@
 
 # Setup
 
-## Install
+## Critical prerequisites to install
 
-1. `pip install -r requirements.txt`
+1. run `pip install -r requirements.txt`
+
 2. **Rename the file `.env.dev` to `.env`**
 
 ## Step 1: Create a Discord bot
@@ -50,7 +51,7 @@
    ![image](https://user-images.githubusercontent.com/89479282/205949161-4b508c6d-19a7-49b6-b8ed-7525ddbef430.png)
 4. Store the token to `.env` under the `DISCORD_BOT_TOKEN`
 
-   ![image](https://user-images.githubusercontent.com/89479282/217743218-26e3d999-44d5-4a0b-88e1-ee23f3ffd5d8.png)
+   ![image](https://user-images.githubusercontent.com/89479282/221367600-b3676c8a-4f3f-457d-91c4-48ef129eae57.png)
 
 5. Turn MESSAGE CONTENT INTENT `ON`
 
@@ -87,12 +88,15 @@
 ## Step 3: Run the bot on the desktop
 
 1. Open a terminal or command prompt
+
 2. Navigate to the directory where you installed the ChatGPT Discord bot
+
 3. Run `python3 main.py` to start the bot
 
 ## Step 3: Run the bot with Docker
 
 1. Build the Docker image & Run the Docker container `docker compose up -d`
+
 2. Inspect whether the bot works well `docker logs -t chatgpt-discord-bot`
 
    ### Stop the bot:
