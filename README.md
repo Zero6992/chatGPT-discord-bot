@@ -57,7 +57,7 @@
    ![image](https://user-images.githubusercontent.com/89479282/205949161-4b508c6d-19a7-49b6-b8ed-7525ddbef430.png)
 4. Store the token to `.env` under the `DISCORD_BOT_TOKEN`
 
-   ![image](https://user-images.githubusercontent.com/89479282/222657855-46f7011d-e6d1-4144-9496-3ed4e28a0f1a.png)
+   <img height="190" width="390" alt="image" src="https://user-images.githubusercontent.com/89479282/222661803-a7537ca7-88ae-4e66-9bec-384f3e83e6bd.png">
 
 5. Turn MESSAGE CONTENT INTENT `ON`
 
