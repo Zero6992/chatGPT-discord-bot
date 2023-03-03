@@ -203,12 +203,13 @@ def run_discord_bot():
         if choices.value == "OFFICIAL":
             os.environ["CHAT_MODEL"] = "OFFICIAL"
             await interaction.followup.send(
-                "> **Info: You are now in Official GPT-3.5 model, you need to set your `OPENAI_API_KEY` in `env` file.**")
+                "> **Info: You are now in Official GPT-3.5 model.**\n> You need to set your `OPENAI_API_KEY` in `env` file.")
+            logger.warning("\x1b[31mSwitch to OFFICIAL chat model\x1b[0m")
         elif choices.value == "UNOFFCIAL":
             os.environ["CHAT_MODEL"] = "UNOFFICIAL"
             await interaction.followup.send(
-                "> **Info: You are now in Website ChatGPT model, you need to set your `SESSION_TOKEN` or `OPENAI_EMAIL` and `OPENAI_PASSWORD` in `env` file.**")
-
+                "> **Info: You are now in Website ChatGPT model.**\n> You need to set your `SESSION_TOKEN` or `OPENAI_EMAIL` and `OPENAI_PASSWORD` in `env` file.")
+            logger.warning("\x1b[31mSwitch to UNOFFICIAL(Website) chat model\x1b[0m")
     @client.tree.command(name="reset", description="Complete reset ChatGPT conversation history")
     async def reset(interaction: discord.Interaction):
         responses.chatbot.reset_chat()
