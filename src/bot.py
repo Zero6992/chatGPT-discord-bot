@@ -8,6 +8,7 @@ logger = log.setup_logger(__name__)
 
 isPrivate = False
 isReplyAll = False
+can_dm = True
 
 class aclient(discord.Client):
     def __init__(self) -> None:
@@ -142,14 +143,34 @@ def run_discord_bot():
                 "> **Warn: You already on replyAll mode. If you want to use slash command, switch to normal mode, use `/replyall` again**")
             logger.warning("\x1b[31mYou already on replyAll mode, can't use slash command!\x1b[0m")
             return
+        if not can_dm and interaction.channel.type == discord.ChannelType.private:
+            await interaction.response.defer(ephemeral=True)
+            await interaction.followup.send(
+                "> **Sorry, sending commands via DM is currently disabled.**")
+            logger.warning("\x1b[31mSending commands via DM is disabled.\x1b[0m")
+            return
         if interaction.user == client.user:
             return
         username = str(interaction.user)
         user_message = message
         channel = str(interaction.channel)
-        logger.info(
-            f"\x1b[31m{username}\x1b[0m : '{user_message}' ({channel})")
+        logger.info(f"\x1b[31m{username}\x1b[0m : '{user_message}' ({channel})")
         await send_message(interaction, user_message)
+
+    @client.tree.command(name="dm", description="Toggle the ability to send commands to the bot via DM")
+    async def dm(interaction: discord.Interaction):
+        global can_dm
+        can_dm = not can_dm
+        if can_dm:
+            await interaction.response.defer(ephemeral=True)
+            await interaction.followup.send(
+                "> **Sending commands via DM is now allowed.**")
+            logger.info("\x1b[31mSending commands via DM is now allowed.\x1b[0m")
+        else:
+            await interaction.response.defer(ephemeral=True)
+            await interaction.followup.send(
+                "> **Sending commands via DM is now disabled.**")
+            logger.info("\x1b[31mSending commands via DM is now disabled.\x1b[0m")
 
     @client.tree.command(name="private", description="Toggle private access")
     async def private(interaction: discord.Interaction):
