@@ -210,9 +210,14 @@ def run_discord_bot():
             await interaction.followup.send(
                 "> **Info: You are now in Website ChatGPT model.**\n> You need to set your `SESSION_TOKEN` or `OPENAI_EMAIL` and `OPENAI_PASSWORD` in `env` file.")
             logger.warning("\x1b[31mSwitch to UNOFFICIAL(Website) chat model\x1b[0m")
+            
     @client.tree.command(name="reset", description="Complete reset ChatGPT conversation history")
     async def reset(interaction: discord.Interaction):
-        responses.chatbot.reset_chat()
+        chat_model = os.getenv("CHAT_MODEL")
+        if chat_model == "OFFICIAL":
+            responses.offical_chatbot.reset()
+        elif chat_model == "UNOFFICIAL":
+            responses.unofficial_chatbot.clear_conversations()
         await interaction.response.defer(ephemeral=False)
         await interaction.followup.send("> **Info: I have forgotten everything.**")
         logger.warning(
