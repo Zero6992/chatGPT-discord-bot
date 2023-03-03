@@ -57,7 +57,7 @@
    ![image](https://user-images.githubusercontent.com/89479282/205949161-4b508c6d-19a7-49b6-b8ed-7525ddbef430.png)
 4. Store the token to `.env` under the `DISCORD_BOT_TOKEN`
 
-   ![image](https://user-images.githubusercontent.com/89479282/221367600-b3676c8a-4f3f-457d-91c4-48ef129eae57.png)
+   ![image](https://user-images.githubusercontent.com/89479282/222657855-46f7011d-e6d1-4144-9496-3ed4e28a0f1a.png)
 
 5. Turn MESSAGE CONTENT INTENT `ON`
 
@@ -66,8 +66,20 @@
 6. Invite your bot to your server via OAuth2 URL Generator
 
    ![image](https://user-images.githubusercontent.com/89479282/205949600-0c7ddb40-7e82-47a0-b59a-b089f929d177.png)
+## Step 2: Official API authentication
 
-## Step 2: ChatGPT(website) authentication - 2 approaches
+### Geanerate an OpenAI API key
+1. Go to https://beta.openai.com/account/api-keys
+
+2. Click Create new secret key
+
+   ![image](https://user-images.githubusercontent.com/89479282/207970699-2e0cb671-8636-4e27-b1f3-b75d6db9b57e.PNG)
+
+3. Store the SECRET KEY to `.env` under the `OPENAI_API_KEY`
+
+4. You're all set for Step 3
+
+## Step 2: Website ChatGPT authentication - 2 approaches
 
 ### Email/Password authentication (Not supported for Google/Microsoft accounts)
 1. Create an account on https://chat.openai.com/chat
