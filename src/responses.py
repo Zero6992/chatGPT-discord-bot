@@ -4,14 +4,17 @@ from dotenv import load_dotenv
 import os
 
 load_dotenv()
-openAI_email = os.getenv("OPENAI_EMAIL")
-openAI_password = os.getenv("OPENAI_PASSWORD")
-session_token = os.getenv("SESSION_TOKEN")
-openAI_key = os.getenv("OPENAI_API_KEY")
-openAI_engine = os.getenv("OPENAI_ENGINE")
+OPENAI_EMAIL = os.getenv("OPENAI_EMAIL")
+OPENAI_PASSWORD = os.getenv("OPENAI_PASSWORD")
+SESSION_TOKEN = os.getenv("SESSION_TOKEN")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+ENGINE = os.getenv("OPENAI_ENGINE")
+CHAT_MODEL = os.getenv("CHAT_MODEL")
 
-unofficial_chatbot = AsyncChatbot(config={"email":openAI_email, "password":openAI_password, "session_token":session_token})
-offical_chatbot = Chatbot(api_key=openAI_key)
+if CHAT_MODEL ==  "UNOFFICIAL":
+    unofficial_chatbot = AsyncChatbot(config={"email":OPENAI_EMAIL, "password":OPENAI_PASSWORD, "session_token":SESSION_TOKEN})
+elif CHAT_MODEL == "OFFICIAL":
+    offical_chatbot = Chatbot(api_key=OPENAI_API_KEY, engine=ENGINE)
 
 async def official_handle_response(message) -> str:
     responseMessage = offical_chatbot.ask(message)
