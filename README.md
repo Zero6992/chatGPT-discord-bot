@@ -3,8 +3,10 @@
 > ### Build your own Discord bot using ChatGPT
 ---
 > **Warning**
+>According to OpenAI's latest announcement, using unofficial API may result in the ban of your account. Please assess the risks yourself
 >
-> #### 2023-02-25 Update: Free ChatGPT model
+> #### 2023-03-03 Update: Add Official GPT-3.5 model
+> #### 2023-02-25 Update: Website ChatGPT model
 > #### 2023-02-08 Update: ChatGPT API is highly unstable now
 
 ## Features
@@ -14,6 +16,8 @@
 * `/public`  ChatGPT switch to public  mode
 * `/replyall`  ChatGPT switch between replyall mode and default mode
 * `/reset` Clear ChatGPT conversation history
+* `/chat-model` Switch different chat model
+   - **Official GPT-3.5(piad model)** and **Website ChatGPT(free model)**
 
 ### Chat
 
@@ -38,7 +42,7 @@
 
 ## Critical prerequisites to install
 
-1. run `pip install -r requirements.txt`
+1. run `pip3 install -r requirements.txt`
 
 2. **Rename the file `.env.dev` to `.env`**
 
