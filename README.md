@@ -5,7 +5,7 @@
 > **Warning**
 >According to OpenAI's latest announcement, using unofficial API may result in the ban of your account. Please assess the risks yourself
 >
-> #### 2023-03-03 Update: Add Official GPT-3.5 model
+> #### 2023-03-03 Update: Official GPT-3.5 model
 > #### 2023-02-25 Update: Website ChatGPT model
 > #### 2023-02-08 Update: ChatGPT API is highly unstable now
 
@@ -17,7 +17,7 @@
 * `/replyall`  ChatGPT switch between replyall mode and default mode
 * `/reset` Clear ChatGPT conversation history
 * `/chat-model` Switch different chat model
-   - Modifying the `CHAT_MODEL` field in the `.env` file change the default model
+   -  Modifying the `CHAT_MODEL` field in the `.env` file change the default model
    - `OFFICIAL`: GPT-3.5 model(paid model)
    - `UNOFFICIAL`: Website ChatGPT (free model)
 
