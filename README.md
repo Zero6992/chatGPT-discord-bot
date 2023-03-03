@@ -77,7 +77,7 @@
 
 3. Store the SECRET KEY to `.env` under the `OPENAI_API_KEY`
 
-4. You're all set for Step 3
+4. You're all set for [Step 3](#step-3-run-the-bot-on-the-desktop)
 
 ## Step 2: Website ChatGPT authentication - 2 approaches
 
@@ -88,7 +88,7 @@
 
 3. Save your password into `.env` under `OPENAI_PASSWORD`
 
-4. You're all set for Step 3
+4. You're all set for [Step 3](#step-3-run-the-bot-on-the-desktop)
 
 ### Session token authentication
 1. Go to https://chat.openai.com/chat log in
@@ -101,7 +101,7 @@
 
 3. Copy the value for `__Secure-next-auth.session-token` from cookies and paste it into `.env` under `SESSION_TOKEN`
 
-4. You're all set for Step 3
+4. You're all set for [Step 3](#step-3-run-the-bot-on-the-desktop)
 
 ## Step 3: Run the bot on the desktop
 
