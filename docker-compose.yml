@@ -5,5 +5,5 @@ services:
     build: .
     image: chatgpt-discord-bot
     container_name: chatgpt-discord-bot
-    volumes:
-      - ./.env:/DiscordBot/.env
+    env_file:
+      - .env
