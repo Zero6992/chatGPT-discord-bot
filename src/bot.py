@@ -9,13 +9,14 @@ logger = log.setup_logger(__name__)
 isPrivate = False
 isReplyAll = False
 
+
 class aclient(discord.Client):
     def __init__(self) -> None:
         intents = discord.Intents.default()
         intents.message_content = True
         super().__init__(intents=intents)
         self.tree = app_commands.CommandTree(self)
-        self.activity = discord.Activity(type=discord.ActivityType.watching, name="/chat | /help")
+        self.activity = discord.Activity(type=discord.ActivityType.watching, name="being evil. 😈")
 
 
 async def send_message(message, user_message):
@@ -120,11 +121,13 @@ async def send_start_prompt(client):
 def run_discord_bot():
     client = aclient()
 
+
     @client.event
     async def on_ready():
         await send_start_prompt(client)
         await client.tree.sync()
         logger.info(f'{client.user} is now running!')
+
 
     @client.tree.command(name="chat", description="Have a chat with ChatGPT")
     async def chat(interaction: discord.Interaction, *, message: str):
@@ -144,6 +147,7 @@ def run_discord_bot():
             f"\x1b[31m{username}\x1b[0m : '{user_message}' ({channel})")
         await send_message(interaction, user_message)
 
+
     @client.tree.command(name="private", description="Toggle private access")
     async def private(interaction: discord.Interaction):
         global isPrivate
@@ -157,6 +161,7 @@ def run_discord_bot():
             logger.info("You already on private mode!")
             await interaction.followup.send(
                 "> **Warn: You already on private mode. If you want to switch to public mode, use `/public`**")
+
 
     @client.tree.command(name="public", description="Toggle public access")
     async def public(interaction: discord.Interaction):
@@ -172,6 +177,7 @@ def run_discord_bot():
                 "> **Warn: You already on public mode. If you want to switch to private mode, use `/private`**")
             logger.info("You already on public mode!")
 
+
     @client.tree.command(name="replyall", description="Toggle replyAll access")
     async def replyall(interaction: discord.Interaction):
         global isReplyAll
@@ -186,6 +192,7 @@ def run_discord_bot():
             logger.warning("\x1b[31mSwitch to replyAll mode\x1b[0m")
         isReplyAll = not isReplyAll
     
+
     @client.tree.command(name="reset", description="Complete reset ChatGPT conversation history")
     async def reset(interaction: discord.Interaction):
         responses.chatbot.reset_chat()
@@ -195,17 +202,49 @@ def run_discord_bot():
             "\x1b[31mChatGPT bot has been successfully reset\x1b[0m")
         await send_start_prompt(client)
 
+
     @client.tree.command(name="help", description="Show help for the bot")
     async def help(interaction: discord.Interaction):
         await interaction.response.defer(ephemeral=False)
         await interaction.followup.send(""":star:**BASIC COMMANDS** \n
         - `/chat [message]` Chat with ChatGPT!
-        - `/public` ChatGPT switch to public mode 
-        - `/replyall` ChatGPT switch between replyall mode and default mode
+        - `/switchpersona [persona]` Switches between optional chatGPT jailbreaks
+                `random`: Picks a random persona
+                `chatGPT`: Standard chatGPT mode
+                `dan`: Dan Mode 11.0, infamous Do Anything Now Mode
+                `sda`: Superior DAN has even more freedom in DAN Mode
+                `evil`: Evil Confidant, evil trusted confidant
+                `based`: BasedGPT v2, sexy gpt
+                `oppo`: OPPO says exact opposite of what chatGPT would say
+                `dev`: Developer Mode, v2 Developer mode enabled
+                `meanie`: Meanie, says mean things
+
+        - `/public` ChatGtGPT switch between replyall mode and default mode
         - `/reset` Clear ChatGPT conversation history\n
-        For complete documentation, please visit https://github.com/Zero6992/chatGPT-discord-bot""")
+        For complete documentation, please visit https://github.com/Zero6992/chatGPT-discord-bot
+        chatGPT Jailbreaks are from https://www.jailbreakchat.com/""")
         logger.info(
             "\x1b[31mSomeone need help!\x1b[0m")
+
+    
+    # @client.tree.command(name="switchpersona", description="Switch the persona that chatGPT is using")
+    # async def switch_persona(interaction: discord.Interaction, *, message: str):
+    #     global isReplyAll
+    #     if isReplyAll:
+    #         await interaction.response.defer(ephemeral=False)
+    #         await interaction.followup.send(
+    #             "> **Warn: You already on replyAll mode. If you want to use slash command, switch to normal mode, use `/replyall` again**")
+    #         logger.warning("\x1b[31mYou already on replyAll mode, can't use slash command!\x1b[0m")
+    #         return
+    #     if interaction.user == client.user:
+    #         return
+    #     username = str(interaction.user)
+    #     user_message = message
+    #     channel = str(interaction.channel)
+    #     logger.info(
+    #         f"\x1b[31m{username}\x1b[0m : '{user_message}' ({channel})")
+    #     await send_message(interaction, user_message)
+
 
     @client.event
     async def on_message(message):
