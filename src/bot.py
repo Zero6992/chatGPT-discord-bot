@@ -217,7 +217,7 @@ def run_discord_bot():
         if chat_model == "OFFICIAL":
             responses.offical_chatbot.reset()
         elif chat_model == "UNOFFICIAL":
-            responses.unofficial_chatbot.clear_conversations()
+            responses.unofficial_chatbot.reset_chat()
         await interaction.response.defer(ephemeral=False)
         await interaction.followup.send("> **Info: I have forgotten everything.**")
         logger.warning(
