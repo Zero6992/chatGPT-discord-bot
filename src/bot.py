@@ -181,6 +181,7 @@ def run_discord_bot():
     @client.tree.command(name="replyall", description="Toggle replyAll access")
     async def replyall(interaction: discord.Interaction):
         isReplyAll =  os.getenv("REPLYING_ALL")
+        os.environ["REPLYING_ALL_DISCORD_CHANNEL_ID"] = str(interaction.channel_id)
         await interaction.response.defer(ephemeral=False)
         if isReplyAll == "True":
             os.environ["REPLYING_ALL"] = "False"
@@ -240,7 +241,7 @@ def run_discord_bot():
     @client.event
     async def on_message(message):
         isReplyAll =  os.getenv("REPLYING_ALL")
-        if isReplyAll == "True":
+        if isReplyAll == "True" and message.channel.id == int(os.getenv("REPLYING_ALL_DISCORD_CHANNEL_ID")):
             if message.author == client.user:
                 return
             username = str(message.author)
