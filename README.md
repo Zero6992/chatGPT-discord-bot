@@ -1,6 +1,6 @@
 # ChatGPT Discord Bot
 
-> ### Build your own Discord bot using ChatGPT
+> ### Build your own Discord bot with chatGPT and Dalle2 functionality
 
 ## Features
 
