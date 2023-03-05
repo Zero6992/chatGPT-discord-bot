@@ -191,7 +191,7 @@ def run_discord_bot():
         elif isReplyAll == "False":
             os.environ["REPLYING_ALL"] = "True"
             await interaction.followup.send(
-                "> **Info: Next, the bot will response to all message in the server. If you want to switch back to normal mode, use `/replyAll` again.**")
+                "> **Info: Next, the bot will response to all message in this channel only.If you want to switch back to normal mode, use `/replyAll` again.**")
             logger.warning("\x1b[31mSwitch to replyAll mode\x1b[0m")
         
 

@@ -7,7 +7,6 @@
 >
 > #### 2023-03-03 Update: Official GPT-3.5 model
 > #### 2023-02-25 Update: Website ChatGPT model
-> #### 2023-02-08 Update: ChatGPT API is highly unstable now
 
 ## Features
 
@@ -17,9 +16,9 @@
 * `/replyall`  ChatGPT switch between replyall mode and default mode
 * `/reset` Clear ChatGPT conversation history
 * `/chat-model` Switch different chat model
-   -  Modifying the `CHAT_MODEL` field in the `.env` file change the default model
-   - `OFFICIAL`: GPT-3.5 model(paid model)
-   - `UNOFFICIAL`: Website ChatGPT (free model)
+   -  Modifying `CHAT_MODEL` field in the `.env` file change the default model
+   - `OFFICIAL`: GPT-3.5 model
+   - `UNOFFICIAL`: Website ChatGPT
 
 ### Chat
 
@@ -35,7 +34,7 @@
 
   ![image](https://user-images.githubusercontent.com/89479282/206565873-b181e600-e793-4a94-a978-47f806b986da.gif)
 
-* `replyall mode` the bot will reply to all messages in the server without using slash commands
+* `replyall mode` the bot will reply to all messages in the channel without using slash commands (`/chat` will also be unavailable)
 
    > **Warning**
    > The bot will easily be triggered in `replyall` mode, which could cause program failures
@@ -44,7 +43,7 @@
 
 ## Critical prerequisites to install
 
-1. run `pip3 install -r requirements.txt`
+1. run ```pip3 install -r requirements.txt```
 
 2. **Rename the file `.env.dev` to `.env`**
 
