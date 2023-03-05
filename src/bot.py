@@ -1,8 +1,11 @@
 import discord
 import os
+import openai
 from discord import app_commands
 from src import responses
 from src import log
+from src import generator
+
 
 logger = log.setup_logger(__name__)
 
@@ -16,7 +19,7 @@ class aclient(discord.Client):
         intents.message_content = True
         super().__init__(intents=intents)
         self.tree = app_commands.CommandTree(self)
-        self.activity = discord.Activity(type=discord.ActivityType.watching, name="being evil. 😈")
+        self.activity = discord.Activity(type=discord.ActivityType.watching, name="/switchpersona 😈")
 
 
 async def send_message(message, user_message):
@@ -208,6 +211,7 @@ def run_discord_bot():
         await interaction.response.defer(ephemeral=False)
         await interaction.followup.send(""":star:**BASIC COMMANDS** \n
         - `/chat [message]` Chat with ChatGPT!
+        - `/draw [prompt]` Generate an image with the Dalle2 model
         - `/switchpersona [persona]` Switches between optional chatGPT jailbreaks
                 `random`: Picks a random persona
                 `chatGPT`: Standard chatGPT mode
@@ -227,25 +231,50 @@ def run_discord_bot():
             "\x1b[31mSomeone need help!\x1b[0m")
 
     
-    # @client.tree.command(name="switchpersona", description="Switch the persona that chatGPT is using")
-    # async def switch_persona(interaction: discord.Interaction, *, message: str):
-    #     global isReplyAll
-    #     if isReplyAll:
-    #         await interaction.response.defer(ephemeral=False)
-    #         await interaction.followup.send(
-    #             "> **Warn: You already on replyAll mode. If you want to use slash command, switch to normal mode, use `/replyall` again**")
-    #         logger.warning("\x1b[31mYou already on replyAll mode, can't use slash command!\x1b[0m")
-    #         return
-    #     if interaction.user == client.user:
-    #         return
-    #     username = str(interaction.user)
-    #     user_message = message
-    #     channel = str(interaction.channel)
-    #     logger.info(
-    #         f"\x1b[31m{username}\x1b[0m : '{user_message}' ({channel})")
-    #     await send_message(interaction, user_message)
+    @client.tree.command(name="draw", description="Generate an image with the Dalle2 model")
+    async def draw(interaction: discord.Interaction, *, message: str):
+        global isReplyAll
+        if isReplyAll:
+            await interaction.response.defer(ephemeral=False)
+            await interaction.followup.send(
+                "> **Warn: You are already on replyAll mode. If you want to use slash command, switch to normal mode, use `/replyall` again**")
+            logger.warning("\x1b[31mYou are already on replyAll mode, can't use slash command!\x1b[0m")
+            return
+        if interaction.user == client.user:
+            return
+        
+
+        #await interaction.response.defer(ephemeral=False)
+        username = str(interaction.user)
+        user_message = message
+        channel = str(interaction.channel)
+        logger.info(
+            f"\x1b[31m{username}\x1b[0m : '{user_message}' ({channel})")
 
 
+        await interaction.response.defer(thinking=True)
+        try:
+            path = await generator.draw(user_message)
+
+            file = discord.File(path, filename="image.png")
+            embed = discord.Embed(title=f"{user_message} [{generator.count_remaining_images()}/1000]")
+            embed.set_image(url="attachment://image.png")
+
+            # send image in an embed
+            await interaction.followup.send(file=file, embed=embed)
+
+        except openai.InvalidRequestError:
+            await interaction.followup.send("Inappropriate request 😿")
+            logger.info(
+                f'\x1b[31m{username} made an inappropriate request.!')
+
+        # except openai.APIError():
+        #     pass
+
+        # except openai.OpenAIError():
+        #     pass
+
+        
     @client.event
     async def on_message(message):
         if isReplyAll:
