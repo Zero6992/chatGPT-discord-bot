@@ -3,6 +3,7 @@
 > ### Build your own Discord bot using ChatGPT
 ---
 > **Warning**
+>
 >According to OpenAI's latest announcement, using unofficial API may result in the ban of your account. Please assess the risks yourself
 >
 > #### 2023-03-03 Update: Official GPT-3.5 model
@@ -43,10 +44,11 @@
 
 ## Critical prerequisites to install
 
-1. run ```pip3 install -r requirements.txt```
+* run ```pip3 install -r requirements.txt```
 
-2. **Rename the file `.env.dev` to `.env`**
+* **Rename the file `.env.dev` to `.env`**
 
+* Recommended python version `3.10`
 ## Step 1: Create a Discord bot
 
 1. Go to https://discord.com/developers/applications create an application
