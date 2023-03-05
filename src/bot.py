@@ -7,7 +7,6 @@ from src import log
 logger = log.setup_logger(__name__)
 
 isPrivate = False
-isReplyAll = False
 
 class aclient(discord.Client):
     def __init__(self) -> None:
@@ -19,8 +18,8 @@ class aclient(discord.Client):
 
 
 async def send_message(message, user_message):
-    global isReplyAll
-    if not isReplyAll:
+    isReplyAll =  os.getenv("REPLYING_ALL")
+    if isReplyAll == "False":
         author = message.user.id
         await message.response.defer(ephemeral=isPrivate)
     else:
@@ -42,7 +41,7 @@ async def send_message(message, user_message):
 
                 for i in range(0, len(parts)):
                     if i%2 == 0: # indices that are even are not code blocks
-                        if isReplyAll:
+                        if isReplyAll == "True":
                             await message.channel.send(parts[i])
                         else:
                             await message.followup.send(parts[i])
@@ -63,12 +62,12 @@ async def send_message(message, user_message):
                             code_block_chunks = [formatted_code_block[i:i+char_limit]
                                                  for i in range(0, len(formatted_code_block), char_limit)]
                             for chunk in code_block_chunks:
-                                if isReplyAll:
+                                if isReplyAll == "True":
                                     await message.channel.send("```" + chunk + "```")
                                 else:
                                     await message.followup.send("```" + chunk + "```")
                         else:
-                            if isReplyAll:
+                            if isReplyAll == "True":
                                 await message.channel.send("```" + formatted_code_block + "```")
                             else:
                                 await message.followup.send("```" + formatted_code_block + "```")
@@ -77,17 +76,17 @@ async def send_message(message, user_message):
                 response_chunks = [response[i:i+char_limit]
                                    for i in range(0, len(response), char_limit)]
                 for chunk in response_chunks:
-                    if isReplyAll:
+                    if isReplyAll == "True":
                         await message.channel.send(chunk)
                     else:
                         await message.followup.send(chunk)
         else:
-            if isReplyAll:
+            if isReplyAll == "True":
                 await message.channel.send(response)
             else:
                 await message.followup.send(response)
     except Exception as e:
-        if isReplyAll:
+        if isReplyAll == "True":
             await message.channel.send("> **Error: Something went wrong, please try again later!**")
         else:
             await message.followup.send("> **Error: Something went wrong, please try again later!**")
@@ -135,8 +134,8 @@ def run_discord_bot():
 
     @client.tree.command(name="chat", description="Have a chat with ChatGPT")
     async def chat(interaction: discord.Interaction, *, message: str):
-        global isReplyAll
-        if isReplyAll:
+        isReplyAll =  os.getenv("REPLYING_ALL")
+        if isReplyAll == "True":
             await interaction.response.defer(ephemeral=False)
             await interaction.followup.send(
                 "> **Warn: You already on replyAll mode. If you want to use slash command, switch to normal mode, use `/replyall` again**")
@@ -181,17 +180,19 @@ def run_discord_bot():
 
     @client.tree.command(name="replyall", description="Toggle replyAll access")
     async def replyall(interaction: discord.Interaction):
-        global isReplyAll
+        isReplyAll =  os.getenv("REPLYING_ALL")
         await interaction.response.defer(ephemeral=False)
-        if isReplyAll:
+        if isReplyAll == "True":
+            os.environ["REPLYING_ALL"] = "False"
             await interaction.followup.send(
                 "> **Info: The bot will only response to the slash command `/chat` next. If you want to switch back to replyAll mode, use `/replyAll` again.**")
             logger.warning("\x1b[31mSwitch to normal mode\x1b[0m")
-        else:
+        elif isReplyAll == "False":
+            os.environ["REPLYING_ALL"] = "True"
             await interaction.followup.send(
                 "> **Info: Next, the bot will response to all message in the server. If you want to switch back to normal mode, use `/replyAll` again.**")
             logger.warning("\x1b[31mSwitch to replyAll mode\x1b[0m")
-        isReplyAll = not isReplyAll
+        
 
     @client.tree.command(name="chat-model", description="Switch different chat model")
     @app_commands.choices(choices=[
@@ -238,7 +239,8 @@ def run_discord_bot():
 
     @client.event
     async def on_message(message):
-        if isReplyAll:
+        isReplyAll =  os.getenv("REPLYING_ALL")
+        if isReplyAll == "True":
             if message.author == client.user:
                 return
             username = str(message.author)
