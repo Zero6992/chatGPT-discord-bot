@@ -103,7 +103,7 @@ async def send_start_prompt(client):
     discord_channel_id = os.getenv("DISCORD_CHANNEL_ID")
     try:
         if os.path.isfile(prompt_path) and os.path.getsize(prompt_path) > 0:
-            with open(prompt_path, "r") as f:
+            with open(prompt_path, "r", encoding="utf-8") as f:
                 prompt = f.read()
                 if (discord_channel_id):
                     logger.info(f"Send starting prompt with size {len(prompt)}")
