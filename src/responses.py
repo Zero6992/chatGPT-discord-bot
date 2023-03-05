@@ -17,9 +17,7 @@ elif CHAT_MODEL == "OFFICIAL":
     offical_chatbot = Chatbot(api_key=OPENAI_API_KEY, engine=ENGINE)
 
 async def official_handle_response(message) -> str:
-    responseMessage = offical_chatbot.ask(message)
-
-    return responseMessage
+    return offical_chatbot.ask(message)
 
 async def unofficial_handle_response(message) -> str:
     async for response in unofficial_chatbot.ask(message):

@@ -25,8 +25,7 @@ async def send_message(message, user_message):
     else:
         author = message.author.id
     try:
-        response = '> **' + user_message + '** - <@' + \
-            str(author) + '> \n\n'
+        response = (f'> **{user_message}** - <@{str(author)}' + '> \n\n')
         chat_model = os.getenv("CHAT_MODEL")
         if chat_model == "OFFICIAL":
             response = f"{response}{await responses.official_handle_response(user_message)}"
@@ -39,14 +38,13 @@ async def send_message(message, user_message):
                 # Split the response if the code block exists
                 parts = response.split("```")
 
-                for i in range(0, len(parts)):
+                for i in range(len(parts)):
                     if i%2 == 0: # indices that are even are not code blocks
                         if isReplyAll == "True":
                             await message.channel.send(parts[i])
                         else:
                             await message.followup.send(parts[i])
 
-                    # Send the code block in a seperate message
                     else: # Odd-numbered parts are code blocks
                         code_block = parts[i].split("\n")
                         formatted_code_block = ""
@@ -63,14 +61,13 @@ async def send_message(message, user_message):
                                                  for i in range(0, len(formatted_code_block), char_limit)]
                             for chunk in code_block_chunks:
                                 if isReplyAll == "True":
-                                    await message.channel.send("```" + chunk + "```")
+                                    await message.channel.send(f"```{chunk}```")
                                 else:
-                                    await message.followup.send("```" + chunk + "```")
+                                    await message.followup.send(f"```{chunk}```")
+                        elif isReplyAll == "True":
+                            await message.channel.send(f"```{formatted_code_block}```")
                         else:
-                            if isReplyAll == "True":
-                                await message.channel.send("```" + formatted_code_block + "```")
-                            else:
-                                await message.followup.send("```" + formatted_code_block + "```")
+                            await message.followup.send(f"```{formatted_code_block}```")
 
             else:
                 response_chunks = [response[i:i+char_limit]
@@ -80,11 +77,10 @@ async def send_message(message, user_message):
                         await message.channel.send(chunk)
                     else:
                         await message.followup.send(chunk)
+        elif isReplyAll == "True":
+            await message.channel.send(response)
         else:
-            if isReplyAll == "True":
-                await message.channel.send(response)
-            else:
-                await message.followup.send(response)
+            await message.followup.send(response)
     except Exception as e:
         if isReplyAll == "True":
             await message.channel.send("> **Error: Something went wrong, please try again later!**")
@@ -96,7 +92,7 @@ async def send_message(message, user_message):
 async def send_start_prompt(client):
     import os.path
 
-    config_dir = os.path.abspath(__file__ + "/../../")
+    config_dir = os.path.abspath(f"{__file__}/../../")
     prompt_name = 'starting-prompt.txt'
     prompt_path = os.path.join(config_dir, prompt_name)
     discord_channel_id = os.getenv("DISCORD_CHANNEL_ID")
