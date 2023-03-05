@@ -266,13 +266,21 @@ def run_discord_bot():
         except openai.InvalidRequestError:
             await interaction.followup.send("Inappropriate request 😿")
             logger.info(
-                f'\x1b[31m{username} made an inappropriate request.!')
+                f'{username} made an inappropriate request.!')
 
         # except openai.APIError():
         #     pass
 
         # except openai.OpenAIError():
         #     pass
+
+
+    @client.tree.command(name="again", description="Rerun the previous command.")
+    async def again(interaction: discord.Interaction):
+        await interaction.response.defer(ephemeral=False)
+        await interaction.followup.send("again")
+        logger.warning(
+            "\x1b[31m again \x1b[0m")
 
         
     @client.event
