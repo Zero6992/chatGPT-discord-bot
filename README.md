@@ -1,6 +1,13 @@
 # ChatGPT Discord Bot
 
-> ### Build your own Discord bot with chatGPT and Dalle2 functionality
+> ### Build your own Discord bot using ChatGPT
+---
+> **Warning**
+>
+>According to OpenAI's latest announcement, using unofficial API may result in the ban of your account. Please assess the risks yourself
+>
+> #### 2023-03-03 Update: Official GPT-3.5 model
+> #### 2023-02-25 Update: Website ChatGPT model
 
 ## Features
 
@@ -22,6 +29,10 @@
 * `/public`  ChatGPT switch to public  mode
 * `/replyall`  ChatGPT switch between replyall mode and default mode
 * `/reset` Clear ChatGPT conversation history
+* `/chat-model` Switch different chat model
+   -  Modifying `CHAT_MODEL` field in the `.env` file change the default model
+   - `OFFICIAL`: GPT-3.5 model
+   - `UNOFFICIAL`: Website ChatGPT
 
 ### Chat
 
@@ -37,7 +48,7 @@
 
   ![image](https://user-images.githubusercontent.com/89479282/206565873-b181e600-e793-4a94-a978-47f806b986da.gif)
 
-* `replyall mode` the bot will reply to all messages in the server without using slash commands
+* `replyall mode` the bot will reply to all messages in the channel without using slash commands (`/chat` will also be unavailable)
 
    > **Warning**
    > The bot will easily be triggered in `replyall` mode, which could cause program failures
@@ -46,10 +57,11 @@
 
 ## Critical prerequisites to install
 
-1. run `pip install -r requirements.txt`
+* run ```pip3 install -r requirements.txt```
 
-2. **Rename the file `.env.dev` to `.env`**
+* **Rename the file `.env.dev` to `.env`**
 
+* Recommended python version `3.10`
 ## Step 1: Create a Discord bot
 
 1. Go to https://discord.com/developers/applications create an application
@@ -59,7 +71,7 @@
    ![image](https://user-images.githubusercontent.com/89479282/205949161-4b508c6d-19a7-49b6-b8ed-7525ddbef430.png)
 4. Store the token to `.env` under the `DISCORD_BOT_TOKEN`
 
-   ![image](https://user-images.githubusercontent.com/89479282/221367600-b3676c8a-4f3f-457d-91c4-48ef129eae57.png)
+   <img height="190" width="390" alt="image" src="https://user-images.githubusercontent.com/89479282/222661803-a7537ca7-88ae-4e66-9bec-384f3e83e6bd.png">
 
 5. Turn MESSAGE CONTENT INTENT `ON`
 
@@ -68,8 +80,20 @@
 6. Invite your bot to your server via OAuth2 URL Generator
 
    ![image](https://user-images.githubusercontent.com/89479282/205949600-0c7ddb40-7e82-47a0-b59a-b089f929d177.png)
+## Step 2: Official API authentication
 
-## Step 2: ChatGPT(website) authentication - 2 approaches
+### Geanerate an OpenAI API key
+1. Go to https://beta.openai.com/account/api-keys
+
+2. Click Create new secret key
+
+   ![image](https://user-images.githubusercontent.com/89479282/207970699-2e0cb671-8636-4e27-b1f3-b75d6db9b57e.PNG)
+
+3. Store the SECRET KEY to `.env` under the `OPENAI_API_KEY`
+
+4. You're all set for [Step 3](#step-3-run-the-bot-on-the-desktop)
+
+## Step 2: Website ChatGPT authentication - 2 approaches
 
 ### Email/Password authentication (Not supported for Google/Microsoft accounts)
 1. Create an account on https://chat.openai.com/chat
@@ -78,7 +102,7 @@
 
 3. Save your password into `.env` under `OPENAI_PASSWORD`
 
-4. You're all set for Step 3
+4. You're all set for [Step 3](#step-3-run-the-bot-on-the-desktop)
 
 ### Session token authentication
 1. Go to https://chat.openai.com/chat log in
@@ -91,7 +115,7 @@
 
 3. Copy the value for `__Secure-next-auth.session-token` from cookies and paste it into `.env` under `SESSION_TOKEN`
 
-4. You're all set for Step 3
+4. You're all set for [Step 3](#step-3-run-the-bot-on-the-desktop)
 
 ## Step 3: Run the bot on the desktop
 

@@ -49,7 +49,7 @@ def setup_logger(module_name:str) -> logging.Logger:
 
     if os.getenv("LOGGING")=="True": #Check if logging is enabled
         # specify that the log file path is the same as `main.py` file path
-        grandparent_dir = os.path.abspath(__file__ + "/../../")
+        grandparent_dir = os.path.abspath(f"{__file__}/../../")
         log_name='chatgpt_discord_bot.log'
         log_path = os.path.join(grandparent_dir, log_name)
         # create local log handler

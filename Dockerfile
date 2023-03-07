@@ -30,7 +30,7 @@ RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
 ENV PATH="/root/.cargo/bin:${PATH}"
 RUN rustup update
 
-RUN pip install cryptography
+RUN pip3 install cryptography
 COPY ./ /DiscordBot
 WORKDIR /DiscordBot
 RUN pip3 install -r requirements.txt

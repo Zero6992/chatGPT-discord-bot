@@ -1,15 +1,28 @@
 import os
 from revChatGPT.V1 import AsyncChatbot
+from revChatGPT.V3 import Chatbot
 from dotenv import load_dotenv
 
 load_dotenv()
-session_token = os.getenv("SESSION_TOKEN")
-openai_email = os.getenv("OPENAI_EMAIL")
-chatbot = AsyncChatbot(config={"email":openai_email, "session_token":session_token})
+OPENAI_EMAIL = os.getenv("OPENAI_EMAIL")
+OPENAI_PASSWORD = os.getenv("OPENAI_PASSWORD")
+SESSION_TOKEN = os.getenv("SESSION_TOKEN")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+ENGINE = os.getenv("OPENAI_ENGINE")
+CHAT_MODEL = os.getenv("CHAT_MODEL")
+
+if CHAT_MODEL ==  "UNOFFICIAL":
+    unofficial_chatbot = AsyncChatbot(config={"email":OPENAI_EMAIL, "password":OPENAI_PASSWORD, "session_token":SESSION_TOKEN})
+elif CHAT_MODEL == "OFFICIAL":
+    official_chatbot = Chatbot(api_key=OPENAI_API_KEY, engine=ENGINE)
 
 
-async def handle_response(message) -> str:
-    async for response in chatbot.ask(message):
+async def official_handle_response(message) -> str:
+    return official_chatbot.ask(message)
+
+
+async def unofficial_handle_response(message) -> str:
+    async for response in unofficial_chatbot.ask(message):
         responseMessage = response["message"]
 
     return responseMessage
@@ -17,7 +30,11 @@ async def handle_response(message) -> str:
 
 # resets conversation and asks chatGPT the prompt for a persona
 async def switch_persona(persona) -> None:
-    chatbot.reset_chat()
+    if CHAT_MODEL ==  "UNOFFICIAL":
+        unofficial_chatbot.reset_chat()
+    elif CHAT_MODEL == "OFFICIAL":
+        official_chatbot.reset_chat()
+        
     async for response in chatbot.ask(persona):
         pass
 
