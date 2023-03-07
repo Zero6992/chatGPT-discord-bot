@@ -7,15 +7,15 @@
 * `/chat [message]` Chat with ChatGPT!
 * `/again` Rerun the previous command!
 * `/draw [prompt]` Generate an image with the Dalle2 model
-* `/switchpersona [persona]` Switches between optional chatGPT jailbreaks.
-  * `random`: Picks a random persona
-  * `chatGPT`: Standard chatGPT mode
+* `/switchpersona [persona]` Switch between optional chatGPT jailbreaks.
+  * `random`: Pick a random persona
+  * `standard`: Standard chatGPT mode
   * `dan`: Dan Mode 11.0, infamous Do Anything Now Mode
   * `sda`: Superior DAN has even more freedom in DAN Mode
-  * `evil`: Evil Confidant, evil trusted confidant
+  * `confidant`: Evil Confidant, evil trusted confidant
   * `based`: BasedGPT v2, sexy gpt
   * `oppo`: OPPO says exact opposite of what chatGPT would say
-  * `dev`: Developer Mode, v2 Developer mode enabled
+  * `dev`: Developer Mode v2, Developer mode enabled
   * `meanie`: Meanie, says mean things
 
 * `/private` ChatGPT switch to private mode

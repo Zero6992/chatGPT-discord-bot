@@ -1,10 +1,12 @@
 import discord
 import os
 import openai
+from random import randrange
 from discord import app_commands
 from src import responses
 from src import log
-from src import generator
+from src import art
+from src import personas
 
 
 logger = log.setup_logger(__name__)
@@ -19,7 +21,7 @@ class aclient(discord.Client):
         intents.message_content = True
         super().__init__(intents=intents)
         self.tree = app_commands.CommandTree(self)
-        self.activity = discord.Activity(type=discord.ActivityType.watching, name="/switchpersona 😈")
+        self.activity = discord.Activity(type=discord.ActivityType.custom, name="Being evil. 😈")
 
 
 async def send_message(message, user_message):
@@ -144,11 +146,10 @@ def run_discord_bot():
         if interaction.user == client.user:
             return
         username = str(interaction.user)
-        user_message = message
         channel = str(interaction.channel)
         logger.info(
-            f"\x1b[31m{username}\x1b[0m : '{user_message}' ({channel})")
-        await send_message(interaction, user_message)
+            f"\x1b[31m{username}\x1b[0m : /chat [{message}] in ({channel})")
+        await send_message(interaction, message)
 
 
     @client.tree.command(name="private", description="Toggle private access")
@@ -212,7 +213,7 @@ def run_discord_bot():
         await interaction.followup.send(""":star:**BASIC COMMANDS** \n
         - `/chat [message]` Chat with ChatGPT!
         - `/draw [prompt]` Generate an image with the Dalle2 model
-        - `/switchpersona [persona]` Switches between optional chatGPT jailbreaks
+        - `/switchpersona [persona]` Switch between optional chatGPT jailbreaks
                 `random`: Picks a random persona
                 `chatGPT`: Standard chatGPT mode
                 `dan`: Dan Mode 11.0, infamous Do Anything Now Mode
@@ -228,11 +229,11 @@ def run_discord_bot():
         For complete documentation, please visit https://github.com/Zero6992/chatGPT-discord-bot
         chatGPT Jailbreaks are from https://www.jailbreakchat.com/""")
         logger.info(
-            "\x1b[31mSomeone need help!\x1b[0m")
+            "\x1b[31mSomeone needs help!\x1b[0m")
 
     
     @client.tree.command(name="draw", description="Generate an image with the Dalle2 model")
-    async def draw(interaction: discord.Interaction, *, message: str):
+    async def draw(interaction: discord.Interaction, *, prompt: str):
         global isReplyAll
         if isReplyAll:
             await interaction.response.defer(ephemeral=False)
@@ -246,41 +247,92 @@ def run_discord_bot():
 
         #await interaction.response.defer(ephemeral=False)
         username = str(interaction.user)
-        user_message = message
         channel = str(interaction.channel)
         logger.info(
-            f"\x1b[31m{username}\x1b[0m : '{user_message}' ({channel})")
+            f"\x1b[31m{username}\x1b[0m : /draw [{prompt}] in ({channel})")
 
 
         await interaction.response.defer(thinking=True)
         try:
-            path = await generator.draw(user_message)
+            path = await art.draw(prompt)
 
             file = discord.File(path, filename="image.png")
-            embed = discord.Embed(title=f"{user_message} [{generator.count_remaining_images()}/1000]")
+            title = '> **' + prompt + '**\n'
+            embed = discord.Embed(title=title)
             embed.set_image(url="attachment://image.png")
 
             # send image in an embed
             await interaction.followup.send(file=file, embed=embed)
+            logger.info(
+            f"\x1b[0m {art.count_remaining_images()} images remaining")
 
         except openai.InvalidRequestError:
-            await interaction.followup.send("Inappropriate request 😿")
+            await interaction.followup.send(
+                "> **Warn: Inappropriate request 😿**")
             logger.info(
-                f'{username} made an inappropriate request.!')
+            f"\x1b[31m{username}\x1b[0m made an inappropriate request.!")
 
-        # except openai.APIError():
-        #     pass
+        except Exception as e:
+            await interaction.followup.send(
+                "> **Warn: Something went wrong 😿**")
+            logger.exception(f"Error while generating image: {e}")
 
-        # except openai.OpenAIError():
-        #     pass
+
+    @client.tree.command(name="switchpersona", description="Switch between optional chatGPT jailbreaks")
+    async def chat(interaction: discord.Interaction, *, persona: str):
+        global isReplyAll
+        if isReplyAll:
+            await interaction.response.defer(ephemeral=False)
+            await interaction.followup.send(
+                "> **Warn: You already on replyAll mode. If you want to use slash command, switch to normal mode, use `/replyall` again**")
+            logger.warning("\x1b[31mYou already on replyAll mode, can't use slash command!\x1b[0m")
+            return
+        if interaction.user == client.user:
+            return
+
+        await interaction.response.defer(thinking=True)
+        username = str(interaction.user)
+        channel = str(interaction.channel)
+        logger.info(
+            f"\x1b[31m{username}\x1b[0m : '/switchpersona {persona}' ({channel})")
+        
+        persona = persona.lower()
+
+        if persona == personas.current_persona:
+            await interaction.followup.send(f"> **Warn: Already set to `{persona}` persona**")
+
+        elif persona == "standard":
+            responses.chatbot.reset_chat()
+            personas.current_persona = "standard"
+            await interaction.followup.send(
+                f"> **Info: Switched to `{persona}` persona**")
+
+        elif persona == "random":
+            choices = list(personas.PERSONAS.keys())
+            choice = randrange(0, len(choices))
+            chosen_persona = personas.PERSONAS.get(choices[choice])
+            personas.current_persona = chosen_persona
+            await responses.switch_persona(chosen_persona)
+            await interaction.followup.send(
+                f"> **Info: Switched to `{persona}` persona**")
 
 
-    @client.tree.command(name="again", description="Rerun the previous command.")
-    async def again(interaction: discord.Interaction):
-        await interaction.response.defer(ephemeral=False)
-        await interaction.followup.send("again")
-        logger.warning(
-            "\x1b[31m again \x1b[0m")
+        elif persona in personas.PERSONAS:
+            try:
+                await responses.switch_persona(persona)
+                personas.current_persona = persona
+                await interaction.followup.send(
+                f"> **Info: Switched to `{persona}` persona**")
+            except Exception as e:
+                await interaction.followup.send(
+                    "> **Error: Something went wrong, please try again later! 😿**")
+                logger.exception(f"Error while switching persona: {e}")
+                
+        else:
+            await interaction.followup.send(
+                f"> **Error: No available persona: `{persona}` 😿**")
+            logger.info(
+                f'{username} requested an unavailable persona: `{persona}`')
 
         
     @client.event
@@ -289,10 +341,10 @@ def run_discord_bot():
             if message.author == client.user:
                 return
             username = str(message.author)
-            user_message = str(message.content)
+            message = str(message.content)
             channel = str(message.channel)
-            logger.info(f"\x1b[31m{username}\x1b[0m : '{user_message}' ({channel})")
-            await send_message(message, user_message)
+            logger.info(f"\x1b[31m{username}\x1b[0m : '{message}' ({channel})")
+            await send_message(message, message)
     
     TOKEN = os.getenv("DISCORD_BOT_TOKEN")
 

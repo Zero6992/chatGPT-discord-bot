@@ -13,3 +13,11 @@ async def handle_response(message) -> str:
         responseMessage = response["message"]
 
     return responseMessage
+
+
+# resets conversation and asks chatGPT the prompt for a persona
+async def switch_persona(persona) -> None:
+    chatbot.reset_chat()
+    async for response in chatbot.ask(persona):
+        pass
+
