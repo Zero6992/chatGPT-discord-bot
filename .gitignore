@@ -1,6 +1,8 @@
 remaining_images.txt
+json_files
 
 config.json
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

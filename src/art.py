@@ -6,8 +6,7 @@ from base64 import b64decode
 from dotenv import load_dotenv
 
 load_dotenv()
-openai.api_key = os.getenv("OPENAI_API_TOKEN")
-
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 # generate 512x512 image and save to a file
 # return the path of the image as a str

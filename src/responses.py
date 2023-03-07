@@ -32,9 +32,11 @@ async def unofficial_handle_response(message) -> str:
 async def switch_persona(persona) -> None:
     if CHAT_MODEL ==  "UNOFFICIAL":
         unofficial_chatbot.reset_chat()
+        async for response in unofficial_chatbot.ask(persona):
+            pass
+
     elif CHAT_MODEL == "OFFICIAL":
         official_chatbot.reset_chat()
-        
-    async for response in chatbot.ask(persona):
-        pass
+        async for response in official_chatbot.ask(persona):
+            pass
 

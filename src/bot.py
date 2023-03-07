@@ -23,7 +23,7 @@ class aclient(discord.Client):
 
 
 async def send_message(message, user_message):
-    isReplyAll =  os.getenv("REPLYING_ALL")
+    isReplyAll = os.getenv("REPLYING_ALL")
     if isReplyAll == "False":
         author = message.user.id
         await message.response.defer(ephemeral=isPrivate)
@@ -185,7 +185,7 @@ def run_discord_bot():
 
     @client.tree.command(name="replyall", description="Toggle replyAll access")
     async def replyall(interaction: discord.Interaction):
-        isReplyAll =  os.getenv("REPLYING_ALL")
+        isReplyAll = os.getenv("REPLYING_ALL")
         os.environ["REPLYING_ALL_DISCORD_CHANNEL_ID"] = str(interaction.channel_id)
         await interaction.response.defer(ephemeral=False)
         if isReplyAll == "True":
@@ -250,26 +250,33 @@ def run_discord_bot():
                 `dev`: Developer Mode, v2 Developer mode enabled
                 `meanie`: Meanie, says mean things
 
-        - `/public` ChatGtGPT switch between replyall mode and default mode
-        - `/reset` Clear ChatGPT conversation history\n
+        - `/private` ChatGPT switch to private mode
+        - `/public` ChatGPT switch to public mode
+        - `/replyall` ChatGPT switch between replyAll mode and default mode
+        - `/reset` Clear ChatGPT conversation history
+        - `/chat-model` Switch different chat model
+                `OFFICIAL`: GPT-3.5 model
+                `UNOFFICIAL`: Website ChatGPT
+                Modifying CHAT_MODEL field in the .env file change the default model
+
         For complete documentation, please visit https://github.com/Zero6992/chatGPT-discord-bot
-        chatGPT Jailbreaks are from https://www.jailbreakchat.com/""")
+        ChatGPT Jailbreaks are from https://www.jailbreakchat.com/""")
+
         logger.info(
             "\x1b[31mSomeone needs help!\x1b[0m")
 
     
     @client.tree.command(name="draw", description="Generate an image with the Dalle2 model")
     async def draw(interaction: discord.Interaction, *, prompt: str):
-        global isReplyAll
-        if isReplyAll:
+        isReplyAll =  os.getenv("REPLYING_ALL")
+        if isReplyAll == "True":
             await interaction.response.defer(ephemeral=False)
             await interaction.followup.send(
-                "> **Warn: You are already on replyAll mode. If you want to use slash command, switch to normal mode, use `/replyall` again**")
-            logger.warning("\x1b[31mYou are already on replyAll mode, can't use slash command!\x1b[0m")
+                "> **Warn: You already on replyAll mode. If you want to use slash command, switch to normal mode, use `/replyall` again**")
+            logger.warning("\x1b[31mYou already on replyAll mode, can't use slash command!\x1b[0m")
             return
         if interaction.user == client.user:
             return
-        
 
         #await interaction.response.defer(ephemeral=False)
         username = str(interaction.user)
@@ -306,8 +313,8 @@ def run_discord_bot():
 
     @client.tree.command(name="switchpersona", description="Switch between optional chatGPT jailbreaks")
     async def chat(interaction: discord.Interaction, *, persona: str):
-        global isReplyAll
-        if isReplyAll:
+        isReplyAll =  os.getenv("REPLYING_ALL")
+        if isReplyAll == "True":
             await interaction.response.defer(ephemeral=False)
             await interaction.followup.send(
                 "> **Warn: You already on replyAll mode. If you want to use slash command, switch to normal mode, use `/replyall` again**")
@@ -328,7 +335,12 @@ def run_discord_bot():
             await interaction.followup.send(f"> **Warn: Already set to `{persona}` persona**")
 
         elif persona == "standard":
-            responses.chatbot.reset_chat()
+            chat_model = os.getenv("CHAT_MODEL")
+            if chat_model == "OFFICIAL":
+                responses.offical_chatbot.reset()
+            elif chat_model == "UNOFFICIAL":
+                responses.unofficial_chatbot.reset_chat()
+
             personas.current_persona = "standard"
             await interaction.followup.send(
                 f"> **Info: Switched to `{persona}` persona**")

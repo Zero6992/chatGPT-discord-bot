@@ -29,6 +29,7 @@ def check_verion() -> None:
 if __name__ == '__main__': 
     check_verion()
     bot.run_discord_bot()
+    
     #repl jailbreak
     #serve()
     
