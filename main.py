@@ -1,6 +1,5 @@
 from src import bot
 from dotenv import load_dotenv
-from src import serve
 import sys
 
 def check_verion() -> None:
