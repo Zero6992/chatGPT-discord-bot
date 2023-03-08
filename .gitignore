@@ -1,6 +1,6 @@
-remaining_images.txt
-json_files
-images
+# Generated image files
+json_files/
+images/
 
 config.json
 
