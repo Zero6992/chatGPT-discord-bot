@@ -12,7 +12,7 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 # generate 512x512 image and save to a file
 # return the path of the image as a str
 async def draw(prompt) -> str:
-    DATA_DIR = Path.cwd() / "json_files"
+    DATA_DIR = Path.cwd()
     DATA_DIR.mkdir(exist_ok=True)
     
     response = openai.Image.create(
@@ -48,4 +48,9 @@ def convert(path):
     
         with open(image_file, mode="wb") as png:
             png.write(image_data)
+
+        
+        # delete uneeded json file
+        os.remove(path)
+
     return image_file
