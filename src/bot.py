@@ -297,8 +297,6 @@ def run_discord_bot():
 
             # send image in an embed
             await interaction.followup.send(file=file, embed=embed)
-            logger.info(
-            f"\x1b[0m {art.count_remaining_images()} images remaining")
 
         except openai.InvalidRequestError:
             await interaction.followup.send(
