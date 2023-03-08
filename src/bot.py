@@ -19,7 +19,7 @@ class aclient(discord.Client):
         intents.message_content = True
         super().__init__(intents=intents)
         self.tree = app_commands.CommandTree(self)
-        self.activity = discord.Activity(type=discord.ActivityType.custom, name="Being evil. 😈")
+        self.activity = discord.Activity(type=discord.ActivityType.watching, name="😈")
 
 
 async def send_message(message, user_message):
