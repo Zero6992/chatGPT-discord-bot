@@ -13,13 +13,14 @@ logger = log.setup_logger(__name__)
 
 isPrivate = False
 
+
 class aclient(discord.Client):
     def __init__(self) -> None:
         intents = discord.Intents.default()
         intents.message_content = True
         super().__init__(intents=intents)
         self.tree = app_commands.CommandTree(self)
-        self.activity = discord.Activity(type=discord.ActivityType.watching, name="😈")
+        self.activity = discord.Activity(type=discord.ActivityType.listening, name="/switchpersona 😈")
 
 
 async def send_message(message, user_message):

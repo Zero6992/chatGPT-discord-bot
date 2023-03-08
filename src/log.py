@@ -19,6 +19,7 @@ class CustomFormatter(logging.Formatter):
         for level, color in LEVEL_COLORS
     }
 
+
     def format(self, record):
         formatter = self.FORMATS.get(record.levelno)
         if formatter is None:
