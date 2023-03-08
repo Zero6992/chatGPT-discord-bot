@@ -28,23 +28,7 @@ async def draw(prompt) -> str:
     
     path = str(convert(file_name))
 
-    buy_image()
-
     return path
-
- 
- # tracks remaining free credit in openai account
-def count_remaining_images():
-    with open("remaining_images.txt", "r") as f:
-        remaining_images = f.read()
-    return int(remaining_images)
-
-# decreases value in "remaining_images" file
-def buy_image():
-    remaining_images = count_remaining_images()
-    
-    with open("remaining_images.txt", "w") as f:
-        f.write(str(remaining_images-1))
 
 
 # code stolen from https://realpython.com/generate-images-with-dalle-openai-api/
