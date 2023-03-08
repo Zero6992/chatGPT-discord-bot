@@ -203,7 +203,7 @@ def run_discord_bot():
     @client.tree.command(name="chat-model", description="Switch different chat model")
     @app_commands.choices(choices=[
         app_commands.Choice(name="Official GPT-3.5", value="OFFICIAL"),
-        app_commands.Choice(name="Website ChatGPT", value="UNOFFCIAL")
+        app_commands.Choice(name="Website ChatGPT", value="UNOFFICIAL")
     ])
     async def chat_model(interaction: discord.Interaction, choices: app_commands.Choice[str]):
         await interaction.response.defer(ephemeral=False)
@@ -212,7 +212,7 @@ def run_discord_bot():
             await interaction.followup.send(
                 "> **Info: You are now in Official GPT-3.5 model.**\n> You need to set your `OPENAI_API_KEY` in `env` file.")
             logger.warning("\x1b[31mSwitch to OFFICIAL chat model\x1b[0m")
-        elif choices.value == "UNOFFCIAL":
+        elif choices.value == "UNOFFICIAL":
             os.environ["CHAT_MODEL"] = "UNOFFICIAL"
             await interaction.followup.send(
                 "> **Info: You are now in Website ChatGPT model.**\n> You need to set your `SESSION_TOKEN` or `OPENAI_EMAIL` and `OPENAI_PASSWORD` in `env` file.")
@@ -223,11 +223,12 @@ def run_discord_bot():
     async def reset(interaction: discord.Interaction):
         chat_model = os.getenv("CHAT_MODEL")
         if chat_model == "OFFICIAL":
-            responses.offical_chatbot.reset()
+            responses.official_chatbot.reset()
         elif chat_model == "UNOFFICIAL":
             responses.unofficial_chatbot.reset_chat()
         await interaction.response.defer(ephemeral=False)
         await interaction.followup.send("> **Info: I have forgotten everything.**")
+        personas.current_persona = "standard"
         logger.warning(
             "\x1b[31mChatGPT bot has been successfully reset\x1b[0m")
         await send_start_prompt(client)
@@ -241,14 +242,13 @@ def run_discord_bot():
         - `/draw [prompt]` Generate an image with the Dalle2 model
         - `/switchpersona [persona]` Switch between optional chatGPT jailbreaks
                 `random`: Picks a random persona
-                `chatGPT`: Standard chatGPT mode
+                `chatgpt`: Standard chatGPT mode
                 `dan`: Dan Mode 11.0, infamous Do Anything Now Mode
                 `sda`: Superior DAN has even more freedom in DAN Mode
-                `evil`: Evil Confidant, evil trusted confidant
+                `confidant`: Evil Confidant, evil trusted confidant
                 `based`: BasedGPT v2, sexy gpt
                 `oppo`: OPPO says exact opposite of what chatGPT would say
                 `dev`: Developer Mode, v2 Developer mode enabled
-                `meanie`: Meanie, says mean things
 
         - `/private` ChatGPT switch to private mode
         - `/public` ChatGPT switch to public mode
@@ -312,7 +312,17 @@ def run_discord_bot():
 
 
     @client.tree.command(name="switchpersona", description="Switch between optional chatGPT jailbreaks")
-    async def chat(interaction: discord.Interaction, *, persona: str):
+    @app_commands.choices(persona=[
+        app_commands.Choice(name="Random", value="random"),
+        app_commands.Choice(name="Standard", value="chatgpt"),
+        app_commands.Choice(name="Do Anything Now 11.0", value="dan"),
+        app_commands.Choice(name="Superior Do Anything", value="sda"),
+        app_commands.Choice(name="Evil Confidant", value="confidant"),
+        app_commands.Choice(name="BasedGPT v2", value="based"),
+        app_commands.Choice(name="OPPO", value="oppo"),
+        app_commands.Choice(name="Developer Mode v2", value="dev")
+    ])
+    async def chat(interaction: discord.Interaction, persona: app_commands.Choice[str]):
         isReplyAll =  os.getenv("REPLYING_ALL")
         if isReplyAll == "True":
             await interaction.response.defer(ephemeral=False)
@@ -327,9 +337,9 @@ def run_discord_bot():
         username = str(interaction.user)
         channel = str(interaction.channel)
         logger.info(
-            f"\x1b[31m{username}\x1b[0m : '/switchpersona {persona}' ({channel})")
+            f"\x1b[31m{username}\x1b[0m : '/switchpersona [{persona.value}]' ({channel})")
         
-        persona = persona.lower()
+        persona = persona.value
 
         if persona == personas.current_persona:
             await interaction.followup.send(f"> **Warn: Already set to `{persona}` persona**")
@@ -337,7 +347,7 @@ def run_discord_bot():
         elif persona == "standard":
             chat_model = os.getenv("CHAT_MODEL")
             if chat_model == "OFFICIAL":
-                responses.offical_chatbot.reset()
+                responses.official_chatbot.reset()
             elif chat_model == "UNOFFICIAL":
                 responses.unofficial_chatbot.reset_chat()
 
@@ -347,12 +357,12 @@ def run_discord_bot():
 
         elif persona == "random":
             choices = list(personas.PERSONAS.keys())
-            choice = randrange(0, len(choices))
-            chosen_persona = personas.PERSONAS.get(choices[choice])
+            choice = randrange(0, 6)
+            chosen_persona = choices[choice]
             personas.current_persona = chosen_persona
             await responses.switch_persona(chosen_persona)
             await interaction.followup.send(
-                f"> **Info: Switched to `{persona}` persona**")
+                f"> **Info: Switched to `{chosen_persona}` persona**")
 
 
         elif persona in personas.PERSONAS:

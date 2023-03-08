@@ -2,6 +2,7 @@ import os
 from revChatGPT.V1 import AsyncChatbot
 from revChatGPT.V3 import Chatbot
 from dotenv import load_dotenv
+from src import personas
 
 load_dotenv()
 OPENAI_EMAIL = os.getenv("OPENAI_EMAIL")
@@ -32,11 +33,11 @@ async def unofficial_handle_response(message) -> str:
 async def switch_persona(persona) -> None:
     if CHAT_MODEL ==  "UNOFFICIAL":
         unofficial_chatbot.reset_chat()
-        async for response in unofficial_chatbot.ask(persona):
+        async for response in unofficial_chatbot.ask(personas.PERSONAS.get(persona)):
             pass
 
     elif CHAT_MODEL == "OFFICIAL":
         official_chatbot.reset_chat()
-        async for response in official_chatbot.ask(persona):
+        async for response in official_chatbot.ask(personas.PERSONAS.get(persona)):
             pass
 
