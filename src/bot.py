@@ -92,31 +92,42 @@ async def send_message(message, user_message):
 async def send_start_prompt(client):
     import os.path
 
-    config_dir = os.path.abspath(f"{__file__}/../../")
-    prompt_name = 'starting-prompt.txt'
-    prompt_path = os.path.join(config_dir, prompt_name)
-    discord_channel_id = os.getenv("DISCORD_CHANNEL_ID")
-    try:
-        if os.path.isfile(prompt_path) and os.path.getsize(prompt_path) > 0:
-            with open(prompt_path, "r", encoding="utf-8") as f:
-                prompt = f.read()
-                if (discord_channel_id):
-                    logger.info(f"Send starting prompt with size {len(prompt)}")
-                    chat_model = os.getenv("CHAT_MODEL")
-                    response = ""
-                    if chat_model == "OFFICIAL":
-                        response = f"{response}{await responses.official_handle_response(prompt)}"
-                    elif chat_model == "UNOFFICIAL":
-                        response = f"{response}{await responses.unofficial_handle_response(prompt)}"
-                    channel = client.get_channel(int(discord_channel_id))
-                    await channel.send(response)
-                    logger.info(f"Starting prompt response:{response}")
-                else:
-                    logger.info("No Channel selected. Skip sending starting prompt.")
-        else:
-            logger.info(f"No {prompt_name}. Skip sending starting prompt.")
-    except Exception as e:
-        logger.exception(f"Error while sending starting prompt: {e}")
+    #Add to your defined environment variables file (.ENV - .VENV - ETC...) more than 1 Channel ID: DISCORD_CHANNEL_ID="123456, 7891011"    
+    #Get DISCORD_CHANNEL_ID values as a list
+    discord_channel_ids = os.getenv("DISCORD_CHANNEL_ID").split(",")
+    
+    #Iterate over the DISCORD_CHANNEL_ID values and do something with each one
+    for discord_channel_id in discord_channel_ids:
+    
+        #Do something with the value of discord_channel_id   
+        print(f"Trabajando con el canal {discord_channel_id}")
+        config_dir = os.path.abspath(f"{__file__}/../../")
+        prompt_name = 'starting-prompt.txt'
+        prompt_path = os.path.join(config_dir, prompt_name)
+        
+        #Get the Discord channel corresponding to the channel ID
+        channel = client.get_channel(int(discord_channel_id))
+        try:
+            if os.path.isfile(prompt_path) and os.path.getsize(prompt_path) > 0:
+                with open(prompt_path, "r", encoding="utf-8") as f:
+                    prompt = f.read()
+                    if (discord_channel_id):
+                        logger.info(f"Send starting prompt with size {len(prompt)}")
+                        chat_model = os.getenv("CHAT_MODEL")
+                        response = ""
+                        if chat_model == "OFFICIAL":
+                            response = f"{response}{await responses.official_handle_response(prompt)}"
+                        elif chat_model == "UNOFFICIAL":
+                            response = f"{response}{await responses.unofficial_handle_response(prompt)}"
+                        channel = client.get_channel(int(discord_channel_id))
+                        await channel.send(response)
+                        logger.info(f"Starting prompt response:{response}")
+                    else:
+                        logger.info("No Channel selected. Skip sending starting prompt.")
+            else:
+                logger.info(f"No {prompt_name}. Skip sending starting prompt.")
+        except Exception as e:
+            logger.exception(f"Error while sending starting prompt: {e}")
 
 
 def run_discord_bot():
@@ -127,6 +138,7 @@ def run_discord_bot():
         await send_start_prompt(client)
         await client.tree.sync()
         logger.info(f'{client.user} is now running!')
+        
 
     @client.tree.command(name="chat", description="Have a chat with ChatGPT")
     async def chat(interaction: discord.Interaction, *, message: str):
