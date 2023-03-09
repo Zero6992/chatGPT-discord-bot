@@ -38,6 +38,6 @@ async def switch_persona(persona) -> None:
 
     elif CHAT_MODEL == "OFFICIAL":
         official_chatbot.reset()
-        async for response in official_chatbot.ask(personas.PERSONAS.get(persona)):
+        for response in official_chatbot.ask(personas.PERSONAS.get(persona)):
             pass
 
