@@ -27,13 +27,13 @@ async def draw(prompt) -> str:
     with open(file_name, mode="w", encoding="utf-8") as file:
         json.dump(response, file)
     
-    path = str(convert(file_name))
+    path = await str(convert(file_name))
 
     return path
 
 
 # code stolen from https://realpython.com/generate-images-with-dalle-openai-api/
-def convert(path):
+async def convert(path):
     DATA_DIR = Path.cwd() / "responses"
     JSON_FILE = DATA_DIR / path
     IMAGE_DIR = Path.cwd() / "images"
@@ -42,7 +42,7 @@ def convert(path):
     with open(JSON_FILE, mode="r", encoding="utf-8") as file:
         response = json.load(file)
         
-    for index, image_dict in enumerate(response["data"]):
+    async for index, image_dict in enumerate(response["data"]):
         image_data = b64decode(image_dict["b64_json"])
         image_file = IMAGE_DIR / f"{JSON_FILE.stem}-{index}.png"
     
