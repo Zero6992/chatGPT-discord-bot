@@ -42,6 +42,10 @@
 
 ### Switch Persona
 
+> **Warning**
+>
+>Using certain personas may generate vulgar or disturbing content. Use at your own risk.
+
 ![image](https://user-images.githubusercontent.com/91911303/223772334-7aece61f-ead7-4119-bcd4-7274979c4702.png)
 
 
