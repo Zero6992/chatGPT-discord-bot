@@ -199,11 +199,13 @@ def run_discord_bot():
     async def chat_model(interaction: discord.Interaction, choices: app_commands.Choice[str]):
         await interaction.response.defer(ephemeral=False)
         if choices.value == "OFFICIAL":
+            responses.chatbot = responses.get_chatbot_model("OFFICIAL")
             os.environ["CHAT_MODEL"] = "OFFICIAL"
             await interaction.followup.send(
                 "> **Info: You are now in Official GPT-3.5 model.**\n> You need to set your `OPENAI_API_KEY` in `env` file.")
             logger.warning("\x1b[31mSwitch to OFFICIAL chat model\x1b[0m")
-        elif choices.value == "UNOFFCIAL":
+        elif choices.value == "UNOFFICIAL":
+            responses.chatbot = responses.get_chatbot_model("UNOFFICIAL")
             os.environ["CHAT_MODEL"] = "UNOFFICIAL"
             await interaction.followup.send(
                 "> **Info: You are now in Website ChatGPT model.**\n> You need to set your `SESSION_TOKEN` or `OPENAI_EMAIL` and `OPENAI_PASSWORD` in `env` file.")
@@ -213,9 +215,9 @@ def run_discord_bot():
     async def reset(interaction: discord.Interaction):
         chat_model = os.getenv("CHAT_MODEL")
         if chat_model == "OFFICIAL":
-            responses.offical_chatbot.reset()
+            responses.chatbot.reset()
         elif chat_model == "UNOFFICIAL":
-            responses.unofficial_chatbot.reset_chat()
+            responses.chatbot.reset_chat()
         await interaction.response.defer(ephemeral=False)
         await interaction.followup.send("> **Info: I have forgotten everything.**")
         logger.warning(
