@@ -3,6 +3,7 @@ from revChatGPT.V1 import AsyncChatbot
 from revChatGPT.V3 import Chatbot
 from dotenv import load_dotenv
 from src import personas
+from typing import Union
 
 load_dotenv()
 OPENAI_EMAIL = os.getenv("OPENAI_EMAIL")
@@ -12,32 +13,38 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 ENGINE = os.getenv("OPENAI_ENGINE")
 CHAT_MODEL = os.getenv("CHAT_MODEL")
 
-if CHAT_MODEL ==  "UNOFFICIAL":
-    unofficial_chatbot = AsyncChatbot(config={"email":OPENAI_EMAIL, "password":OPENAI_PASSWORD, "session_token":SESSION_TOKEN})
-elif CHAT_MODEL == "OFFICIAL":
-    official_chatbot = Chatbot(api_key=OPENAI_API_KEY, engine=ENGINE)
+def get_chatbot_model(model_name: str) -> Union[AsyncChatbot, Chatbot]:
+    if model_name == "UNOFFICIAL":
+        openai_email = os.getenv("OPENAI_EMAIL")
+        openai_password = os.getenv("OPENAI_PASSWORD")
+        session_token = os.getenv("SESSION_TOKEN")
+        return AsyncChatbot(config={"email": openai_email, "password": openai_password, "session_token": session_token})
+    elif model_name == "OFFICIAL":
+        openai_api_key = os.getenv("OPENAI_API_KEY")
+        print(openai_api_key)
+        engine = os.getenv("OPENAI_ENGINE")
+        return Chatbot(api_key=openai_api_key, engine=engine)
 
+chatbot = get_chatbot_model(CHAT_MODEL)
 
 async def official_handle_response(message) -> str:
-    return official_chatbot.ask(message)
-
+    return chatbot.ask(message)
 
 async def unofficial_handle_response(message) -> str:
-    async for response in unofficial_chatbot.ask(message):
+    async for response in chatbot.ask(message):
         responseMessage = response["message"]
 
     return responseMessage
 
-
 # resets conversation and asks chatGPT the prompt for a persona
 async def switch_persona(persona) -> None:
     if CHAT_MODEL ==  "UNOFFICIAL":
-        unofficial_chatbot.reset_chat()
-        async for response in unofficial_chatbot.ask(personas.PERSONAS.get(persona)):
+        chatbot.reset_chat()
+        async for response in chatbot.ask(personas.PERSONAS.get(persona)):
             pass
 
     elif CHAT_MODEL == "OFFICIAL":
-        official_chatbot.reset()
-        for response in official_chatbot.ask(personas.PERSONAS.get(persona)):
+        chatbot.reset()
+        for response in chatbot.ask(personas.PERSONAS.get(persona)):
             pass
 

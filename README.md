@@ -1,6 +1,8 @@
 # ChatGPT Discord Bot
 
 > ### Build your own Discord bot using ChatGPT
+>
+> [**中文說明**](https://zero6992.github.io/posts/chatgpt-discord-bot-chinese/)
 ---
 > **Warning**
 >
@@ -10,7 +12,6 @@
 > #### 2023-03-09 Website ChatGPT model is currently unavailable, consider deprecating it
 > #### 2023-03-03 Update: Official GPT-3.5 model
 > #### 2023-02-25 Update: Website ChatGPT model
-
 ## Features
 
 * `/chat [message]` Chat with ChatGPT!
