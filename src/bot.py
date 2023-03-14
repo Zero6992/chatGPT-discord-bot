@@ -311,7 +311,7 @@ def run_discord_bot():
     @client.tree.command(name="switchpersona", description="Switch between optional chatGPT jailbreaks")
     @app_commands.choices(persona=[
         app_commands.Choice(name="Random", value="random"),
-        app_commands.Choice(name="Standard", value="chatgpt"),
+        app_commands.Choice(name="Standard", value="standard"),
         app_commands.Choice(name="Do Anything Now 11.0", value="dan"),
         app_commands.Choice(name="Superior Do Anything", value="sda"),
         app_commands.Choice(name="Evil Confidant", value="confidant"),
@@ -344,9 +344,9 @@ def run_discord_bot():
         elif persona == "standard":
             chat_model = os.getenv("CHAT_MODEL")
             if chat_model == "OFFICIAL":
-                responses.official_chatbot.reset()
+                responses.chatbot.reset()
             elif chat_model == "UNOFFICIAL":
-                responses.unofficial_chatbot.reset_chat()
+                responses.chatbot.reset_chat()
 
             personas.current_persona = "standard"
             await interaction.followup.send(
