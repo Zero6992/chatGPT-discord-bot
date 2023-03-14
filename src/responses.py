@@ -4,6 +4,7 @@ from revChatGPT.V3 import Chatbot
 from dotenv import load_dotenv
 from src import personas
 from typing import Union
+from asgiref.sync import sync_to_async
 
 load_dotenv()
 OPENAI_EMAIL = os.getenv("OPENAI_EMAIL")
@@ -28,7 +29,7 @@ def get_chatbot_model(model_name: str) -> Union[AsyncChatbot, Chatbot]:
 chatbot = get_chatbot_model(CHAT_MODEL)
 
 async def official_handle_response(message) -> str:
-    return chatbot.ask(message)
+    return await sync_to_async(chatbot.ask)(message)
 
 async def unofficial_handle_response(message) -> str:
     async for response in chatbot.ask(message):
@@ -45,6 +46,5 @@ async def switch_persona(persona) -> None:
 
     elif CHAT_MODEL == "OFFICIAL":
         chatbot.reset()
-        for response in chatbot.ask(personas.PERSONAS.get(persona)):
-            pass
+        await sync_to_async(chatbot.ask)(personas.PERSONAS.get(persona))
 
