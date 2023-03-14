@@ -7,3 +7,4 @@ services:
     container_name: chatgpt-discord-bot
     env_file:
       - .env
+    restart: unless-stopped

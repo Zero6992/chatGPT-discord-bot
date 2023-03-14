@@ -6,7 +6,6 @@ config.json
 .gitignore
 .gitattributes
 
-
 # CI
 .codeclimate.yml
 .travis.yml

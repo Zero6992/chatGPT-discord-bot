@@ -2,7 +2,7 @@ from src import bot
 from dotenv import load_dotenv
 import sys
 
-def check_verion() -> None:
+def check_version() -> None:
     import pkg_resources
     import src.log
 
@@ -26,5 +26,6 @@ def check_verion() -> None:
             sys.exit();
 
 if __name__ == '__main__': 
-    check_verion()
+    check_version()
     bot.run_discord_bot()
+    
