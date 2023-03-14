@@ -13,15 +13,13 @@ logger = log.setup_logger(__name__)
 
 isPrivate = False
 
-
 class aclient(discord.Client):
     def __init__(self) -> None:
         intents = discord.Intents.default()
         intents.message_content = True
         super().__init__(intents=intents)
         self.tree = app_commands.CommandTree(self)
-        self.activity = discord.Activity(type=discord.ActivityType.listening, name="/switchpersona 😈")
-
+        self.activity = discord.Activity(type=discord.ActivityType.listening, name="/chat | /help")
 
 async def send_message(message, user_message):
     isReplyAll = os.getenv("REPLYING_ALL")
@@ -199,7 +197,7 @@ def run_discord_bot():
             await interaction.followup.send(
                 "> **Info: Next, the bot will response to all message in this channel only.If you want to switch back to normal mode, use `/replyAll` again.**")
             logger.warning("\x1b[31mSwitch to replyAll mode\x1b[0m")
-        
+
 
     @client.tree.command(name="chat-model", description="Switch different chat model")
     @app_commands.choices(choices=[
@@ -220,7 +218,7 @@ def run_discord_bot():
             await interaction.followup.send(
                 "> **Info: You are now in Website ChatGPT model.**\n> You need to set your `SESSION_TOKEN` or `OPENAI_EMAIL` and `OPENAI_PASSWORD` in `env` file.")
             logger.warning("\x1b[31mSwitch to UNOFFICIAL(Website) chat model\x1b[0m")
-            
+
 
     @client.tree.command(name="reset", description="Complete reset ChatGPT conversation history")
     async def reset(interaction: discord.Interaction):
@@ -262,13 +260,11 @@ def run_discord_bot():
                 `UNOFFICIAL`: Website ChatGPT
                 Modifying CHAT_MODEL field in the .env file change the default model
 
-        For complete documentation, please visit https://github.com/Zero6992/chatGPT-discord-bot
-        ChatGPT Jailbreaks are from https://www.jailbreakchat.com/""")
+        For complete documentation, please visit https://github.com/Zero6992/chatGPT-discord-bot""")
 
         logger.info(
             "\x1b[31mSomeone needs help!\x1b[0m")
 
-    
     @client.tree.command(name="draw", description="Generate an image with the Dalle2 model")
     async def draw(interaction: discord.Interaction, *, prompt: str):
         isReplyAll =  os.getenv("REPLYING_ALL")
@@ -339,7 +335,7 @@ def run_discord_bot():
         channel = str(interaction.channel)
         logger.info(
             f"\x1b[31m{username}\x1b[0m : '/switchpersona [{persona.value}]' ({channel})")
-        
+
         persona = persona.value
 
         if persona == personas.current_persona:
@@ -376,14 +372,13 @@ def run_discord_bot():
                 await interaction.followup.send(
                     "> **Error: Something went wrong, please try again later! 😿**")
                 logger.exception(f"Error while switching persona: {e}")
-                
+
         else:
             await interaction.followup.send(
                 f"> **Error: No available persona: `{persona}` 😿**")
             logger.info(
                 f'{username} requested an unavailable persona: `{persona}`')
 
-        
     @client.event
     async def on_message(message):
         isReplyAll =  os.getenv("REPLYING_ALL")
