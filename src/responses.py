@@ -22,7 +22,6 @@ def get_chatbot_model(model_name: str) -> Union[AsyncChatbot, Chatbot]:
         return AsyncChatbot(config={"email": openai_email, "password": openai_password, "session_token": session_token})
     elif model_name == "OFFICIAL":
         openai_api_key = os.getenv("OPENAI_API_KEY")
-        print(openai_api_key)
         engine = os.getenv("OPENAI_ENGINE")
         return Chatbot(api_key=openai_api_key, engine=engine)
 
@@ -39,6 +38,7 @@ async def unofficial_handle_response(message) -> str:
 
 # resets conversation and asks chatGPT the prompt for a persona
 async def switch_persona(persona) -> None:
+    CHAT_MODEL = os.getenv("CHAT_MODEL")
     if CHAT_MODEL ==  "UNOFFICIAL":
         chatbot.reset_chat()
         async for response in chatbot.ask(personas.PERSONAS.get(persona)):
