@@ -1,5 +1,5 @@
 discord.py==2.1.0
 python-dotenv==0.21.1
-revChatGPT==3.2.0
+revChatGPT==4.0.0
 openai==0.27.0
 asgiref==3.6.0
