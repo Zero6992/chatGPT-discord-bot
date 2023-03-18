@@ -5,12 +5,9 @@
 ---
 > **Warning**
 >
->According to OpenAI's latest announcement, using unofficial API may result in the ban of your account. Please assess the risks yourself
+> #### 2023-03-18 GPT-4 is now supported and the dependency packages have been updated. Please reinstall the dependencies once again
 >
-> #### 2023-03-16 OpenAI has deactivated some accounts using UNOFFICIAL model. Recommend using official model
-> #### 2023-03-14 Website ChatGPT model is unstable, suggest using the official API
-> #### 2023-03-03 Update: Official GPT-3.5 model
-> #### 2023-02-25 Update: Website ChatGPT model
+> #### 2023-03-16 OpenAI has deactivated some accounts using UNOFFICIAL model. Recommend using OFFICIAL model
 ## Features
 
 * `/chat [message]` Chat with ChatGPT!
@@ -46,7 +43,7 @@
 
 > **Warning**
 >
->Using certain personas may generate vulgar or disturbing content. Use at your own risk.
+> Using certain personas may generate vulgar or disturbing content. Use at your own risk.
 
 ![image](https://user-images.githubusercontent.com/91911303/223772334-7aece61f-ead7-4119-bcd4-7274979c4702.png)
 
