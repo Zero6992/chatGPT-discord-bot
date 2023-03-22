@@ -22,7 +22,8 @@ def get_chatbot_model(model_name: str) -> Union[AsyncChatbot, Chatbot]:
         return AsyncChatbot(config={"email": openai_email, "password": openai_password, "session_token": session_token, "model": ENGINE})
     elif model_name == "OFFICIAL":
         openai_api_key = os.getenv("OPENAI_API_KEY")
-        return Chatbot(api_key=openai_api_key, engine=ENGINE)
+        gpt_engine = os.getenv("GPT_ENGINE")
+        return Chatbot(api_key=openai_api_key, engine=gpt_engine)
 
 chatbot = get_chatbot_model(CHAT_MODEL)
 
