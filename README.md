@@ -29,8 +29,8 @@
 * `/chat-model` Switch different chat model
    * `OFFICIAL-GPT-3.5`: GPT-3.5 model
    * `OFFICIAL-GPT-4.0`: GPT-4.0 model (make sure your account can access gpt-4 model)
-   * `UNOFFICIAL`: Website ChatGPT-3.5 model
-   * `UNOFFICIAL-GPT4`: Website ChatGPT-4.0 model
+   * `Website ChatGPT-3.5`: Website ChatGPT-3.5 model (UNOFFICIAL)
+   * `Website ChatGPT-4.0`: Website ChatGPT-4.0 model (UNOFFICIAL)
 
 ### Chat
 
