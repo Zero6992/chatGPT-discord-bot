@@ -27,9 +27,9 @@
 * `/replyall` ChatGPT switch between replyAll mode and default mode
 * `/reset` Clear ChatGPT conversation history
 * `/chat-model` Switch different chat model
-   * `OFFICIAL`: GPT-3.5 model
+   * `OFFICIAL-GPT-3.5`: GPT-3.5 model
+   * `OFFICIAL-GPT-4.0`: GPT-4.0 model (make sure your account can access gpt-4 model)
    * `UNOFFICIAL`: Website ChatGPT
-   * Modifying CHAT_MODEL field in the .env file change the default model
 
 ### Chat
 
