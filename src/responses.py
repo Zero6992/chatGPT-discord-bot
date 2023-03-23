@@ -13,13 +13,15 @@ SESSION_TOKEN = os.getenv("SESSION_TOKEN")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 ENGINE = os.getenv("GPT_ENGINE")
 CHAT_MODEL = os.getenv("CHAT_MODEL")
+UNOFFICIAL_PAID = os.getenv("UNOFFICIAL_PAID")
 
 def get_chatbot_model(model_name: str) -> Union[AsyncChatbot, Chatbot]:
     if model_name == "UNOFFICIAL":
         openai_email = os.getenv("OPENAI_EMAIL")
         openai_password = os.getenv("OPENAI_PASSWORD")
+        gpt_engine = os.getenv("GPT_ENGINE")
         session_token = os.getenv("SESSION_TOKEN")
-        return AsyncChatbot(config={"email": openai_email, "password": openai_password, "session_token": session_token, "model": ENGINE})
+        return AsyncChatbot(config={"email": openai_email, "password": openai_password, "session_token": session_token, "model": gpt_engine, "paid": UNOFFICIAL_PAID})
     elif model_name == "OFFICIAL":
         openai_api_key = os.getenv("OPENAI_API_KEY")
         gpt_engine = os.getenv("GPT_ENGINE")

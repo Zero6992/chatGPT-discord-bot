@@ -199,31 +199,40 @@ def run_discord_bot():
     @app_commands.choices(choices=[
         app_commands.Choice(name="Official GPT-3.5", value="OFFICIAL"),
         app_commands.Choice(name="Ofiicial GPT-4.0", value="OFFICIAL-GPT4"),
-        app_commands.Choice(name="Website ChatGPT", value="UNOFFICIAL")
+        app_commands.Choice(name="Website ChatGPT-3.5", value="UNOFFICIAL"),
+        app_commands.Choice(name="Website ChatGPT-4.0", value="UNOFFICIAL-GPT4"),
     ])
 
     async def chat_model(interaction: discord.Interaction, choices: app_commands.Choice[str]):
         await interaction.response.defer(ephemeral=False)
         if choices.value == "OFFICIAL":
             os.environ["GPT_ENGINE"] = "gpt-3.5-turbo"
-            responses.chatbot = responses.get_chatbot_model("OFFICIAL")
             os.environ["CHAT_MODEL"] = "OFFICIAL"
+            responses.chatbot = responses.get_chatbot_model("OFFICIAL")
             await interaction.followup.send(
                 "> **Info: You are now in Official GPT-3.5 model.**\n")
-            logger.warning("\x1b[31mSwitch to OFFICIAL GPT-3.5 chat model\x1b[0m")
+            logger.warning("\x1b[31mSwitch to OFFICIAL GPT-3.5 model\x1b[0m")
         elif choices.value == "OFFICIAL-GPT4":
             os.environ["GPT_ENGINE"] = "gpt-4"
-            responses.chatbot = responses.get_chatbot_model("OFFICIAL")
             os.environ["CHAT_MODEL"] = "OFFICIAL"
+            responses.chatbot = responses.get_chatbot_model("OFFICIAL")
             await interaction.followup.send(
                 "> **Info: You are now in Official GPT-4.0 model.**\n")
-            logger.warning("\x1b[31mSwitch to OFFICIAL GPT-4.0 chat model\x1b[0m")
+            logger.warning("\x1b[31mSwitch to OFFICIAL GPT-4.0 model\x1b[0m")
         elif choices.value == "UNOFFICIAL":
-            responses.chatbot = responses.get_chatbot_model("UNOFFICIAL")
+            os.environ["GPT_ENGINE"] = "gpt-3.5-turbo"
             os.environ["CHAT_MODEL"] = "UNOFFICIAL"
+            responses.chatbot = responses.get_chatbot_model("UNOFFICIAL")
             await interaction.followup.send(
-                "> **Info: You are now in Website ChatGPT model.**\n")
-            logger.warning("\x1b[31mSwitch to UNOFFICIAL(Website) chat model\x1b[0m")
+                "> **Info: You are now in Website ChatGPT-3.5 model.**\n")
+            logger.warning("\x1b[31mSwitch to UNOFFICIAL(Website) GPT-3.5 model\x1b[0m")
+        elif choices.value == "UNOFFICIAL-GPT4":
+            os.environ["GPT_ENGINE"] = "gpt-4"
+            os.environ["CHAT_MODEL"] = "UNOFFICIAL"
+            responses.chatbot = responses.get_chatbot_model("UNOFFICIAL")
+            await interaction.followup.send(
+                "> **Info: You are now in Website ChatGPT-4.0 model.**\n")
+            logger.warning("\x1b[31mSwitch to UNOFFICIAL(Website) GPT-4.0 model\x1b[0m")
 
 
     @client.tree.command(name="reset", description="Complete reset ChatGPT conversation history")
