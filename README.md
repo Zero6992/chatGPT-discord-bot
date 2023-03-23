@@ -30,7 +30,7 @@
    * `OFFICIAL-GPT-3.5`: GPT-3.5 model
    * `OFFICIAL-GPT-4.0`: GPT-4.0 model (make sure your account can access gpt-4 model)
    * `Website ChatGPT-3.5`: Website ChatGPT-3.5 model (UNOFFICIAL)
-   * `Website ChatGPT-4.0`: Website ChatGPT-4.0 model (UNOFFICIAL)
+   * `Website ChatGPT-4.0`: Website ChatGPT-4.0 model (UNOFFICIAL)(available if you got a plus account)
 
 ### Chat
 
@@ -106,6 +106,8 @@
 4. You're all set for [Step 3](#step-3-run-the-bot-on-the-desktop)
 
 ## Step 2: Website ChatGPT authentication - 2 approaches
+
+* **If you are using a Plus account, please modify `UNOFFICIAL_PAID` to `"True"` in your `.env` file**
 
 ### Email/Password authentication (Not supported for Google/Microsoft accounts)
 1. Create an account on https://chat.openai.com/chat
