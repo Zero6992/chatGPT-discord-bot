@@ -257,6 +257,7 @@ def run_discord_bot():
         await interaction.followup.send(""":star:**BASIC COMMANDS** \n
         - `/chat [message]` Chat with ChatGPT!
         - `/draw [prompt]` Generate an image with the Dalle2 model
+        - `/sd [prompt]` Generate an image with the Stability AI SDK
         - `/switchpersona [persona]` Switch between optional chatGPT jailbreaks
                 `random`: Picks a random persona
                 `chatgpt`: Standard chatGPT mode
@@ -335,7 +336,7 @@ def run_discord_bot():
         username = str(interaction.user)
         channel = str(interaction.channel)
         logger.info(
-            f"\x1b[31m{username}\x1b[0m : /draw [{prompt}] in ({channel})")
+            f"\x1b[31m{username}\x1b[0m : /sd [{prompt}] in ({channel})")
 
         await interaction.response.defer(thinking=True)
         try:
