@@ -343,11 +343,11 @@ def run_discord_bot():
             path = await sd.draw(prompt)
 
             file = discord.File(path, filename="image.png")
-            title = '> **' + prompt + '**\n'
+            title = '> ** image **\n'
             embed = discord.Embed(title=title)
             embed.set_image(url="attachment://image.png")
 
-            await interaction.followup.send(file=file, embed=embed)
+            await interaction.followup.send(prompt, file=file, embed=embed)
 
         except openai.InvalidRequestError:
             await interaction.followup.send(
