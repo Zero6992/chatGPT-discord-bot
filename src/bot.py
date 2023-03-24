@@ -7,6 +7,7 @@ from src import responses
 from src import log
 from src import art
 from src import personas
+from src import sd
 
 
 logger = log.setup_logger(__name__)
@@ -313,6 +314,45 @@ def run_discord_bot():
                 "> **Warn: Inappropriate request 😿**")
             logger.info(
             f"\x1b[31m{username}\x1b[0m made an inappropriate request.!")
+
+        except Exception as e:
+            await interaction.followup.send(
+                "> **Warn: Something went wrong 😿**")
+            logger.exception(f"Error while generating image: {e}")
+
+    @client.tree.command(name="sd", description="Generate an image with the Stability AI sdk")
+    async def drawSD(interaction: discord.Interaction, *, prompt: str):
+        isReplyAll = os.getenv("REPLYING_ALL")
+        if isReplyAll == "True":
+            await interaction.response.defer(ephemeral=False)
+            await interaction.followup.send(
+                "> **Warn: You already on replyAll mode. If you want to use slash command, switch to normal mode, use `/replyall` again**")
+            logger.warning("\x1b[31mYou already on replyAll mode, can't use slash command!\x1b[0m")
+            return
+        if interaction.user == client.user:
+            return
+
+        username = str(interaction.user)
+        channel = str(interaction.channel)
+        logger.info(
+            f"\x1b[31m{username}\x1b[0m : /draw [{prompt}] in ({channel})")
+
+        await interaction.response.defer(thinking=True)
+        try:
+            path = await sd.draw(prompt)
+
+            file = discord.File(path, filename="image.png")
+            title = '> **' + prompt + '**\n'
+            embed = discord.Embed(title=title)
+            embed.set_image(url="attachment://image.png")
+
+            await interaction.followup.send(file=file, embed=embed)
+
+        except openai.InvalidRequestError:
+            await interaction.followup.send(
+                "> **Warn: Inappropriate request 😿**")
+            logger.info(
+                f"\x1b[31m{username}\x1b[0m made an inappropriate request.!")
 
         except Exception as e:
             await interaction.followup.send(
