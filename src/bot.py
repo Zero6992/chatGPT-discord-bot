@@ -322,7 +322,7 @@ def run_discord_bot():
             logger.exception(f"Error while generating image: {e}")
 
     @client.tree.command(name="sd", description="Generate an image with the Stability AI sdk")
-    async def drawSD(interaction: discord.Interaction, *, prompt: str):
+    async def drawSD(interaction: discord.Interaction, *, prompt: str, negative_prompt: str):
         isReplyAll = os.getenv("REPLYING_ALL")
         if isReplyAll == "True":
             await interaction.response.defer(ephemeral=False)
@@ -340,7 +340,7 @@ def run_discord_bot():
 
         await interaction.response.defer(thinking=True)
         try:
-            path = await sd.draw(prompt)
+            path = await sd.draw(prompt, negative_prompt)
 
             file = discord.File(path, filename="image.png")
             title = '> ** image **\n'

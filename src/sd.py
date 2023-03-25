@@ -3,6 +3,7 @@ import os
 import warnings
 import stability_sdk.interfaces.gooseai.generation.generation_pb2 as generation
 import datetime
+import random
 
 from dotenv import load_dotenv
 from PIL import Image
@@ -20,10 +21,19 @@ stability_api = client.StabilityInference(
 )
 
 
-async def draw(prompt) -> str:
-    # Set up our initial generation parameters.
+async def draw(prompt, negative_prompt) -> str:
+    prompts = prompt.split(",")
+    negative_prompts = negative_prompt.split(",")
+    multi_prompts = []
+    for p in prompts:
+        random_number = round(random.uniform(0.8, 1.2), 1)
+        multi_prompts.append(generation.Prompt(text=p, parameters=generation.PromptParameters(weight=random_number)))
+    for p in negative_prompts:
+        random_number = round(random.uniform(-1.2, -0.8), 1)
+        multi_prompts.append(generation.Prompt(text=p, parameters=generation.PromptParameters(weight=random_number)))
+
     answers = stability_api.generate(
-        prompt=prompt.split(","),
+        prompt=multi_prompts,
         # seed=992446758,  # If a seed is provided, the resulting generated image will be deterministic.
         # What this means is that as long as all generation parameters remain the same, you can always recall the same image simply by generating it again.
         # Note: This isn't quite the case for Clip Guided generations, which we'll tackle in a future example notebook.
