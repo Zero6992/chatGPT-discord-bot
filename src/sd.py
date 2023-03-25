@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 from PIL import Image
 from stability_sdk import client
 from pathlib import Path
+from typing import Optional
 
 load_dotenv()
 
@@ -21,24 +22,27 @@ stability_api = client.StabilityInference(
 )
 
 
-async def draw(prompt, negative_prompt) -> str:
-    prompts = prompt.split(",")
-    negative_prompts = negative_prompt.split(",")
+def get_weighted_prompts(prompt_text: Optional[str], negative=False) -> []:
+    weighted_prompts = []
+    weight = -1 if negative else 1
+    if prompt_text:
+        for p in prompt_text.split(","):
+            # random_number = round(random.uniform(0.8, 1.2), 1)
+            weighted_prompts.append(generation.Prompt(text=p, parameters=generation.PromptParameters(weight=weight)))
+    return weighted_prompts
+
+
+async def draw(prompt, negative_prompt, seed, steps, scale) -> str:
     multi_prompts = []
-    for p in prompts:
-        random_number = round(random.uniform(0.8, 1.2), 1)
-        multi_prompts.append(generation.Prompt(text=p, parameters=generation.PromptParameters(weight=random_number)))
-    for p in negative_prompts:
-        random_number = round(random.uniform(-1.2, -0.8), 1)
-        multi_prompts.append(generation.Prompt(text=p, parameters=generation.PromptParameters(weight=random_number)))
+    multi_prompts += get_weighted_prompts(prompt) + get_weighted_prompts(negative_prompt)
 
     answers = stability_api.generate(
         prompt=multi_prompts,
-        # seed=992446758,  # If a seed is provided, the resulting generated image will be deterministic.
+        seed=seed,  # If a seed is provided, the resulting generated image will be deterministic.
         # What this means is that as long as all generation parameters remain the same, you can always recall the same image simply by generating it again.
         # Note: This isn't quite the case for Clip Guided generations, which we'll tackle in a future example notebook.
-        steps=30,  # Amount of inference steps performed on image generation. Defaults to 30.
-        cfg_scale=8.0,  # Influences how strongly your generation is guided to match your prompt.
+        steps=steps,  # Amount of inference steps performed on image generation. Defaults to 30.
+        cfg_scale=scale,  # Influences how strongly your generation is guided to match your prompt.
         # Setting this value higher increases the strength in which it tries to match your prompt.
         # Defaults to 7.0 if not specified.
         width=512,  # Generation width, defaults to 512 if not included.

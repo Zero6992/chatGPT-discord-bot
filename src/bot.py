@@ -1,6 +1,7 @@
 import discord
 import os
 import openai
+from typing import Optional
 from random import randrange
 from discord import app_commands
 from src import responses
@@ -322,7 +323,9 @@ def run_discord_bot():
             logger.exception(f"Error while generating image: {e}")
 
     @client.tree.command(name="sd", description="Generate an image with the Stability AI sdk")
-    async def drawSD(interaction: discord.Interaction, *, prompt: str, negative_prompt: str):
+    async def drawSD(interaction: discord.Interaction, *,
+                     prompt: str, negative_prompt: Optional[str] = '',
+                     seed: Optional[int] = None, steps: Optional[int] = 30, scale: Optional[float] = 8.0):
         isReplyAll = os.getenv("REPLYING_ALL")
         if isReplyAll == "True":
             await interaction.response.defer(ephemeral=False)
@@ -340,14 +343,17 @@ def run_discord_bot():
 
         await interaction.response.defer(thinking=True)
         try:
-            path = await sd.draw(prompt, negative_prompt)
+            path = await sd.draw(prompt=prompt, negative_prompt=negative_prompt, seed=seed, steps=steps, scale=scale)
 
             file = discord.File(path, filename="image.png")
             title = '> ** image **\n'
             embed = discord.Embed(title=title)
             embed.set_image(url="attachment://image.png")
 
-            await interaction.followup.send(prompt, file=file, embed=embed)
+            input_param = 'Prompt: {} \n Negative Prompt: {} \n seed: {} \n steps: {} \n scale: {}'\
+                .format(prompt, negative_prompt, str(seed or ''), str(steps), str(scale))
+
+            await interaction.followup.send(input_param, file=file, embed=embed)
 
         except openai.InvalidRequestError:
             await interaction.followup.send(
