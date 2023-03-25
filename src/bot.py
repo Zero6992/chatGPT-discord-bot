@@ -1,10 +1,10 @@
-import discord
 import os
 import openai
+import discord
 from random import randrange
-from discord import app_commands
-from src import responses, log, art, personas
 from src.aclient import client
+from discord import app_commands
+from src import log, art, personas, responses
 
 logger = log.setup_logger(__name__)
 
@@ -17,7 +17,7 @@ def run_discord_bot():
 
     @client.tree.command(name="chat", description="Have a chat with ChatGPT")
     async def chat(interaction: discord.Interaction, *, message: str):
-        if client.isReplyingAll == "True":
+        if client.is_replying_all == "True":
             await interaction.response.defer(ephemeral=False)
             await interaction.followup.send(
                 "> **Warn: You already on replyAll mode. If you want to use slash command, switch to normal mode, use `/replyall` again**")
@@ -61,15 +61,15 @@ def run_discord_bot():
 
     @client.tree.command(name="replyall", description="Toggle replyAll access")
     async def replyall(interaction: discord.Interaction):
-        os.environ["REPLYING_ALL_DISCORD_CHANNEL_ID"] = str(interaction.channel_id)
+        client.replying_all_discord_channel_id = str(interaction.channel_id)
         await interaction.response.defer(ephemeral=False)
-        if client.isReplyingAll == "True":
+        if client.is_replying_all == "True":
             client.isReplyingAl = "False"
             await interaction.followup.send(
                 "> **Info: The bot will only response to the slash command `/chat` next. If you want to switch back to replyAll mode, use `/replyAll` again.**")
             logger.warning("\x1b[31mSwitch to normal mode\x1b[0m")
-        elif client.isReplyingAll == "False":
-            client.isReplyingAll = "True"
+        elif client.is_replying_all == "False":
+            client.is_replying_all = "True"
             await interaction.followup.send(
                 "> **Info: Next, the bot will response to all message in this channel only.If you want to switch back to normal mode, use `/replyAll` again.**")
             logger.warning("\x1b[31mSwitch to replyAll mode\x1b[0m")
@@ -86,30 +86,30 @@ def run_discord_bot():
     async def chat_model(interaction: discord.Interaction, choices: app_commands.Choice[str]):
         await interaction.response.defer(ephemeral=False)
         if choices.value == "OFFICIAL":
-            os.environ["GPT_ENGINE"] = "gpt-3.5-turbo"
-            os.environ["CHAT_MODEL"] = "OFFICIAL"
-            responses.chatbot = responses.get_chatbot_model("OFFICIAL")
+            client.openAI_gpt_engine = "gpt-3.5-turbo"
+            client.chat_model = "OFFICIAL"
+            client.chatbot = client.get_chatbot_model()
             await interaction.followup.send(
                 "> **Info: You are now in Official GPT-3.5 model.**\n")
             logger.warning("\x1b[31mSwitch to OFFICIAL GPT-3.5 model\x1b[0m")
         elif choices.value == "OFFICIAL-GPT4":
-            os.environ["GPT_ENGINE"] = "gpt-4"
-            os.environ["CHAT_MODEL"] = "OFFICIAL"
-            responses.chatbot = responses.get_chatbot_model("OFFICIAL")
+            client.openAI_gpt_engine = "gpt-4"
+            client.chat_model = "OFFICIAL"
+            client.chatbot = client.get_chatbot_model()
             await interaction.followup.send(
                 "> **Info: You are now in Official GPT-4.0 model.**\n")
             logger.warning("\x1b[31mSwitch to OFFICIAL GPT-4.0 model\x1b[0m")
         elif choices.value == "UNOFFICIAL":
-            os.environ["GPT_ENGINE"] = "gpt-3.5-turbo"
-            os.environ["CHAT_MODEL"] = "UNOFFICIAL"
-            responses.chatbot = responses.get_chatbot_model("UNOFFICIAL")
+            client.openAI_gpt_engine = "gpt-3.5-turbo"
+            client.chat_model = "UNOFFICIAL"
+            client.chatbot = client.get_chatbot_model()
             await interaction.followup.send(
                 "> **Info: You are now in Website ChatGPT-3.5 model.**\n")
             logger.warning("\x1b[31mSwitch to UNOFFICIAL(Website) GPT-3.5 model\x1b[0m")
         elif choices.value == "UNOFFICIAL-GPT4":
-            os.environ["GPT_ENGINE"] = "gpt-4"
-            os.environ["CHAT_MODEL"] = "UNOFFICIAL"
-            responses.chatbot = responses.get_chatbot_model("UNOFFICIAL")
+            client.openAI_gpt_engine = "gpt-4"
+            client.chat_model = "UNOFFICIAL"
+            client.chatbot = client.get_chatbot_model()
             await interaction.followup.send(
                 "> **Info: You are now in Website ChatGPT-4.0 model.**\n")
             logger.warning("\x1b[31mSwitch to UNOFFICIAL(Website) GPT-4.0 model\x1b[0m")
@@ -117,11 +117,10 @@ def run_discord_bot():
 
     @client.tree.command(name="reset", description="Complete reset ChatGPT conversation history")
     async def reset(interaction: discord.Interaction):
-        chat_model = os.getenv("CHAT_MODEL")
-        if chat_model == "OFFICIAL":
-            responses.chatbot.reset()
-        elif chat_model == "UNOFFICIAL":
-            responses.chatbot.reset_chat()
+        if client.chat_model == "OFFICIAL":
+            client.chatbot.reset()
+        elif client.chat_model == "UNOFFICIAL":
+            client.chatbot.reset_chat()
         await interaction.response.defer(ephemeral=False)
         await interaction.followup.send("> **Info: I have forgotten everything.**")
         personas.current_persona = "standard"
@@ -155,7 +154,8 @@ def run_discord_bot():
                 `UNOFFICIAL`: Website ChatGPT
                 Modifying CHAT_MODEL field in the .env file change the default model
 
-        For complete documentation, please visit https://github.com/Zero6992/chatGPT-discord-bot""")
+For complete documentation, please visit:
+https://github.com/Zero6992/chatGPT-discord-bot""")
 
         logger.info(
             "\x1b[31mSomeone needs help!\x1b[0m")
@@ -205,7 +205,7 @@ def run_discord_bot():
         app_commands.Choice(name="Developer Mode v2", value="dev")
     ])
     async def chat(interaction: discord.Interaction, persona: app_commands.Choice[str]):
-        if client.isReplyingAll == "True":
+        if client.is_replying_all == "True":
             await interaction.response.defer(ephemeral=False)
             await interaction.followup.send(
                 "> **Warn: You already on replyAll mode. If you want to use slash command, switch to normal mode, use `/replyall` again**")
@@ -226,11 +226,10 @@ def run_discord_bot():
             await interaction.followup.send(f"> **Warn: Already set to `{persona}` persona**")
 
         elif persona == "standard":
-            chat_model = os.getenv("CHAT_MODEL")
-            if chat_model == "OFFICIAL":
-                responses.chatbot.reset()
-            elif chat_model == "UNOFFICIAL":
-                responses.chatbot.reset_chat()
+            if client.chat_model == "OFFICIAL":
+                client.chatbot.reset()
+            elif client.chat_model == "UNOFFICIAL":
+                client.chatbot.reset_chat()
 
             personas.current_persona = "standard"
             await interaction.followup.send(
@@ -241,14 +240,14 @@ def run_discord_bot():
             choice = randrange(0, 6)
             chosen_persona = choices[choice]
             personas.current_persona = chosen_persona
-            await responses.switch_persona(chosen_persona)
+            await responses.switch_persona(chosen_persona, client)
             await interaction.followup.send(
                 f"> **Info: Switched to `{chosen_persona}` persona**")
 
 
         elif persona in personas.PERSONAS:
             try:
-                await responses.switch_persona(persona)
+                await responses.switch_persona(persona, client)
                 personas.current_persona = persona
                 await interaction.followup.send(
                 f"> **Info: Switched to `{persona}` persona**")
@@ -265,14 +264,16 @@ def run_discord_bot():
 
     @client.event
     async def on_message(message):
-        if client.isReplyingAll == "True" and message.channel.id == int(os.getenv("REPLYING_ALL_DISCORD_CHANNEL_ID")):
+        if client.is_replying_all == "True":
             if message.author == client.user:
                 return
-            username = str(message.author)
-            user_message = str(message.content)
-            channel = str(message.channel)
-            logger.info(f"\x1b[31m{username}\x1b[0m : '{user_message}' ({channel})")
-            await client.send_message(message, user_message)
+            if client.replying_all_discord_channel_id:
+                if message.channel.id == int(client.replying_all_discord_channel_id):
+                    username = str(message.author)
+                    user_message = str(message.content)
+                    channel = str(message.channel)
+                    logger.info(f"\x1b[31m{username}\x1b[0m : '{user_message}' ({channel})")
+                    await client.send_message(message, user_message)
 
     TOKEN = os.getenv("DISCORD_BOT_TOKEN")
 
