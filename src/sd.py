@@ -30,17 +30,17 @@ def get_weighted_prompts(prompt_text: Optional[str], negative=False) -> []:
     if prompt_text:
         for p in prompt_text.split(","):
             # random_number = round(random.uniform(0.8, 1.2), 1)
-            weighted_prompts.append(generation.Prompt(text=p, parameters=generation.PromptParameters(weight=weight)))
+            weighted_prompts.append(generation.Prompt(text=p.strip(), parameters=generation.PromptParameters(weight=weight)))
     return weighted_prompts
 
 
 async def draw(prompt, negative_prompt, seed, steps, scale, sampler) -> str:
     multi_prompts = []
-    multi_prompts += get_weighted_prompts(prompt) + get_weighted_prompts(negative_prompt)
+    multi_prompts += get_weighted_prompts(prompt_text=prompt) + get_weighted_prompts(prompt_text=negative_prompt, negative=True)
     logger.info(multi_prompts)
     answers = stability_api.generate(
         prompt=multi_prompts,
-        seed=seed,  
+        seed=seed,
         steps=steps,
         cfg_scale=scale,
         width=512,
