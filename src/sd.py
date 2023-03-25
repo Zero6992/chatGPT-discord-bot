@@ -10,8 +10,10 @@ from PIL import Image
 from stability_sdk import client
 from pathlib import Path
 from typing import Optional
+from src import log
 
 load_dotenv()
+logger = log.setup_logger(__name__)
 
 stability_api = client.StabilityInference(
     key=os.environ['STABILITY_KEY'], # API Key reference.
@@ -35,22 +37,16 @@ def get_weighted_prompts(prompt_text: Optional[str], negative=False) -> []:
 async def draw(prompt, negative_prompt, seed, steps, scale, sampler) -> str:
     multi_prompts = []
     multi_prompts += get_weighted_prompts(prompt) + get_weighted_prompts(negative_prompt)
-
+    logger.info(multi_prompts)
     answers = stability_api.generate(
         prompt=multi_prompts,
-        seed=seed,  # If a seed is provided, the resulting generated image will be deterministic.
-        # What this means is that as long as all generation parameters remain the same, you can always recall the same image simply by generating it again.
-        # Note: This isn't quite the case for Clip Guided generations, which we'll tackle in a future example notebook.
-        steps=steps,  # Amount of inference steps performed on image generation. Defaults to 30.
-        cfg_scale=scale,  # Influences how strongly your generation is guided to match your prompt.
-        # Setting this value higher increases the strength in which it tries to match your prompt.
-        # Defaults to 7.0 if not specified.
-        width=512,  # Generation width, defaults to 512 if not included.
-        height=512,  # Generation height, defaults to 512 if not included.
-        samples=1,  # Number of images to generate, defaults to 1 if not included.
-        sampler=sampler  # Choose which sampler we want to denoise our generation with.
-        # Defaults to k_dpmpp_2m if not specified. Clip Guidance only supports ancestral samplers.
-        # (Available Samplers: ddim, plms, k_euler, k_euler_ancestral, k_heun, k_dpm_2, k_dpm_2_ancestral, k_dpmpp_2s_ancestral, k_lms, k_dpmpp_2m)
+        seed=seed,  
+        steps=steps,
+        cfg_scale=scale,
+        width=512,
+        height=512,
+        samples=1,
+        sampler=sampler
     )
 
     IMAGE_DIR = Path.cwd() / "images"
