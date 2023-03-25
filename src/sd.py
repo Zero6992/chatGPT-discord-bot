@@ -32,7 +32,7 @@ def get_weighted_prompts(prompt_text: Optional[str], negative=False) -> []:
     return weighted_prompts
 
 
-async def draw(prompt, negative_prompt, seed, steps, scale) -> str:
+async def draw(prompt, negative_prompt, seed, steps, scale, sampler) -> str:
     multi_prompts = []
     multi_prompts += get_weighted_prompts(prompt) + get_weighted_prompts(negative_prompt)
 
@@ -48,7 +48,7 @@ async def draw(prompt, negative_prompt, seed, steps, scale) -> str:
         width=512,  # Generation width, defaults to 512 if not included.
         height=512,  # Generation height, defaults to 512 if not included.
         samples=1,  # Number of images to generate, defaults to 1 if not included.
-        sampler=generation.SAMPLER_K_EULER_ANCESTRAL  # Choose which sampler we want to denoise our generation with.
+        sampler=sampler  # Choose which sampler we want to denoise our generation with.
         # Defaults to k_dpmpp_2m if not specified. Clip Guidance only supports ancestral samplers.
         # (Available Samplers: ddim, plms, k_euler, k_euler_ancestral, k_heun, k_dpm_2, k_dpm_2_ancestral, k_dpmpp_2s_ancestral, k_lms, k_dpmpp_2m)
     )

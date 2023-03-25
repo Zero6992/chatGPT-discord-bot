@@ -258,7 +258,7 @@ def run_discord_bot():
         await interaction.followup.send(""":star:**BASIC COMMANDS** \n
         - `/chat [message]` Chat with ChatGPT!
         - `/draw [prompt]` Generate an image with the Dalle2 model
-        - `/sd [prompt]` Generate an image with the Stability AI SDK
+        - `/sd [prompt, negative_prompt, seed, steps, scale, sampler]` Generate an image with the Stability AI SDK
         - `/switchpersona [persona]` Switch between optional chatGPT jailbreaks
                 `random`: Picks a random persona
                 `chatgpt`: Standard chatGPT mode
@@ -325,7 +325,18 @@ def run_discord_bot():
     @client.tree.command(name="sd", description="Generate an image with the Stability AI sdk")
     async def drawSD(interaction: discord.Interaction, *,
                      prompt: str, negative_prompt: Optional[str] = '',
-                     seed: Optional[int] = None, steps: Optional[int] = 30, scale: Optional[float] = 8.0):
+                     seed: Optional[int] = None, steps: Optional[int] = 30, scale: Optional[float] = 8.0,
+                     sampler: Optional[int] = 2):
+        # SAMPLER_DDIM = 0
+        # SAMPLER_DDPM = 1
+        # SAMPLER_K_EULER = 2
+        # SAMPLER_K_EULER_ANCESTRAL = 3
+        # SAMPLER_K_HEUN = 4
+        # SAMPLER_K_DPM_2 = 5
+        # SAMPLER_K_DPM_2_ANCESTRAL = 6
+        # SAMPLER_K_LMS = 7
+        # SAMPLER_K_DPMPP_2S_ANCESTRAL = 8
+        # SAMPLER_K_DPMPP_2M = 9
         isReplyAll = os.getenv("REPLYING_ALL")
         if isReplyAll == "True":
             await interaction.response.defer(ephemeral=False)
@@ -343,14 +354,14 @@ def run_discord_bot():
 
         await interaction.response.defer(thinking=True)
         try:
-            path = await sd.draw(prompt=prompt, negative_prompt=negative_prompt, seed=seed, steps=steps, scale=scale)
+            path = await sd.draw(prompt=prompt, negative_prompt=negative_prompt, seed=seed, steps=steps, scale=scale, sampler=sampler)
 
             file = discord.File(path, filename="image.png")
             title = '> ** image **\n'
             embed = discord.Embed(title=title)
             embed.set_image(url="attachment://image.png")
 
-            input_param = 'Prompt: {} \n Negative Prompt: {} \n seed: {} \n steps: {} \n scale: {}'\
+            input_param = 'Prompt: {} \nNegative prompt: {} \nSeed: {} \nSteps: {} \nCFG scale: {}'\
                 .format(prompt, negative_prompt, str(seed or ''), str(steps), str(scale))
 
             await interaction.followup.send(input_param, file=file, embed=embed)
