@@ -202,7 +202,11 @@ https://github.com/Zero6992/chatGPT-discord-bot""")
         app_commands.Choice(name="Evil Confidant", value="confidant"),
         app_commands.Choice(name="BasedGPT v2", value="based"),
         app_commands.Choice(name="OPPO", value="oppo"),
-        app_commands.Choice(name="Developer Mode v2", value="dev")
+        app_commands.Choice(name="Developer Mode v2", value="dev"),
+        app_commands.Choice(name="DUDE V3", value="dude_v3"),
+        app_commands.Choice(name="AIM", value="aim"),
+        app_commands.Choice(name="UCAR", value="ucar"),
+        app_commands.Choice(name="Jailbreak", value="jailbreak")
     ])
     async def chat(interaction: discord.Interaction, persona: app_commands.Choice[str]):
         if client.is_replying_all == "True":
