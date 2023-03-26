@@ -3,3 +3,4 @@ python-dotenv==1.0.0
 revChatGPT==4.0.8
 openai==0.27.2
 asgiref==3.6.0
+GoogleBard==0.0.5
