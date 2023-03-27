@@ -64,7 +64,7 @@ def run_discord_bot():
         client.replying_all_discord_channel_id = str(interaction.channel_id)
         await interaction.response.defer(ephemeral=False)
         if client.is_replying_all == "True":
-            client.isReplyingAl = "False"
+            client.is_replying_all = "False"
             await interaction.followup.send(
                 "> **Info: The bot will only response to the slash command `/chat` next. If you want to switch back to replyAll mode, use `/replyAll` again.**")
             logger.warning("\x1b[31mSwitch to normal mode\x1b[0m")
@@ -204,13 +204,7 @@ https://github.com/Zero6992/chatGPT-discord-bot""")
         app_commands.Choice(name="OPPO", value="oppo"),
         app_commands.Choice(name="Developer Mode v2", value="dev")
     ])
-    async def chat(interaction: discord.Interaction, persona: app_commands.Choice[str]):
-        if client.is_replying_all == "True":
-            await interaction.response.defer(ephemeral=False)
-            await interaction.followup.send(
-                "> **Warn: You already on replyAll mode. If you want to use slash command, switch to normal mode, use `/replyall` again**")
-            logger.warning("\x1b[31mYou already on replyAll mode, can't use slash command!\x1b[0m")
-            return
+    async def switchpersona(interaction: discord.Interaction, persona: app_commands.Choice[str]):
         if interaction.user == client.user:
             return
 
