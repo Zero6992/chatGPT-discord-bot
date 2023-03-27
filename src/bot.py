@@ -86,40 +86,38 @@ def run_discord_bot():
 
     async def chat_model(interaction: discord.Interaction, choices: app_commands.Choice[str]):
         await interaction.response.defer(ephemeral=False)
-        if choices.value == "OFFICIAL":
-            client.openAI_gpt_engine = "gpt-3.5-turbo"
-            client.chat_model = "OFFICIAL"
+        original_chat_model = client.chat_model
+        original_openAI_gpt_engine = client.openAI_gpt_engine
+
+        try:
+            if choices.value == "OFFICIAL":
+                client.openAI_gpt_engine = "gpt-3.5-turbo"
+                client.chat_model = "OFFICIAL"
+            elif choices.value == "OFFICIAL-GPT4":
+                client.openAI_gpt_engine = "gpt-4"
+                client.chat_model = "OFFICIAL"
+            elif choices.value == "UNOFFICIAL":
+                client.openAI_gpt_engine = "gpt-3.5-turbo"
+                client.chat_model = "UNOFFICIAL"
+            elif choices.value == "UNOFFICIAL-GPT4":
+                client.openAI_gpt_engine = "gpt-4"
+                client.chat_model = "UNOFFICIAL"
+            elif choices.value == "Bard":
+                client.chat_model = "Bard"
+            else:
+                raise ValueError("Invalid choice")
+
             client.chatbot = client.get_chatbot_model()
-            await interaction.followup.send(
-                "> **Info: You are now in Official GPT-3.5 model.**\n")
-            logger.warning("\x1b[31mSwitch to OFFICIAL GPT-3.5 model\x1b[0m")
-        elif choices.value == "OFFICIAL-GPT4":
-            client.openAI_gpt_engine = "gpt-4"
-            client.chat_model = "OFFICIAL"
+            await interaction.followup.send(f"> **Info: You are now in {client.chat_model} model.**\n")
+            logger.warning(f"\x1b[31mSwitch to {client.chat_model} model\x1b[0m")
+
+        except Exception as e:
+            client.chat_model = original_chat_model
+            client.openAI_gpt_engine = original_openAI_gpt_engine
             client.chatbot = client.get_chatbot_model()
-            await interaction.followup.send(
-                "> **Info: You are now in Official GPT-4.0 model.**\n")
-            logger.warning("\x1b[31mSwitch to OFFICIAL GPT-4.0 model\x1b[0m")
-        elif choices.value == "UNOFFICIAL":
-            client.openAI_gpt_engine = "gpt-3.5-turbo"
-            client.chat_model = "UNOFFICIAL"
-            client.chatbot = client.get_chatbot_model()
-            await interaction.followup.send(
-                "> **Info: You are now in Website ChatGPT-3.5 model.**\n")
-            logger.warning("\x1b[31mSwitch to UNOFFICIAL(Website) GPT-3.5 model\x1b[0m")
-        elif choices.value == "UNOFFICIAL-GPT4":
-            client.openAI_gpt_engine = "gpt-4"
-            client.chat_model = "UNOFFICIAL"
-            client.chatbot = client.get_chatbot_model()
-            await interaction.followup.send(
-                "> **Info: You are now in Website ChatGPT-4.0 model.**\n")
-            logger.warning("\x1b[31mSwitch to UNOFFICIAL(Website) GPT-4.0 model\x1b[0m")
-        elif choices.value == "Bard":
-            client.chat_model = "Bard"
-            client.chatbot = client.get_chatbot_model()
-            await interaction.followup.send(
-                "> **Info: You are now in Bard model.**\n")
-            logger.warning("\x1b[31mSwitch to Bard model\x1b[0m")
+            await interaction.followup.send(f"> **Error: Error while switching to the {choices.value} model, check that you've filled in the related fields in `.env`.**\n")
+            logger.exception(f"Error while switching to the {choices.value} model: {e}")
+
 
     @client.tree.command(name="reset", description="Complete reset conversation history")
     async def reset(interaction: discord.Interaction):

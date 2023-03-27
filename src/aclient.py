@@ -38,6 +38,7 @@ class aclient(discord.Client):
             return Chatbot(api_key=self.openAI_API_key, engine=self.openAI_gpt_engine)
         elif self.chat_model == "Bard":
             return BardChatbot(session_id=self.bard_session_id)
+
     async def send_message(self, message, user_message):
         if self.is_replying_all == "False":
             author = message.user.id
