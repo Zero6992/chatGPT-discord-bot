@@ -4,6 +4,7 @@
 >
 ---
 > **Warning**
+> #### 2023-03-27 Bard now supported
 >
 > #### 2023-03-18 GPT-4 is now supported and the dependency packages have been updated. Please reinstall the dependencies once again
 >
@@ -31,6 +32,7 @@
    * `OFFICIAL-GPT-4.0`: GPT-4.0 model (make sure your account can access gpt-4 model)
    * `Website ChatGPT-3.5`: Website ChatGPT-3.5 model (UNOFFICIAL)
    * `Website ChatGPT-4.0`: Website ChatGPT-4.0 model (UNOFFICIAL)(available if you got a plus account)
+   * `Bard`: Google Bard Model
 
 ### Chat
 
@@ -131,6 +133,18 @@
 
 4. You're all set for [Step 3](#step-3-run-the-bot-on-the-desktop)
 
+
+## Step 2: Google Bard authentication
+1. Go to https://bard.google.com/
+
+2. Open console with `F12`
+
+3. Open `Application` tab > Cookies
+
+4. Copy the value for `__Secure-1PSID` from cookies and paste it into `.env` under `BARD_SESSION_ID`
+
+5. You're all set for [Step 3](#step-3-run-the-bot-on-the-desktop)
+
 ## Step 3: Run the bot on the desktop
 
 1. Open a terminal or command prompt
@@ -158,7 +172,7 @@
 
 * A starting prompt would be invoked when the bot is first started or reset
 * You can set it up by modifying the content in `starting-prompt.txt`
-* All the text in the file will be fired as a prompt to the bot  
+* All the text in the file will be fired as a prompt to the bot
 * Get the first message from ChatGPT in your discord channel!
 
    1. Right-click the channel you want to recieve the message, `Copy  ID`
@@ -166,7 +180,7 @@
         ![channel-id](https://user-images.githubusercontent.com/89479282/207697217-e03357b3-3b3d-44d0-b880-163217ed4a49.PNG)
 
    2. paste it into `.env` under `DISCORD_CHANNEL_ID`
-   
+
  ---
  [**中文說明**](https://zero6992.github.io/posts/chatgpt-discord-bot-chinese/)
 
