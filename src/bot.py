@@ -81,6 +81,7 @@ def run_discord_bot():
         app_commands.Choice(name="Ofiicial GPT-4.0", value="OFFICIAL-GPT4"),
         app_commands.Choice(name="Website ChatGPT-3.5", value="UNOFFICIAL"),
         app_commands.Choice(name="Website ChatGPT-4.0", value="UNOFFICIAL-GPT4"),
+        app_commands.Choice(name="Bard", value="Bard"),
     ])
 
     async def chat_model(interaction: discord.Interaction, choices: app_commands.Choice[str]):
@@ -113,21 +114,26 @@ def run_discord_bot():
             await interaction.followup.send(
                 "> **Info: You are now in Website ChatGPT-4.0 model.**\n")
             logger.warning("\x1b[31mSwitch to UNOFFICIAL(Website) GPT-4.0 model\x1b[0m")
+        elif choices.value == "Bard":
+            client.chat_model = "Bard"
+            client.chatbot = client.get_chatbot_model()
+            await interaction.followup.send(
+                "> **Info: You are now in Bard model.**\n")
+            logger.warning("\x1b[31mSwitch to Bard model\x1b[0m")
 
-
-    @client.tree.command(name="reset", description="Complete reset ChatGPT conversation history")
+    @client.tree.command(name="reset", description="Complete reset conversation history")
     async def reset(interaction: discord.Interaction):
         if client.chat_model == "OFFICIAL":
             client.chatbot.reset()
         elif client.chat_model == "UNOFFICIAL":
             client.chatbot.reset_chat()
+        elif client.chat_model == "Bard":
+            client.chatbot = client.get_chatbot_model()
         await interaction.response.defer(ephemeral=False)
         await interaction.followup.send("> **Info: I have forgotten everything.**")
         personas.current_persona = "standard"
         logger.warning(
             "\x1b[31mChatGPT bot has been successfully reset\x1b[0m")
-        await client.send_start_prompt()
-
 
     @client.tree.command(name="help", description="Show help for the bot")
     async def help(interaction: discord.Interaction):
@@ -152,7 +158,7 @@ def run_discord_bot():
         - `/chat-model` Switch different chat model
                 `OFFICIAL`: GPT-3.5 model
                 `UNOFFICIAL`: Website ChatGPT
-                Modifying CHAT_MODEL field in the .env file change the default model
+                `Bard`: Google Bard model
 
 For complete documentation, please visit:
 https://github.com/Zero6992/chatGPT-discord-bot""")
@@ -228,6 +234,8 @@ https://github.com/Zero6992/chatGPT-discord-bot""")
                 client.chatbot.reset()
             elif client.chat_model == "UNOFFICIAL":
                 client.chatbot.reset_chat()
+            elif client.chat_model == "Bard":
+                client.chat_model = client.get_chatbot_model()
 
             personas.current_persona = "standard"
             await interaction.followup.send(
@@ -272,6 +280,8 @@ https://github.com/Zero6992/chatGPT-discord-bot""")
                     channel = str(message.channel)
                     logger.info(f"\x1b[31m{username}\x1b[0m : '{user_message}' ({channel})")
                     await client.send_message(message, user_message)
+            else:
+                logger.exception("replying_all_discord_channel_id not found, please use the commnad `/replyall` again.")
 
     TOKEN = os.getenv("DISCORD_BOT_TOKEN")
 
