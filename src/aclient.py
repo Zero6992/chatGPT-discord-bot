@@ -15,7 +15,7 @@ class aclient(discord.Client):
     def __init__(self) -> None:
         intents = discord.Intents.default()
         intents.message_content = True
-        super().__init__(intents=intents)
+        super().__init__(intents=intents, proxy=os.getenv("HTTP_PROXY"))
         self.tree = app_commands.CommandTree(self)
         self.activity = discord.Activity(type=discord.ActivityType.listening, name="/chat | /help")
         self.isPrivate = False
@@ -35,7 +35,7 @@ class aclient(discord.Client):
         if self.chat_model == "UNOFFICIAL":
             return AsyncChatbot(config={"email": self.openAI_email, "password": self.openAI_password, "session_token": self.chatgpt_session_token, "model": self.openAI_gpt_engine, "paid": self.chatgpt_paid})
         elif self.chat_model == "OFFICIAL":
-            return Chatbot(api_key=self.openAI_API_key, engine=self.openAI_gpt_engine)
+            return Chatbot(api_key=self.openAI_API_key, engine=self.openAI_gpt_engine, proxy=os.getenv("HTTP_PROXY"))
         elif self.chat_model == "Bard":
             return BardChatbot(session_id=self.bard_session_id)
 
