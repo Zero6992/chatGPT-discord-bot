@@ -4,7 +4,7 @@
 >
 ---
 > **Warning**
-> #### 2023-03-31 Email/Password authentication for unoffical model is dead
+> #### 2023-03-31 Email/Password authentication for unofficial model is dead
 > #### 2023-03-27 Bard now supported
 >
 > #### 2023-03-18 GPT-4 is now supported and the dependency packages have been updated. Please reinstall the dependencies once again
