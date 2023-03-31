@@ -4,6 +4,7 @@
 >
 ---
 > **Warning**
+> #### 2023-03-31 Email/Password authentication for unoffical model is dead
 > #### 2023-03-27 Bard now supported
 >
 > #### 2023-03-18 GPT-4 is now supported and the dependency packages have been updated. Please reinstall the dependencies once again
@@ -107,18 +108,9 @@
 
 4. You're all set for [Step 3](#step-3-run-the-bot-on-the-desktop)
 
-## Step 2: Website ChatGPT authentication - 2 approaches
+## Step 2: Website ChatGPT authentication
 
 * **If you are using a Plus account, please modify `UNOFFICIAL_PAID` to `"True"` in your `.env` file**
-
-### Email/Password authentication (Not supported for Google/Microsoft accounts)
-1. Create an account on https://chat.openai.com/chat
-
-2. Save your email into `.env` under `OPENAI_EMAIL`
-
-3. Save your password into `.env` under `OPENAI_PASSWORD`
-
-4. You're all set for [Step 3](#step-3-run-the-bot-on-the-desktop)
 
 ### Session token authentication
 1. Go to https://chat.openai.com/chat log in
