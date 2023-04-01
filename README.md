@@ -4,7 +4,7 @@
 >
 ---
 > **Warning**
-> #### 2023-03-31 Email/Password authentication for unofficial model is dead
+> #### 2023-04-01 Only Plus account can access Unofficial model
 > #### 2023-03-27 Bard now supported
 >
 > #### 2023-03-18 GPT-4 is now supported and the dependency packages have been updated. Please reinstall the dependencies once again
@@ -108,20 +108,30 @@
 
 4. You're all set for [Step 3](#step-3-run-the-bot-on-the-desktop)
 
-## Step 2: Website ChatGPT authentication
+## Step 2: Website ChatGPT authentication - 2 approaches
 
-* **If you are using a Plus account, please modify `UNOFFICIAL_PAID` to `"True"` in your `.env` file**
+* 2023-04-01: Only Support Plus Account now
 
-### Session token authentication
+### Email/Password authentication (Not supported for Google/Microsoft accounts)
+1. Create an account on https://chat.openai.com/chat
+
+2. Save your email into `.env` under `OPENAI_EMAIL`
+
+3. Save your password into `.env` under `OPENAI_PASSWORD`
+
+4. You're all set for [Step 3](#step-3-run-the-bot-on-the-desktop)
+
+### ACCESS token authentication
 1. Go to https://chat.openai.com/chat log in
 
-2. Open console with `F12`
+2. Open https://chat.openai.com/api/auth/session
 
-2. Open `Application` tab > Cookies
+3. Copy the value for `accessToken` from cookies and paste it into `.env` under `ACCESS_TOKEN`
 
-    ![image](https://user-images.githubusercontent.com/36258159/205494773-32ef651a-994d-435a-9f76-a26699935dac.png)
+4.  Open `Application` tab > Cookies
 
-3. Copy the value for `__Secure-next-auth.session-token` from cookies and paste it into `.env` under `SESSION_TOKEN`
+    ![image](https://user-images.githubusercontent.com/89479282/229298001-41ab4f61-5b79-4c65-b08c-708ee6fe2304.png)
+5. Copy the value for `_puid` from cookies and paste it into `.env` under `PUID`
 
 4. You're all set for [Step 3](#step-3-run-the-bot-on-the-desktop)
 
