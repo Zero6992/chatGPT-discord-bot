@@ -116,7 +116,7 @@
 
 1.   Open `Application` tab > Cookies
 
-    ![image](https://user-images.githubusercontent.com/89479282/229298001-41ab4f61-5b79-4c65-b08c-708ee6fe2304.png)
+   ![image](https://user-images.githubusercontent.com/89479282/229298001-41ab4f61-5b79-4c65-b08c-708ee6fe2304.png)
 
 2. Copy the value for `_puid` from cookies and paste it into `.env` under `PUID`
 
@@ -131,7 +131,7 @@
 ### ACCESS token authentication
 1.   Open `Application` tab > Cookies
 
-    ![image](https://user-images.githubusercontent.com/89479282/229298001-41ab4f61-5b79-4c65-b08c-708ee6fe2304.png)
+   ![image](https://user-images.githubusercontent.com/89479282/229298001-41ab4f61-5b79-4c65-b08c-708ee6fe2304.png)
 
 2. Copy the value for `_puid` from cookies and paste it into `.env` under `PUID`
 
