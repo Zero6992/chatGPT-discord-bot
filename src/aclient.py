@@ -4,6 +4,7 @@ from typing import Union
 from src import log, responses
 from dotenv import load_dotenv
 from discord import app_commands
+from Bard import Chatbot as BardChatbot
 from revChatGPT.V3 import Chatbot
 from revChatGPT.V1 import AsyncChatbot
 
@@ -25,16 +26,20 @@ class aclient(discord.Client):
         self.openAI_API_key = os.getenv("OPENAI_API_KEY")
         self.openAI_gpt_engine = os.getenv("GPT_ENGINE")
         self.chatgpt_session_token = os.getenv("SESSION_TOKEN")
+        self.chatgpt_access_token = os.getenv("ACCESS_TOKEN")
         self.chatgpt_paid = os.getenv("UNOFFICIAL_PAID")
+        self.bard_session_id = os.getenv("BARD_SESSION_ID")
         self.chat_model = os.getenv("CHAT_MODEL")
         self.chatbot = self.get_chatbot_model()
 
     def get_chatbot_model(self) -> Union[AsyncChatbot, Chatbot]:
         if self.chat_model == "UNOFFICIAL":
-            return AsyncChatbot(config={"email": self.openAI_email, "password": self.openAI_password, "session_token": self.chatgpt_session_token, "model": self.openAI_gpt_engine, "paid": self.chatgpt_paid})
+            return AsyncChatbot(config={"email": self.openAI_email, "password": self.openAI_password, "access_token": self.chatgpt_access_token, "model": self.openAI_gpt_engine, "paid": self.chatgpt_paid})
         elif self.chat_model == "OFFICIAL":
             return Chatbot(api_key=self.openAI_API_key, engine=self.openAI_gpt_engine)
-        
+        elif self.chat_model == "Bard":
+            return BardChatbot(session_id=self.bard_session_id)
+
     async def send_message(self, message, user_message):
         if self.is_replying_all == "False":
             author = message.user.id
@@ -47,6 +52,8 @@ class aclient(discord.Client):
                 response = f"{response}{await responses.official_handle_response(user_message, self)}"
             elif self.chat_model == "UNOFFICIAL":
                 response = f"{response}{await responses.unofficial_handle_response(user_message, self)}"
+            elif self.chat_model == "Bard":
+                response = f"{response}{await responses.bard_handle_response(user_message, self)}"
             char_limit = 1900
             if len(response) > char_limit:
                 # Split the response into smaller chunks of no more than 1900 characters each(Discord limit is 2000 per chunk)
@@ -97,9 +104,9 @@ class aclient(discord.Client):
                 await message.followup.send(response)
         except Exception as e:
             if self.is_replying_all == "True":
-                await message.channel.send("> **Error: Something went wrong, please try again later!**")
+                await message.channel.send("> **ERROR: Something went wrong, please try again later!**")
             else:
-                await message.followup.send("> **Error: Something went wrong, please try again later!**")
+                await message.followup.send("> **ERROR: Something went wrong, please try again later!**")
             logger.exception(f"Error while sending message: {e}")
 
     async def send_start_prompt(self):
@@ -120,6 +127,8 @@ class aclient(discord.Client):
                             response = f"{response}{await responses.official_handle_response(prompt, self)}"
                         elif self.chat_model == "UNOFFICIAL":
                             response = f"{response}{await responses.unofficial_handle_response(prompt, self)}"
+                        elif self.chat_model == "Bard":
+                            response = f"{response}{await responses.bard_handle_response(prompt, self)}"
                         channel = self.get_channel(int(discord_channel_id))
                         await channel.send(response)
                         logger.info(f"Starting prompt response:{response}")
