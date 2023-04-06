@@ -21,8 +21,7 @@ async def switch_persona(persona, client) -> None:
         async for response in client.chatbot.ask(personas.PERSONAS.get(persona)):
             pass
     elif client.chat_model == "OFFICIAL":
-        client.chatbot.reset()
-        await sync_to_async(client.chatbot.ask)(personas.PERSONAS.get(persona))
+        client.chatbot = client.get_chatbot_model(prompt=personas.PERSONAS.get(persona))
     elif client.chat_model == "Bard":
         client.chatbot = client.get_chatbot_model()
         await sync_to_async(client.chatbot.ask)(personas.PERSONAS.get(persona))

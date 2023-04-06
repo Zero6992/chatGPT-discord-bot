@@ -11,6 +11,12 @@ from revChatGPT.V1 import AsyncChatbot
 logger = log.setup_logger(__name__)
 load_dotenv()
 
+config_dir = os.path.abspath(f"{__file__}/../../")
+prompt_name = 'system_prompt.txt'
+prompt_path = os.path.join(config_dir, prompt_name)
+with open(prompt_path, "r", encoding="utf-8") as f:
+    prompt = f.read()
+
 class aclient(discord.Client):
     def __init__(self) -> None:
         intents = discord.Intents.default()
@@ -32,11 +38,12 @@ class aclient(discord.Client):
         self.chat_model = os.getenv("CHAT_MODEL")
         self.chatbot = self.get_chatbot_model()
 
-    def get_chatbot_model(self) -> Union[AsyncChatbot, Chatbot]:
+
+    def get_chatbot_model(self, prompt=prompt) -> Union[AsyncChatbot, Chatbot]:
         if self.chat_model == "UNOFFICIAL":
             return AsyncChatbot(config={"email": self.openAI_email, "password": self.openAI_password, "access_token": self.chatgpt_access_token, "model": self.openAI_gpt_engine, "paid": self.chatgpt_paid})
         elif self.chat_model == "OFFICIAL":
-            return Chatbot(api_key=self.openAI_API_key, engine=self.openAI_gpt_engine)
+                return Chatbot(api_key=self.openAI_API_key, engine=self.openAI_gpt_engine, system_prompt=prompt)
         elif self.chat_model == "Bard":
             return BardChatbot(session_id=self.bard_session_id)
 
@@ -113,7 +120,7 @@ class aclient(discord.Client):
         import os.path
 
         config_dir = os.path.abspath(f"{__file__}/../../")
-        prompt_name = 'starting-prompt.txt'
+        prompt_name = 'system_prompt.txt'
         prompt_path = os.path.join(config_dir, prompt_name)
         discord_channel_id = os.getenv("DISCORD_CHANNEL_ID")
         try:
@@ -121,7 +128,7 @@ class aclient(discord.Client):
                 with open(prompt_path, "r", encoding="utf-8") as f:
                     prompt = f.read()
                     if (discord_channel_id):
-                        logger.info(f"Send starting prompt with size {len(prompt)}")
+                        logger.info(f"Send system prompt with size {len(prompt)}")
                         response = ""
                         if self.chat_model == "OFFICIAL":
                             response = f"{response}{await responses.official_handle_response(prompt, self)}"
@@ -131,13 +138,13 @@ class aclient(discord.Client):
                             response = f"{response}{await responses.bard_handle_response(prompt, self)}"
                         channel = self.get_channel(int(discord_channel_id))
                         await channel.send(response)
-                        logger.info(f"Starting prompt response:{response}")
+                        logger.info(f"System prompt response:{response}")
                     else:
-                        logger.info("No Channel selected. Skip sending starting prompt.")
+                        logger.info("No Channel selected. Skip sending system prompt.")
             else:
-                logger.info(f"No {prompt_name}. Skip sending starting prompt.")
+                logger.info(f"No {prompt_name}. Skip sending system prompt.")
         except Exception as e:
-            logger.exception(f"Error while sending starting prompt: {e}")
+            logger.exception(f"Error while sending system prompt: {e}")
 
 
 client = aclient()
