@@ -116,31 +116,34 @@
 
 1. Create an account on https://chat.openai.com/chat and open it
 
-2.   Open `Application` tab > Cookies
+2.  Open console with `F12`
+3.  Open `Application` tab > Cookies
 
    ![image](https://user-images.githubusercontent.com/89479282/229298001-41ab4f61-5b79-4c65-b08c-708ee6fe2304.png)
 
-3. Copy the value for `_puid` from cookies and paste it into `.env` under `PUID`
+4. Copy the value for `_puid` from cookies and paste it into `.env` under `PUID`
 
-4. Save your email into `.env` under `OPENAI_EMAIL`
+5. Save your email into `.env` under `OPENAI_EMAIL`
 
-5. Save your password into `.env` under `OPENAI_PASSWORD`
+6. Save your password into `.env` under `OPENAI_PASSWORD`
 
-6. You're all set for [Step 3](#step-3-run-the-bot-on-the-desktop)
+7. You're all set for [Step 3](#step-3-run-the-bot-on-the-desktop)
 
 ### ACCESS token authentication
 1. Open https://chat.openai.com/api/auth/session
 
-2. Open `Application` tab > Cookies
+2. Open console with `F12`
+
+3. Open `Application` tab > Cookies
 
    ![image](https://user-images.githubusercontent.com/89479282/229298001-41ab4f61-5b79-4c65-b08c-708ee6fe2304.png)
 
-3. Copy the value for `_puid` from cookies and paste it into `.env` under `PUID`
+4. Copy the value for `_puid` from cookies and paste it into `.env` under `PUID`
 
 
-4. Copy the value for `accessToken` from cookies and paste it into `.env` under `ACCESS_TOKEN`
+5. Copy the value for `accessToken` from cookies and paste it into `.env` under `ACCESS_TOKEN`
 
-5. You're all set for [Step 3](#step-3-run-the-bot-on-the-desktop)
+6. You're all set for [Step 3](#step-3-run-the-bot-on-the-desktop)
 
 ## Step 2: Google Bard authentication
 1. Go to https://bard.google.com/
