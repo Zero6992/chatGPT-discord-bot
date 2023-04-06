@@ -122,11 +122,13 @@ def run_discord_bot():
     @client.tree.command(name="reset", description="Complete reset conversation history")
     async def reset(interaction: discord.Interaction):
         if client.chat_model == "OFFICIAL":
-            client.chatbot.reset()
+            client.chatbot = client.get_chatbot_model()
         elif client.chat_model == "UNOFFICIAL":
             client.chatbot.reset_chat()
+            await client.send_start_prompt()
         elif client.chat_model == "Bard":
             client.chatbot = client.get_chatbot_model()
+            await client.send_start_prompt()
         await interaction.response.defer(ephemeral=False)
         await interaction.followup.send("> **INFO: I have forgotten everything.**")
         personas.current_persona = "standard"
