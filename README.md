@@ -114,13 +114,13 @@
 
 ### Email/Password authentication (Not supported for Google/Microsoft accounts)
 
-1.   Open `Application` tab > Cookies
+1. Create an account on https://chat.openai.com/chat and open it
+
+2.   Open `Application` tab > Cookies
 
    ![image](https://user-images.githubusercontent.com/89479282/229298001-41ab4f61-5b79-4c65-b08c-708ee6fe2304.png)
 
-2. Copy the value for `_puid` from cookies and paste it into `.env` under `PUID`
-
-3. Create an account on https://chat.openai.com/chat
+3. Copy the value for `_puid` from cookies and paste it into `.env` under `PUID`
 
 4. Save your email into `.env` under `OPENAI_EMAIL`
 
@@ -129,13 +129,14 @@
 6. You're all set for [Step 3](#step-3-run-the-bot-on-the-desktop)
 
 ### ACCESS token authentication
-1.   Open `Application` tab > Cookies
+1. Open https://chat.openai.com/api/auth/session
+
+2. Open `Application` tab > Cookies
 
    ![image](https://user-images.githubusercontent.com/89479282/229298001-41ab4f61-5b79-4c65-b08c-708ee6fe2304.png)
 
-2. Copy the value for `_puid` from cookies and paste it into `.env` under `PUID`
+3. Copy the value for `_puid` from cookies and paste it into `.env` under `PUID`
 
-3. Open https://chat.openai.com/api/auth/session
 
 4. Copy the value for `accessToken` from cookies and paste it into `.env` under `ACCESS_TOKEN`
 
@@ -175,10 +176,10 @@
 ## Optional: Disable logging
 
 * Set the value of `LOGGING` in the `.env` to False
-## Optional: Setup starting prompt
+## Optional: Setup system prompt
 
-* A starting prompt would be invoked when the bot is first started or reset
-* You can set it up by modifying the content in `starting-prompt.txt`
+* A system prompt would be invoked when the bot is first started or reset
+* You can set it up by modifying the content in `system_prompt.txt`
 * All the text in the file will be fired as a prompt to the bot
 * Get the first message from ChatGPT in your discord channel!
 
