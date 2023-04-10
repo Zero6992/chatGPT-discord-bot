@@ -82,6 +82,7 @@ def run_discord_bot():
         app_commands.Choice(name="Website ChatGPT-3.5", value="UNOFFICIAL"),
         app_commands.Choice(name="Website ChatGPT-4.0", value="UNOFFICIAL-GPT4"),
         app_commands.Choice(name="Bard", value="Bard"),
+        app_commands.Choice(name="Bing", value="Bing"),
     ])
 
     async def chat_model(interaction: discord.Interaction, choices: app_commands.Choice[str]):
@@ -104,6 +105,8 @@ def run_discord_bot():
                 client.chat_model = "UNOFFICIAL"
             elif choices.value == "Bard":
                 client.chat_model = "Bard"
+            elif choices.value == "Bing":
+                client.chat_model = "Bing"
             else:
                 raise ValueError("Invalid choice")
 
@@ -121,6 +124,7 @@ def run_discord_bot():
 
     @client.tree.command(name="reset", description="Complete reset conversation history")
     async def reset(interaction: discord.Interaction):
+        await interaction.response.defer(ephemeral=False)
         if client.chat_model == "OFFICIAL":
             client.chatbot = client.get_chatbot_model()
         elif client.chat_model == "UNOFFICIAL":
@@ -129,11 +133,14 @@ def run_discord_bot():
         elif client.chat_model == "Bard":
             client.chatbot = client.get_chatbot_model()
             await client.send_start_prompt()
-        await interaction.response.defer(ephemeral=False)
+        elif client.chat_model == "Bing":
+            await client.chatbot.close()
+            client.chatbot = client.get_chatbot_model()
+            await client.send_start_prompt()
         await interaction.followup.send("> **INFO: I have forgotten everything.**")
         personas.current_persona = "standard"
         logger.warning(
-            "\x1b[31mChatGPT bot has been successfully reset\x1b[0m")
+            f"\x1b[31m{client.chat_model} bot has been successfully reset\x1b[0m")
 
     @client.tree.command(name="help", description="Show help for the bot")
     async def help(interaction: discord.Interaction):
@@ -159,6 +166,7 @@ def run_discord_bot():
                 `OFFICIAL`: GPT-3.5 model
                 `UNOFFICIAL`: Website ChatGPT
                 `Bard`: Google Bard model
+                `Bing`: Microsoft Bing model
 
 For complete documentation, please visit:
 https://github.com/Zero6992/chatGPT-discord-bot""")
@@ -235,7 +243,9 @@ https://github.com/Zero6992/chatGPT-discord-bot""")
             elif client.chat_model == "UNOFFICIAL":
                 client.chatbot.reset_chat()
             elif client.chat_model == "Bard":
-                client.chat_model = client.get_chatbot_model()
+                client.chatbot = client.get_chatbot_model()
+            elif client.chat_model == "Bing":
+                client.chatbot = client.get_chatbot_model()
 
             personas.current_persona = "standard"
             await interaction.followup.send(
