@@ -162,7 +162,7 @@
 
 2. Navigate to the directory where you installed the ChatGPT Discord bot
 
-3. Run `python3 main.py` to start the bot
+3. Run `python3 main.py` or `python main.py` to start the bot
 
 ## Step 3: Run the bot with Docker
 
