@@ -57,7 +57,12 @@ class aclient(discord.Client):
         else:
             author = message.author.id
         try:
-            response = (f'> **{user_message}** - <@{str(author)}' + '> \n\n')
+            chat_model_status = self.chat_model
+            if self.chat_model == "UNOFFICIAL":
+                chat_model_status = f'ChatGPT {self.openAI_gpt_engine}'
+            elif self.chat_model == "OFFICIAL":
+                chat_model_status = f'OpenAI {self.openAI_gpt_engine}'
+            response = (f'> **{user_message}** - <@{str(author)}> ({chat_model_status}) \n\n')
             if self.chat_model == "OFFICIAL":
                 response = f"{response}{await responses.official_handle_response(user_message, self)}"
             elif self.chat_model == "UNOFFICIAL":
