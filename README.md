@@ -4,12 +4,11 @@
 >
 ---
 > **Warning**
+>
+> #### 2023-04-12 Bing now supported
 > #### 2023-04-01 Only Plus account can access Unofficial model
 > #### 2023-03-27 Bard now supported
->
-> #### 2023-03-18 GPT-4 is now supported and the dependency packages have been updated. Please reinstall the dependencies once again
->
-> #### 2023-03-16 OpenAI has deactivated some accounts using UNOFFICIAL model. Recommend using OFFICIAL model
+
 ## Features
 
 * `/chat [message]` Chat with ChatGPT!
@@ -157,10 +156,10 @@
 5. You're all set for [Step 3](#step-3-run-the-bot-on-the-desktop)
 
 
-## Step 2: Mircrosoft Bing authentication
+## Step 2: Microsoft Bing authentication
 1. **Rename the file `cookies.dev.json` to `cookies.json`**
 
-2. Go to https://bing.com/chat and log in your Mircrosoft account
+2. Go to https://bing.com/chat and log in your Microsoft account
 
 3. Use Cookie Editor or similar extensions to export the cookies
 
