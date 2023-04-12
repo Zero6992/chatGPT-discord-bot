@@ -156,6 +156,18 @@
 
 5. You're all set for [Step 3](#step-3-run-the-bot-on-the-desktop)
 
+
+## Step 2: Mircrosoft Bing authentication
+1. **Rename the file `cookies.dev.json` to `cookies.json`**
+
+2. Go to https://bing.com/chat and log in your Mircrosoft account
+
+3. Use Cookie Editor or similar extensions to export the cookies
+
+3. Paste it into `cookies.json`
+
+5. You're all set for [Step 3](#step-3-run-the-bot-on-the-desktop)
+
 ## Step 3: Run the bot on the desktop
 
 1. Open a terminal or command prompt
