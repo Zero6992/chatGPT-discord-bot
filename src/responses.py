@@ -17,7 +17,11 @@ async def bard_handle_response(message, client) -> str:
 async def bing_handle_response(message, client) -> str:
     async for response in client.chatbot.ask_stream(message):
         responseMessage = response
-    return responseMessage[1]["item"]["messages"][1]["text"]
+    print(responseMessage[1])
+    if len(responseMessage[1]["item"]["messages"]) > 1:
+        return responseMessage[1]["item"]["messages"][1]["text"]
+    else:
+        raise Exception("Bing cannot continue this conversation, use `/reset` to start the next conversation.")
 
 # resets conversation and asks chatGPT the prompt for a persona
 async def switch_persona(persona, client) -> None:

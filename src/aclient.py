@@ -121,9 +121,9 @@ class aclient(discord.Client):
                 await message.followup.send(response)
         except Exception as e:
             if self.is_replying_all == "True":
-                await message.channel.send("> **ERROR: Something went wrong, please try again later!**")
+                await message.channel.send(f"> **ERROR: Something went wrong, please try again later!** \n ```ERROR MESSAGE: {e}```")
             else:
-                await message.followup.send("> **ERROR: Something went wrong, please try again later!**")
+                await message.followup.send(f"> **ERROR: Something went wrong, please try again later!** \n ```ERROR MESSAGE: {e}```")
             logger.exception(f"Error while sending message: {e}")
 
     async def send_start_prompt(self):
