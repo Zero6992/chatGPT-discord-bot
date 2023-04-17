@@ -134,9 +134,7 @@ def run_discord_bot():
             client.chatbot = client.get_chatbot_model()
             await client.send_start_prompt()
         elif client.chat_model == "Bing":
-            await client.chatbot.close()
-            client.chatbot = client.get_chatbot_model()
-            await client.send_start_prompt()
+            await client.chatbot.reset()
         await interaction.followup.send("> **INFO: I have forgotten everything.**")
         personas.current_persona = "standard"
         logger.warning(
