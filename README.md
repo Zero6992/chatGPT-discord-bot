@@ -75,7 +75,7 @@
 
 * **Rename the file `.env.dev` to `.env`**
 
-* Recommended python version `3.10`
+* Recommended python version `3.9` +
 ## Step 1: Create a Discord bot
 
 1. Go to https://discord.com/developers/applications create an application
