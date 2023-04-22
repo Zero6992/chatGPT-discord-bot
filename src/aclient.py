@@ -48,7 +48,7 @@ class aclient(discord.Client):
         elif self.chat_model == "Bard":
             return BardChatbot(session_id=self.bard_session_id)
         elif self.chat_model == "Bing":
-            return EdgeChatbot(cookiePath='./cookies.json')
+            return EdgeChatbot(cookie_path='./cookies.json')
 
     async def send_message(self, message, user_message):
         if self.is_replying_all == "False":
