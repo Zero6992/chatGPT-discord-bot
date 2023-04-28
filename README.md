@@ -177,7 +177,7 @@
    * `Website ChatGPT-3.5`: Website ChatGPT-3.5 model (UNOFFICIAL)
    * `Website ChatGPT-4.0`: Website ChatGPT-4.0 model (UNOFFICIAL)(available if you got a plus account)
    * `Bard`: Google Bard Model
-
+   * `Bing`: Microsoft Bing Model
 ### Special Features
 
 #### Draw
