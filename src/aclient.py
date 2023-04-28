@@ -1,5 +1,6 @@
 import os
 import discord
+import asyncio
 from typing import Union
 from src import log, responses
 from dotenv import load_dotenv
@@ -38,7 +39,7 @@ class aclient(discord.Client):
         self.bard_session_id = os.getenv("BARD_SESSION_ID")
         self.chat_model = os.getenv("CHAT_MODEL")
         self.chatbot = self.get_chatbot_model()
-
+        self.message_queue = asyncio.Queue()
 
     def get_chatbot_model(self, prompt=prompt) -> Union[AsyncChatbot, Chatbot]:
         if self.chat_model == "UNOFFICIAL":
@@ -50,10 +51,23 @@ class aclient(discord.Client):
         elif self.chat_model == "Bing":
             return EdgeChatbot(cookie_path='./cookies.json')
 
+    async def process_messages(self):
+        while True:
+            message, user_message = await self.message_queue.get()
+            try:
+                await self.send_message(message, user_message)
+            except Exception as e:
+                logger.exception(f"Error while processing message: {e}")
+            finally:
+                self.message_queue.task_done()
+
+    async def enqueue_message(self, message, user_message):
+        await message.response.defer(ephemeral=self.isPrivate)
+        await self.message_queue.put((message, user_message))
+
     async def send_message(self, message, user_message):
         if self.is_replying_all == "False":
             author = message.user.id
-            await message.response.defer(ephemeral=self.isPrivate)
         else:
             author = message.author.id
         try:
