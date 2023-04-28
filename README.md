@@ -14,10 +14,6 @@
 
 ![image](https://user-images.githubusercontent.com/89479282/206497774-47d960cd-1aeb-4fba-9af5-1f9d6ff41f00.gif)
 
-### Draw
-
-![image](https://user-images.githubusercontent.com/91911303/223772051-13f840d5-99ef-4762-98d2-d15ce23cbbd5.png)
-
 # Setup
 
 ## Critical prerequisites to install
@@ -27,6 +23,7 @@
 * **Rename the file `.env.example` to `.env`**
 
 * Recommended python version `3.9` +
+---
 ## Step 1: Create a Discord bot
 
 1. Go to https://discord.com/developers/applications create an application
@@ -45,6 +42,7 @@
 6. Invite your bot to your server via OAuth2 URL Generator
 
    ![image](https://user-images.githubusercontent.com/89479282/205949600-0c7ddb40-7e82-47a0-b59a-b089f929d177.png)
+---
 ## Step 2: Official API authentication
 
 ### Geanerate an OpenAI API key
@@ -57,12 +55,12 @@
 3. Store the SECRET KEY to `.env` under the `OPENAI_API_KEY`
 
 4. You're all set for [Step 3](#step-3-run-the-bot-on-the-desktop)
-
+---
 ## Step 2: Website ChatGPT authentication - 2 approaches
 
 * 2023-04-01: Only Support Plus Account now
 
-### Email/Password authentication (Not supported for Google/Microsoft accounts)
+### Email/Password approache (Not supported for Google/Microsoft accounts)
 
 1. Create an account on https://chat.openai.com/chat and open it
 
@@ -79,7 +77,7 @@
 
 7. You're all set for [Step 3](#step-3-run-the-bot-on-the-desktop)
 
-### ACCESS token authentication
+### ACCESS token approache
 1. Open https://chat.openai.com/api/auth/session
 
 2. Open console with `F12`
@@ -94,7 +92,7 @@
 5. Copy the value for `accessToken` from cookies and paste it into `.env` under `ACCESS_TOKEN`
 
 6. You're all set for [Step 3](#step-3-run-the-bot-on-the-desktop)
-
+---
 ## Step 2: Google Bard authentication
 1. Go to https://bard.google.com/
 
@@ -105,8 +103,7 @@
 4. Copy the value for `__Secure-1PSID` from cookies and paste it into `.env` under `BARD_SESSION_ID`
 
 5. You're all set for [Step 3](#step-3-run-the-bot-on-the-desktop)
-
-
+---
 ## Step 2: Microsoft Bing authentication
 1. **Rename the file `cookies.dev.json` to `cookies.json`**
 
@@ -117,7 +114,7 @@
 3. Paste it into `cookies.json`
 
 5. You're all set for [Step 3](#step-3-run-the-bot-on-the-desktop)
-
+---
 ## Step 3: Run the bot on the desktop
 
 1. Open a terminal or command prompt
@@ -125,7 +122,7 @@
 2. Navigate to the directory where you installed the ChatGPT Discord bot
 
 3. Run `python3 main.py` or `python main.py` to start the bot
-
+---
 ## Step 3: Run the bot with Docker
 
 1. Build the Docker image & Run the Docker container `docker compose up -d`
@@ -138,6 +135,7 @@
    * `docker stop <BOT CONTAINER ID>` to stop the running bot
 
 ### Have a good chat!
+---
 ## Optional: Disable logging
 
 * Set the value of `LOGGING` in the `.env` to False
@@ -154,7 +152,8 @@
 
    2. paste it into `.env` under `DISCORD_CHANNEL_ID`
 
-## Features
+------
+## Commands
 
 * `/chat [message]` Chat with ChatGPT!
 * `/draw [prompt]` Generate an image with the Dalle2 model
@@ -179,7 +178,13 @@
    * `Website ChatGPT-4.0`: Website ChatGPT-4.0 model (UNOFFICIAL)(available if you got a plus account)
    * `Bard`: Google Bard Model
 
-### Switch Persona
+### Special Features
+
+#### Draw
+
+![image](https://user-images.githubusercontent.com/91911303/223772051-13f840d5-99ef-4762-98d2-d15ce23cbbd5.png)
+
+#### Switch Persona
 
 > **Warning**
 >
@@ -188,7 +193,7 @@
 ![image](https://user-images.githubusercontent.com/91911303/223772334-7aece61f-ead7-4119-bcd4-7274979c4702.png)
 
 
-### Mode
+#### Mode
 
 * `public mode (default)`  the bot directly reply on the channel
 
