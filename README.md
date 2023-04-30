@@ -1,8 +1,7 @@
 # ChatGPT Discord Bot
 
 > ### Build your own Discord bot using ChatGPT
->
->  [**中文安裝說明**](https://zero6992.github.io/2023/03/09/chatGPT-discord-bot-chinese/)
+
 ---
 > **Warning**
 >
@@ -18,7 +17,7 @@
 
 ## Critical prerequisites to install
 
-* run ```pip3 install -r requirements.txt``` or ```pip install -r requirements.txt```
+* run ```pip3 install -r requirements.txt```
 
 * **Rename the file `.env.example` to `.env`**
 
@@ -152,6 +151,8 @@
 
    2. paste it into `.env` under `DISCORD_CHANNEL_ID`
 
+------
+>  [**中文設置教學**](https://zero6992.github.io/2023/03/09/chatGPT-discord-bot-chinese/)
 ------
 ## Commands
 
