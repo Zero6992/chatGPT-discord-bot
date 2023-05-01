@@ -62,7 +62,7 @@ class aclient(discord.Client):
                 self.message_queue.task_done()
 
     async def enqueue_message(self, message, user_message):
-        await message.response.defer(ephemeral=self.isPrivate)
+        await message.response.defer(ephemeral=self.isPrivate) if self.is_replying_all == "False" else None
         await self.message_queue.put((message, user_message))
 
     async def send_message(self, message, user_message):
