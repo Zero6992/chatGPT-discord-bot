@@ -1,4 +1,4 @@
-FROM python:3.10-bullseye
+FROM python:3.12-rc-slim
 
 ENV PYTHONUNBUFFERED 1
 RUN apt-get update && apt-get install -y \
