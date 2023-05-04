@@ -3,6 +3,7 @@ import openai
 import asyncio
 import discord
 from random import randrange
+from typing import Union
 from src.aclient import client
 from discord import app_commands
 from src import log, art, personas, responses
@@ -62,7 +63,18 @@ def run_discord_bot():
 
 
     @client.tree.command(name="replyall", description="Toggle replyAll access")
-    async def replyall(interaction: discord.Interaction):
+    async def replyall(interaction: Union[discord.Interaction, discord.Message]):
+        
+        if isinstance(interaction, discord.Message):
+            # Get the interaction from the message
+
+            interaction = await client.get_context(interaction)
+            await interaction.defer()
+
+            await replyall(interaction)
+        
+        # The interaction parameter is already an Interaction object, so use it directly
+        
         client.replying_all_discord_channel_id = str(interaction.channel_id)
         await interaction.response.defer(ephemeral=False)
         if client.is_replying_all == "True":
