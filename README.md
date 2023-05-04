@@ -144,6 +144,7 @@
 * You can set it up by modifying the content in `system_prompt.txt`
 * All the text in the file will be fired as a prompt to the bot
 * Get the first message from ChatGPT in your discord channel!
+* Requires Discord client to be in developer mode. https://turbofuture.com/internet/Discord-Channel-ID
 
    1. Right-click the channel you want to recieve the message, `Copy  ID`
 
