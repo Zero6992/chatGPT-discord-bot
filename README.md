@@ -57,7 +57,7 @@
 ---
 ## Step 2: Website ChatGPT authentication - 2 approaches
 
-* 2023-04-01: Only Support Plus Account now
+> **Only Support ChatGPT Plus Account**
 
 ### Email/Password approache (Not supported for Google/Microsoft accounts)
 
@@ -144,7 +144,7 @@
 * You can set it up by modifying the content in `system_prompt.txt`
 * All the text in the file will be fired as a prompt to the bot
 * Get the first message from ChatGPT in your discord channel!
-* Requires Discord client to be in developer mode. https://turbofuture.com/internet/Discord-Channel-ID
+* Go Discord setting turn `developer mode` on
 
    1. Right-click the channel you want to recieve the message, `Copy  ID`
 
