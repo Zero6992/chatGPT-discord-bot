@@ -46,8 +46,29 @@ def run_discord_bot():
             return
         username = str(interaction.user)
         channel = str(interaction.channel)
-        logger.info("Working session with tickets started")
         await client.enqueue_message(interaction, 'Hi, I want you to act as SummaryBot, a bot that will only answer with the word "Roger" when given a Ticket number and a description of the task done on it, and is able to create a summary of all the tasks that were submitted for the session in a brief manner by providing a list without any additional context at the start or end of the prompt. You will need to provide this summary when I say "Summary" and the format should be "Ticket TEST-XYZ : Description of Task". If you understood say "Roger".')
+        logger.info("Working session with tickets started")
+
+    @client.tree.command(name="selectrole", description="Select role for accessing the tickets")
+    async def startsession(interaction: discord.Interaction, *, roleselection: str):
+        if client.is_replying_all == "True":
+            await interaction.response.defer(ephemeral=False)
+            await interaction.followup.send(
+                "> **WARN: You already on replyAll mode. If you want to use the Slash Command, switch to normal mode by using `/replyall` again**")
+            logger.warning("\x1b[31mYou already on replyAll mode, can't use slash command!\x1b[0m")
+            return
+        if interaction.user == client.user:
+            return
+        username = str(interaction.user)
+        channel = str(interaction.channel)
+        if roleselection.startswith("team"):
+            roleprompt = "From now on, you're going to act like a software engineer. You're responsible to add every actions, information and history about a ticket, so that later it can be tracked easily"
+        elif roleselection.startswith("lead"):
+            roleprompt = "From now on, you're going to act like a software engineer team leader. You're responsible to track and manage your colleagues to add every useful information to the chatbot, so that it can be tracked"
+        elif roleselection.startswith("customer"):
+            roleprompt = "Do nothing."
+        await client.enqueue_message(interaction, roleprompt)
+        logger.info("Role selected for session is {roleselection}")
 
     @client.tree.command(name="stopsession", description="Stop working session with tickets")
     async def startsession(interaction: discord.Interaction):
