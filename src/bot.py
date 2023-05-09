@@ -17,6 +17,7 @@ def run_discord_bot():
         asyncio.create_task(client.process_messages())
         logger.info(f'{client.user} is now running!')
 
+
     @client.tree.command(name="chat", description="Have a chat with ChatGPT")
     async def chat(interaction: discord.Interaction, *, message: str):
         if client.is_replying_all == "True":
@@ -32,6 +33,36 @@ def run_discord_bot():
         logger.info(
             f"\x1b[31m{username}\x1b[0m : /chat [{message}] in ({channel})")
         await client.enqueue_message(interaction, message)
+
+    @client.tree.command(name="startsession", description="Start working session with tickets")
+    async def startsession(interaction: discord.Interaction):
+        if client.is_replying_all == "True":
+            await interaction.response.defer(ephemeral=False)
+            await interaction.followup.send(
+                "> **WARN: You already on replyAll mode. If you want to use the Slash Command, switch to normal mode by using `/replyall` again**")
+            logger.warning("\x1b[31mYou already on replyAll mode, can't use slash command!\x1b[0m")
+            return
+        if interaction.user == client.user:
+            return
+        username = str(interaction.user)
+        channel = str(interaction.channel)
+        logger.info("Working session with tickets started")
+        await client.enqueue_message(interaction, 'Hi, I want you to act as SummaryBot, a bot that will only answer with the word "Roger" when given a Ticket number and a description of the task done on it, and is able to create a summary of all the tasks that were submitted for the session in a brief manner by providing a list without any additional context at the start or end of the prompt. You will need to provide this summary when I say "Summary" and the format should be "Ticket TEST-XYZ : Description of Task". If you understood say "Roger".')
+
+    @client.tree.command(name="stopsession", description="Stop working session with tickets")
+    async def startsession(interaction: discord.Interaction):
+        if client.is_replying_all == "True":
+            await interaction.response.defer(ephemeral=False)
+            await interaction.followup.send(
+                "> **WARN: You already on replyAll mode. If you want to use the Slash Command, switch to normal mode by using `/replyall` again**")
+            logger.warning("\x1b[31mYou already on replyAll mode, can't use slash command!\x1b[0m")
+            return
+        if interaction.user == client.user:
+            return
+        username = str(interaction.user)
+        channel = str(interaction.channel)
+        logger.info("Working session with tickets stopped")
+        await client.enqueue_message(interaction, "Write the above promt in manner in which I can add the information you've provided to an SQL Database in the db called 'devops' the table called 'task_status' with two collumns the first one called 'name' always containing my username 'rsebesty' and the secound one should have one of the tasks above. Each task should get its own line. Send just the SQL Code Block no additional context.")
 
 
     @client.tree.command(name="private", description="Toggle private access")
@@ -146,6 +177,8 @@ def run_discord_bot():
     async def help(interaction: discord.Interaction):
         await interaction.response.defer(ephemeral=False)
         await interaction.followup.send(""":star: **BASIC COMMANDS** \n
+        - `/startsession` Start working session with tickets
+        - `/stopsession` Stop working session with tickets
         - `/chat [message]` Chat with ChatGPT!
         - `/draw [prompt]` Generate an image with the Dalle2 model
         - `/switchpersona [persona]` Switch between optional ChatGPT jailbreaks
