@@ -5,7 +5,7 @@ import discord
 from random import randrange
 from src.aclient import client
 from discord import app_commands
-from src import log, art, personas, responses
+from src import log, personas, responses
 
 logger = log.setup_logger(__name__)
 
