@@ -191,7 +191,7 @@ def run_discord_bot():
         elif client.chat_model == "Bing":
             await client.chatbot.reset()
         await interaction.followup.send("> **INFO: I have forgotten everything.**")
-        personas.current_persona = "standard"
+        current_persona = "standard"
         logger.warning(
             f"\x1b[31m{client.chat_model} bot has been successfully reset\x1b[0m")
 

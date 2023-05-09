@@ -1,4 +1,3 @@
-from src import personas
 from asgiref.sync import sync_to_async
 
 async def official_handle_response(message, client) -> str:
@@ -27,14 +26,14 @@ async def bing_handle_response(message, client) -> str:
 async def switch_persona(persona, client) -> None:
     if client.chat_model ==  "UNOFFICIAL":
         client.chatbot.reset_chat()
-        async for _ in client.chatbot.ask(personas.PERSONAS.get(persona)):
+        async for _ in client.chatbot.ask("standard"):
             pass
     elif client.chat_model == "OFFICIAL":
-        client.chatbot = client.get_chatbot_model(prompt=personas.PERSONAS.get(persona))
+        client.chatbot = client.get_chatbot_model(prompt="standard")
     elif client.chat_model == "Bard":
         client.chatbot = client.get_chatbot_model()
-        await sync_to_async(client.chatbot.ask)(personas.PERSONAS.get(persona))
+        await sync_to_async(client.chatbot.ask)("standard")
     elif client.chat_model == "Bing":
         await client.chatbot.reset()
-        async for _ in client.chatbot.ask_stream(personas.PERSONAS.get(persona)):
+        async for _ in client.chatbot.ask_stream("standard"):
             pass
