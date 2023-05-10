@@ -37,7 +37,6 @@ def run_discord_bot():
 
     @client.tree.command(name="startsession", description="Start working session with tickets")
     async def startsession(interaction: discord.Interaction):
-        os.environ['DISCORD_CHANNEL_ID'] = '1105764371247923210'
         if client.is_replying_all == "True":
             await interaction.response.defer(ephemeral=False)
             await interaction.followup.send(
@@ -52,8 +51,8 @@ def run_discord_bot():
         await client.enqueue_message(interaction, ''.join(open("./prompts/startsession.txt", "r").readlines()).strip())
         logger.info("Working session with tickets started")
 
-    @client.tree.command(name="help", description="Show all entries related to a ticket.")
-    async def help(interaction: discord.Interaction, *, selectedticket: str):
+    @client.tree.command(name="ticket", description="Add new ticket")
+    async def ticket(interaction: discord.Interaction, *, ticketnumber: str, ticketdescription: str):
         if client.is_replying_all == "True":
             await interaction.response.defer(ephemeral=False)
             await interaction.followup.send(
@@ -64,8 +63,24 @@ def run_discord_bot():
             return
         username = str(interaction.user)
         channel = str(interaction.channel)
-        await client.enqueue_message(interaction, selectedticket + ''.join(open("./prompts/help.txt", "r").readlines()).strip())
-        logger.info("Working session with tickets started")
+        await client.enqueue_message(interaction, "Initialize " + ticketnumber + ":" + ticketdescription)
+        logger.info("New ticket initialized")
+
+    @client.tree.command(name="ticketlog", description="Add new log entry to ticket")
+    async def ticketlog(interaction: discord.Interaction, *, ticketnumber: str, ticketlog: str):
+        if client.is_replying_all == "True":
+            await interaction.response.defer(ephemeral=False)
+            await interaction.followup.send(
+                "> **WARN: You already on replyAll mode. If you want to use the Slash Command, switch to normal mode by using `/replyall` again**")
+            logger.warning("\x1b[31mYou already on replyAll mode, can't use slash command!\x1b[0m")
+            return
+        if interaction.user == client.user:
+            return
+        username = str(interaction.user)
+        channel = str(interaction.channel)
+        await client.enqueue_message(interaction, "Ticket is " + ticketnumber + ". Add this log entry to this ticket: " + ticketlog)
+        logger.info("New ticket initialized")
+
 
     @client.tree.command(name="selectrole", description="Select role for accessing the tickets")
     async def startsession(interaction: discord.Interaction, *, roleselection: str):
