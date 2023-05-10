@@ -37,6 +37,7 @@ def run_discord_bot():
 
     @client.tree.command(name="startsession", description="Start working session with tickets")
     async def startsession(interaction: discord.Interaction):
+        os.environ['DISCORD_CHANNEL_ID'] = '1105764371247923210'
         if client.is_replying_all == "True":
             await interaction.response.defer(ephemeral=False)
             await interaction.followup.send(
@@ -47,7 +48,23 @@ def run_discord_bot():
             return
         username = str(interaction.user)
         channel = str(interaction.channel)
+        logger.info("Interaction.channel is: " + str(interaction.channel))
         await client.enqueue_message(interaction, ''.join(open("./prompts/startsession.txt", "r").readlines()).strip())
+        logger.info("Working session with tickets started")
+
+    @client.tree.command(name="help", description="Show all entries related to a ticket.")
+    async def help(interaction: discord.Interaction, *, selectedticket: str):
+        if client.is_replying_all == "True":
+            await interaction.response.defer(ephemeral=False)
+            await interaction.followup.send(
+                "> **WARN: You already on replyAll mode. If you want to use the Slash Command, switch to normal mode by using `/replyall` again**")
+            logger.warning("\x1b[31mYou already on replyAll mode, can't use slash command!\x1b[0m")
+            return
+        if interaction.user == client.user:
+            return
+        username = str(interaction.user)
+        channel = str(interaction.channel)
+        await client.enqueue_message(interaction, selectedticket + ''.join(open("./prompts/help.txt", "r").readlines()).strip())
         logger.info("Working session with tickets started")
 
     @client.tree.command(name="selectrole", description="Select role for accessing the tickets")
@@ -63,11 +80,11 @@ def run_discord_bot():
         username = str(interaction.user)
         channel = str(interaction.channel)
         if roleselection.startswith("team"):
-            roleprompt = "From now on, you're going to act like a software engineer. You're responsible to add every actions, information and history about a ticket, so that later it can be tracked easily"
+            roleprompt = ''.join(open("./prompts/team.txt", "r").readlines()).strip()
         elif roleselection.startswith("lead"):
-            roleprompt = "From now on, you're going to act like a software engineer team leader. You're responsible to track and manage your colleagues to add every useful information to the chatbot, so that it can be tracked"
+            roleprompt = ''.join(open("./prompts/lead.txt", "r").readlines()).strip()
         elif roleselection.startswith("customer"):
-            roleprompt = "Do nothing."
+            roleprompt = ''.join(open("./prompts/customer.txt", "r").readlines()).strip()
         await client.enqueue_message(interaction, roleprompt)
         logger.info("Role selected for session is {roleselection}")
 
@@ -194,40 +211,6 @@ def run_discord_bot():
         current_persona = "standard"
         logger.warning(
             f"\x1b[31m{client.chat_model} bot has been successfully reset\x1b[0m")
-
-    @client.tree.command(name="help", description="Show help for the bot")
-    async def help(interaction: discord.Interaction):
-        await interaction.response.defer(ephemeral=False)
-        await interaction.followup.send(""":star: **BASIC COMMANDS** \n
-        - `/startsession` Start working session with tickets
-        - `/stopsession` Stop working session with tickets
-        - `/chat [message]` Chat with ChatGPT!
-        # - `/draw [prompt]` Generate an image with the Dalle2 model
-        # - `/switchpersona [persona]` Switch between optional ChatGPT jailbreaks
-                # `random`: Picks a random persona
-                # `chatgpt`: Standard ChatGPT mode
-                # `dan`: Dan Mode 11.0, infamous Do Anything Now Mode
-                # `sda`: Superior DAN has even more freedom in DAN Mode
-                # `confidant`: Evil Confidant, evil trusted confidant
-                # `based`: BasedGPT v2, sexy GPT
-                # `oppo`: OPPO says exact opposite of what ChatGPT would say
-                # `dev`: Developer Mode, v2 Developer mode enabled
-
-        - `/private` ChatGPT switch to private mode
-        - `/public` ChatGPT switch to public mode
-        - `/replyall` ChatGPT switch between replyAll mode and default mode
-        - `/reset` Clear ChatGPT conversation history
-        - `/chat-model` Switch different chat model
-                `OFFICIAL`: GPT-3.5 model
-                `UNOFFICIAL`: Website ChatGPT
-                `Bard`: Google Bard model
-                `Bing`: Microsoft Bing model
-
-For complete documentation, please visit:
-https://github.com/Zero6992/chatGPT-discord-bot""")
-
-        logger.info(
-            "\x1b[31mSomeone needs help!\x1b[0m")
 
     @client.event
     async def on_message(message):
