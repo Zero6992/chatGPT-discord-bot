@@ -9,6 +9,7 @@ from Bard import Chatbot as BardChatbot
 from revChatGPT.V3 import Chatbot
 from revChatGPT.V1 import AsyncChatbot
 from EdgeGPT import Chatbot as EdgeChatbot
+from auto_login.AutoLogin import GoogleBardAutoLogin, MicrosoftBingAutoLogin
 
 logger = log.setup_logger(__name__)
 load_dotenv()
@@ -36,10 +37,23 @@ class aclient(discord.Client):
         self.chatgpt_session_token = os.getenv("SESSION_TOKEN")
         self.chatgpt_access_token = os.getenv("ACCESS_TOKEN")
         self.chatgpt_paid = os.getenv("UNOFFICIAL_PAID")
-        self.bard_session_id = os.getenv("BARD_SESSION_ID")
+        # self.bard_session_id = os.getenv("BARD_SESSION_ID")
         self.chat_model = os.getenv("CHAT_MODEL")
         self.chatbot = self.get_chatbot_model()
         self.message_queue = asyncio.Queue()
+
+        # the version of your chrome browser
+        chrome_version=int(os.getenv("chrome_version"))
+
+        # add auto login for Google Bard
+        google_account = os.getenv("google_account")
+        google_password = os.getenv("google_password")
+        self.bard_session_id = GoogleBardAutoLogin(google_account, google_password, chrome_version).get_cookie()
+
+        # add auto login for Microsoft Bing
+        bing_account = os.getenv("bing_account")
+        bing_password = os.getenv("bing_password")
+        MicrosoftBingAutoLogin(bing_account, bing_password, chrome_version).dump_cookies()
 
     def get_chatbot_model(self, prompt=prompt) -> Union[AsyncChatbot, Chatbot]:
         if self.chat_model == "UNOFFICIAL":

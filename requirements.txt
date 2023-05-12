@@ -4,4 +4,6 @@ asgiref==3.6.0
 openai==0.27.5
 revChatGPT==5.0.0
 GoogleBard==1.0.0
-EdgeGPT==0.3.8
+EdgeGPT==0.3.4.2
+selenium==4.9.1
+undetected-chromedriver==3.4.7
