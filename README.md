@@ -42,6 +42,11 @@
 
    ![image](https://user-images.githubusercontent.com/89479282/205949600-0c7ddb40-7e82-47a0-b59a-b089f929d177.png)
 ---
+> **Note**
+> 
+> In Step 2, you only need to complete the authentication process for the model you want to use (it's not necessary to complete all Step 2)
+> Remember to modify `CHAT_MODEL` to the default model you want to use in `.env` file 
+
 ## Step 2: Official API authentication
 
 ### Geanerate an OpenAI API key
