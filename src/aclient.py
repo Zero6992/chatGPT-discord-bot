@@ -37,7 +37,6 @@ class aclient(discord.Client):
         self.chatgpt_session_token = os.getenv("SESSION_TOKEN")
         self.chatgpt_access_token = os.getenv("ACCESS_TOKEN")
         self.chatgpt_paid = os.getenv("UNOFFICIAL_PAID")
-        # self.bard_session_id = os.getenv("BARD_SESSION_ID")
         self.chat_model = os.getenv("CHAT_MODEL")
         self.chatbot = self.get_chatbot_model()
         self.message_queue = asyncio.Queue()
@@ -45,10 +44,14 @@ class aclient(discord.Client):
         # the version of your chrome browser
         chrome_version=int(os.getenv("chrome_version"))
 
-        # add auto login for Google Bard
-        google_account = os.getenv("google_account")
-        google_password = os.getenv("google_password")
-        self.bard_session_id = GoogleBardAutoLogin(google_account, google_password, chrome_version).get_cookie()
+        bard_enable_auto_login = os.getenv("bard_enable_auto_login")
+
+        if bard_enable_auto_login == 'True': # add auto login for Google Bard
+            google_account = os.getenv("google_account")
+            google_password = os.getenv("google_password")
+            self.bard_session_id = GoogleBardAutoLogin(google_account, google_password, chrome_version).get_cookie()
+        else: # no auto login
+            self.bard_session_id = os.getenv("BARD_SESSION_ID")
 
         # add auto login for Microsoft Bing
         bing_account = os.getenv("bing_account")
