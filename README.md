@@ -43,9 +43,9 @@
    ![image](https://user-images.githubusercontent.com/89479282/205949600-0c7ddb40-7e82-47a0-b59a-b089f929d177.png)
 ---
 > **Note**
-> 
+>
 > In Step 2, you only need to complete the authentication process for the model you want to use (it's not necessary to complete all Step 2)
-> Remember to modify `CHAT_MODEL` to the default model you want to use in `.env` file 
+> Remember to modify `CHAT_MODEL` to the default model you want to use in `.env` file
 
 ## Step 2: Official API authentication
 
@@ -60,26 +60,9 @@
 
 4. You're all set for [Step 3](#step-3-run-the-bot-on-the-desktop)
 ---
-## Step 2: Website ChatGPT authentication - 2 approaches
+## Step 2: Website ChatGPT authentication
 
 > **Only Support ChatGPT Plus Account**
-
-### Email/Password approache (Not supported for Google/Microsoft accounts)
-
-1. Create an account on https://chat.openai.com/chat and open it
-
-2.  Open console with `F12`
-3.  Open `Application` tab > Cookies
-
-   ![image](https://user-images.githubusercontent.com/89479282/229298001-41ab4f61-5b79-4c65-b08c-708ee6fe2304.png)
-
-4. Copy the value for `_puid` from cookies and paste it into `.env` under `PUID`
-
-5. Save your email into `.env` under `OPENAI_EMAIL`
-
-6. Save your password into `.env` under `OPENAI_PASSWORD`
-
-7. You're all set for [Step 3](#step-3-run-the-bot-on-the-desktop)
 
 ### ACCESS token approache
 1. Open https://chat.openai.com/api/auth/session
@@ -92,10 +75,10 @@
 
 4. Copy the value for `_puid` from cookies and paste it into `.env` under `PUID`
 
-
 5. Copy the value for `accessToken` from cookies and paste it into `.env` under `ACCESS_TOKEN`
 
 6. You're all set for [Step 3](#step-3-run-the-bot-on-the-desktop)
+
 ---
 ## Step 2: Google Bard authentication
 1. Go to https://bard.google.com/
