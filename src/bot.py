@@ -175,6 +175,27 @@ https://github.com/Zero6992/chatGPT-discord-bot""")
         logger.info(
             "\x1b[31mSomeone needs help!\x1b[0m")
 
+    @client.tree.command(name="info", description="Bot information")
+    async def info(interaction: discord.Interaction):
+        await interaction.response.defer(ephemeral=False)
+        chat_engine_status = client.openAI_gpt_engine
+        chat_model_status = client.chat_model
+        if client.chat_model == "UNOFFICIAL":
+            chat_model_status = "ChatGPT(UNOFFICIAL)"
+        elif client.chat_model == "OFFICIAL":
+            chat_model_status = "OpenAI API(OFFICIAL)"
+        if client.chat_model != "UNOFFICIAL" and client.chat_model != "OFFICIAL":
+            chat_engine_status = "x"
+        elif client.openAI_gpt_engine == "text-davinci-002-render-sha":
+            chat_engine_status = "gpt-3.5"
+
+        await interaction.followup.send(f"""
+```fix
+chat-model: {chat_model_status}
+gpt-engine: {chat_engine_status}
+```
+""")
+
     @client.tree.command(name="draw", description="Generate an image with the Dalle2 model")
     async def draw(interaction: discord.Interaction, *, prompt: str):
         if interaction.user == client.user:
