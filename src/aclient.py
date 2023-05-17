@@ -40,9 +40,7 @@ class aclient(discord.Client):
 
         bing_enable_auto_login = os.getenv("bing_enable_auto_login")
         bard_enable_auto_login = os.getenv("bard_enable_auto_login")
-
-        if bard_enable_auto_login == 'True' or bing_enable_auto_login == 'True':
-            chrome_version = int(os.getenv("chrome_version"))
+        chrome_version = int(os.getenv("chrome_version")) if bard_enable_auto_login == 'True' or bing_enable_auto_login == 'True' else None
 
         if bard_enable_auto_login == 'True':
             google_account = os.getenv("google_account")
@@ -62,7 +60,13 @@ class aclient(discord.Client):
 
     def get_chatbot_model(self, prompt=prompt) -> Union[AsyncChatbot, Chatbot]:
         if self.chat_model == "UNOFFICIAL":
-            return AsyncChatbot(config={"email": self.openAI_email, "password": self.openAI_password, "access_token": self.chatgpt_access_token, "model": self.openAI_gpt_engine, "paid": self.chatgpt_paid})
+            return AsyncChatbot(config = {
+                "email": self.openAI_email,
+                "password": self.openAI_password,
+                "access_token": self.chatgpt_access_token,
+                "model": "text-davinci-002-render-sha" if self.openAI_gpt_engine == "gpt-3.5-turbo" else self.openAI_gpt_engine,
+                "paid": self.chatgpt_paid
+            })
         elif self.chat_model == "OFFICIAL":
                 return Chatbot(api_key=self.openAI_API_key, engine=self.openAI_gpt_engine, system_prompt=prompt)
         elif self.chat_model == "Bard":
@@ -90,12 +94,7 @@ class aclient(discord.Client):
         else:
             author = message.author.id
         try:
-            chat_model_status = self.chat_model
-            if self.chat_model == "UNOFFICIAL":
-                chat_model_status = f'ChatGPT {self.openAI_gpt_engine}'
-            elif self.chat_model == "OFFICIAL":
-                chat_model_status = f'OpenAI {self.openAI_gpt_engine}'
-            response = (f'> **{user_message}** - <@{str(author)}> ({chat_model_status}) \n\n')
+            response = (f'> **{user_message}** - <@{str(author)}> \n\n')
             if self.chat_model == "OFFICIAL":
                 response = f"{response}{await responses.official_handle_response(user_message, self)}"
             elif self.chat_model == "UNOFFICIAL":
