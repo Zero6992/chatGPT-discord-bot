@@ -45,6 +45,7 @@
 > **Note**
 >
 > In Step 2, you only need to complete the authentication process for the model you want to use (it's not necessary to complete all Step 2)
+> 
 > Remember to modify `CHAT_MODEL` to the default model you want to use in `.env` file
 
 ## Step 2: Official API authentication
@@ -58,13 +59,11 @@
 
 3. Store the SECRET KEY to `.env` under the `OPENAI_API_KEY`
 
-4. You're all set for [Step 3](#step-3-run-the-bot-on-the-desktop)
 ---
 ## Step 2: Website ChatGPT authentication
 
 > **Only Support ChatGPT Plus Account**
 
-### ACCESS token
 1. Open https://chat.openai.com/api/auth/session
 
 2. Open console with `F12`
@@ -77,8 +76,6 @@
 
 5. Copy the value for `accessToken` from cookies and paste it into `.env` under `ACCESS_TOKEN`
 
-6. You're all set for [Step 3](#step-3-run-the-bot-on-the-desktop)
-
 ---
 ## Step 2: Google Bard authentication
 1. Go to https://bard.google.com/
@@ -89,7 +86,6 @@
 
 4. Copy the value for `__Secure-1PSID` from cookies and paste it into `.env` under `BARD_SESSION_ID`
 
-5. You're all set for [Step 3](#step-3-run-the-bot-on-the-desktop)
 ---
 ## Step 2: Microsoft Bing authentication
 1. **Rename the file `cookies.dev.json` to `cookies.json`**
@@ -98,9 +94,8 @@
 
 3. Use Cookie Editor or similar extensions to export the cookies
 
-3. Paste it into `cookies.json`
+4. Paste it into `cookies.json`
 
-5. You're all set for [Step 3](#step-3-run-the-bot-on-the-desktop)
 ---
 ## Step 3: Run the bot on the desktop
 
@@ -125,12 +120,18 @@
 ---
 
 ## Optional: Auto-Login
-* The auto-login feature allows your bot to automatically login to either Google Bard or Microsoft Bing using provided credentials
-* It will auto fetch the cookies you need
+>  * The auto-login feature allows your bot to automatically login to either Google Bard or Microsoft Bing using provided credentials
+>  * It will auto fetch the cookies you need
+
 *  To enable this feature, first specify your Chrome browser's version by filling in the `chrome_version` field in the `.env` file
-   * For Google Bard, set `bard_enable_auto_login` to `True`. Then fill `google_account` and `google_password` in `.env`
+* Google Bard
+   1. set `bard_enable_auto_login` to `True` in `.env`
+   2. Fill `google_account` and `google_password` in `.env`
+  
       (NOTICE:  AUTO-LOGIN ONLY WORKS FOR GOOGLE ACCOUNT THAT DOES NOT HAVE 2FA)
-   * For Microsoft Bing, set `bing_enable_auto_login` to `True`. Then fill `google_account` and `google_password` in `.env`
+* Microsoft Bing
+   1. set `bing_enable_auto_login` to `True` in `.env`
+   2. Then fill `google_account` and `google_password` in `.env`
 
 ## Optional: Setup system prompt
 
