@@ -64,7 +64,7 @@
 
 > **Only Support ChatGPT Plus Account**
 
-### ACCESS token approache
+### ACCESS token
 1. Open https://chat.openai.com/api/auth/session
 
 2. Open console with `F12`
@@ -123,9 +123,15 @@
 
 ### Have a good chat!
 ---
-## Optional: Disable logging
 
-* Set the value of `LOGGING` in the `.env` to False
+## Optional: Auto-Login
+* The auto-login feature allows your bot to automatically login to either Google Bard or Microsoft Bing using provided credentials
+* It will auto fetch the cookies you need
+*  To enable this feature, first specify your Chrome browser's version by filling in the `chrome_version` field in the `.env` file
+   * For Google Bard, set `bard_enable_auto_login` to `True`. Then fill `google_account` and `google_password` in `.env`
+      (NOTICE:  AUTO-LOGIN ONLY WORKS FOR GOOGLE ACCOUNT THAT DOES NOT HAVE 2FA)
+   * For Microsoft Bing, set `bing_enable_auto_login` to `True`. Then fill `google_account` and `google_password` in `.env`
+
 ## Optional: Setup system prompt
 
 * A system prompt would be invoked when the bot is first started or reset
@@ -139,6 +145,10 @@
         ![channel-id](https://user-images.githubusercontent.com/89479282/207697217-e03357b3-3b3d-44d0-b880-163217ed4a49.PNG)
 
    2. paste it into `.env` under `DISCORD_CHANNEL_ID`
+
+## Optional: Disable logging
+
+* Set the value of `LOGGING` in the `.env` to False
 
 ------
 >  [**中文設置教學**](https://zero6992.github.io/2023/03/09/chatGPT-discord-bot-chinese/)
