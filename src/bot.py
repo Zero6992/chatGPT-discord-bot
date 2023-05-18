@@ -224,7 +224,7 @@ gpt-engine: {chat_engine_status}
             files = []
             for idx, img in enumerate(path):
                 files.append(discord.File(img, filename=f"image{idx}.png"))
-            title = f'> **{prompt}** - {str(interaction.user.name)}#{str(interaction.user.discriminator)} \n\n'
+            title = f'> **{prompt}** - {str(interaction.user.mention)} \n\n'
 
             await interaction.followup.send(files=files, content=title)
 
