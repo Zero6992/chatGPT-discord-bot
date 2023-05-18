@@ -12,13 +12,13 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 
 # generate 512x512 image and save to a file
 # return the path of the image as a str
-async def draw(prompt) -> str:
+async def draw(prompt, amount) -> str:
     DATA_DIR = Path.cwd()
     DATA_DIR.mkdir(exist_ok=True)
 
     response = await sync_to_async(openai.Image.create)(
         prompt=prompt,
-        n=1,
+        n=amount,
         size="512x512",
         response_format="b64_json",
     )

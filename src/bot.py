@@ -197,7 +197,19 @@ gpt-engine: {chat_engine_status}
 """)
 
     @client.tree.command(name="draw", description="Generate an image with the Dalle2 model")
-    async def draw(interaction: discord.Interaction, *, prompt: str):
+    @app_commands.choices(amount=[
+        app_commands.Choice(name="1", value=1),
+        app_commands.Choice(name="2", value=2),
+        app_commands.Choice(name="3", value=3),
+        app_commands.Choice(name="4", value=4),
+        app_commands.Choice(name="5", value=5),
+        app_commands.Choice(name="6", value=6),
+        app_commands.Choice(name="7", value=7),
+        app_commands.Choice(name="8", value=8),
+        app_commands.Choice(name="9", value=9),
+        app_commands.Choice(name="10", value=10),
+    ])
+    async def draw(interaction: discord.Interaction, *, prompt: str, amount: int = 1):
         if interaction.user == client.user:
             return
 
@@ -208,7 +220,7 @@ gpt-engine: {chat_engine_status}
 
         await interaction.response.defer(thinking=True, ephemeral=client.isPrivate)
         try:
-            path = await art.draw(prompt)
+            path = await art.draw(prompt, amount)
 
             file = discord.File(path, filename="image.png")
             title = f'> **{prompt}** - <@{str(interaction.user.mention)}' + '> \n\n'
