@@ -221,13 +221,12 @@ gpt-engine: {chat_engine_status}
         await interaction.response.defer(thinking=True, ephemeral=client.isPrivate)
         try:
             path = await art.draw(prompt, amount)
+            files = []
+            for idx, img in enumerate(path):
+                files.append(discord.File(img, filename=f"image{idx}.png"))
+            title = f'> **{prompt}** - {str(interaction.user.name)}#{str(interaction.user.discriminator)} \n\n'
 
-            file = discord.File(path, filename="image.png")
-            title = f'> **{prompt}** - <@{str(interaction.user.mention)}' + '> \n\n'
-            embed = discord.Embed(title=title)
-            embed.set_image(url="attachment://image.png")
-
-            await interaction.followup.send(file=file, embed=embed)
+            await interaction.followup.send(files=files, content=title)
 
         except openai.InvalidRequestError:
             await interaction.followup.send(
