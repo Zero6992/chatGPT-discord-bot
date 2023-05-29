@@ -26,6 +26,7 @@ class aclient(discord.Client):
         intents.message_content = True
         super().__init__(intents=intents)
         self.tree = app_commands.CommandTree(self)
+        self.current_channel = None
         self.activity = discord.Activity(type=discord.ActivityType.listening, name="/chat | /help")
         self.isPrivate = False
         self.is_replying_all = os.getenv("REPLYING_ALL")
@@ -76,13 +77,18 @@ class aclient(discord.Client):
 
     async def process_messages(self):
         while True:
-            message, user_message = await self.message_queue.get()
-            try:
-                await self.send_message(message, user_message)
-            except Exception as e:
-                logger.exception(f"Error while processing message: {e}")
-            finally:
-                self.message_queue.task_done()
+            if self.current_channel is not None:
+                while not self.message_queue.empty():
+                    async with self.current_channel.typing():
+                        message, user_message = await self.message_queue.get()
+                        try:
+                            await self.send_message(message, user_message)
+                        except Exception as e:
+                            logger.exception(f"Error while processing message: {e}")
+                        finally:
+                            self.message_queue.task_done()
+            await asyncio.sleep(1)
+
 
     async def enqueue_message(self, message, user_message):
         await message.response.defer(ephemeral=self.isPrivate) if self.is_replying_all == "False" else None

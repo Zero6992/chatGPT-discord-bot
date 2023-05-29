@@ -29,9 +29,9 @@ def run_discord_bot():
         if interaction.user == client.user:
             return
         username = str(interaction.user)
-        channel = str(interaction.channel)
+        client.current_channel = interaction.channel
         logger.info(
-            f"\x1b[31m{username}\x1b[0m : /chat [{message}] in ({channel})")
+            f"\x1b[31m{username}\x1b[0m : /chat [{message}] in ({client.current_channel})")
         await client.enqueue_message(interaction, message)
 
 
@@ -320,11 +320,12 @@ gpt-engine: {chat_engine_status}
                 if message.channel.id == int(client.replying_all_discord_channel_id):
                     username = str(message.author)
                     user_message = str(message.content)
-                    channel = str(message.channel)
-                    logger.info(f"\x1b[31m{username}\x1b[0m : '{user_message}' ({channel})")
-                    await client.enqueue_message(message, user_message)
+                    client.current_channel = message.channel
+                    logger.info(f"\x1b[31m{username}\x1b[0m : '{user_message}' ({client.current_channel})")
+
+                    await client.message_queue.put((message, user_message))  # add the message to the queue
             else:
-                logger.exception("replying_all_discord_channel_id not found, please use the commnad `/replyall` again.")
+                logger.exception("replying_all_discord_channel_id not found, please use the command `/replyall` again.")
 
     TOKEN = os.getenv("DISCORD_BOT_TOKEN")
 
