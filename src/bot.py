@@ -18,6 +18,7 @@ def run_discord_bot():
         loop.create_task(client.process_messages())
         logger.info(f'{client.user} is now running!')
 
+
     @client.tree.command(name="chat", description="Have a chat with ChatGPT")
     async def chat(interaction: discord.Interaction, *, message: str):
         if client.is_replying_all == "True":
@@ -32,6 +33,7 @@ def run_discord_bot():
         client.current_channel = interaction.channel
         logger.info(
             f"\x1b[31m{username}\x1b[0m : /chat [{message}] in ({client.current_channel})")
+
         await client.enqueue_message(interaction, message)
 
 
@@ -47,6 +49,7 @@ def run_discord_bot():
             logger.info("You already on private mode!")
             await interaction.followup.send(
                 "> **WARN: You already on private mode. If you want to switch to public mode, use `/public`**")
+
 
     @client.tree.command(name="public", description="Toggle public access")
     async def public(interaction: discord.Interaction):
@@ -143,6 +146,7 @@ def run_discord_bot():
         logger.warning(
             f"\x1b[31m{client.chat_model} bot has been successfully reset\x1b[0m")
 
+
     @client.tree.command(name="help", description="Show help for the bot")
     async def help(interaction: discord.Interaction):
         await interaction.response.defer(ephemeral=False)
@@ -175,6 +179,7 @@ https://github.com/Zero6992/chatGPT-discord-bot""")
         logger.info(
             "\x1b[31mSomeone needs help!\x1b[0m")
 
+
     @client.tree.command(name="info", description="Bot information")
     async def info(interaction: discord.Interaction):
         await interaction.response.defer(ephemeral=False)
@@ -195,6 +200,7 @@ chat-model: {chat_model_status}
 gpt-engine: {chat_engine_status}
 ```
 """)
+
 
     @client.tree.command(name="draw", description="Generate an image with the Dalle2 model")
     @app_commands.choices(amount=[
@@ -311,6 +317,7 @@ gpt-engine: {chat_engine_status}
             logger.info(
                 f'{username} requested an unavailable persona: `{persona}`')
 
+
     @client.event
     async def on_message(message):
         if client.is_replying_all == "True":
@@ -323,7 +330,7 @@ gpt-engine: {chat_engine_status}
                     client.current_channel = message.channel
                     logger.info(f"\x1b[31m{username}\x1b[0m : '{user_message}' ({client.current_channel})")
 
-                    await client.message_queue.put((message, user_message))  # add the message to the queue
+                    await client.enqueue_message(message, user_message)
             else:
                 logger.exception("replying_all_discord_channel_id not found, please use the command `/replyall` again.")
 
