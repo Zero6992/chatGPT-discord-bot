@@ -298,8 +298,33 @@ So pack your bags, embrace the unknown, and embark on an adventure of a lifetime
             self.assertEqual(chatbot, mock_instance)
 
     @patch.object(aclient, 'send_message', return_value=None)
-    def test_process_messages(self, mock_send_message):
-        print("\n==== Testing process_messages with message_queue ====")
+    async def test_process_messages_1_1(self, mock_send_message):
+        print(
+            f"\n==== Testing process_messages with current_channel is {bcolors.OKBLUE}None{bcolors.ENDC} ===="
+        )
+
+        # spy on asyncio.sleep() to avoid waiting
+        def fake_sleep(*args, **kwargs):
+            return asyncio.Future().set_result(None)
+
+        # Throw an exception on the asyncio.sleep() second call
+        with patch.object(asyncio, 'sleep', side_effect=[fake_sleep, Exception()]) as mock_sleep:
+
+            client = aclient()
+
+            client.current_channel = None
+
+            with self.assertRaises(Exception):
+                await client.process_messages()
+
+            mock_sleep.assert_called()
+            mock_sleep.assert_called_with(1)
+
+    @patch.object(aclient, 'send_message', return_value=None)
+    async def test_process_messages_1_2(self, mock_send_message):
+        print(
+            f"\n==== Testing process_messages with current_channel is {bcolors.OKBLUE}not None{bcolors.ENDC} ===="
+        )
 
         client = aclient()
         client.current_channel = MagicMock()
@@ -311,7 +336,7 @@ So pack your bags, embrace the unknown, and embark on an adventure of a lifetime
             future_1.set_result(('mock_message_1', 'mock_user_message_1'))
 
             future_2 = asyncio.Future()
-            # Throw an exception on the second call
+            # Throw an exception on the message_queue second call
             future_2.set_exception(StopAsyncIteration)
 
             # Determine the order of callbacks and exceptions
@@ -322,14 +347,14 @@ So pack your bags, embrace the unknown, and embark on an adventure of a lifetime
             # Start execution and test
             # Expect an exception to be thrown at the end of the loop
             with self.assertRaises(StopAsyncIteration):
-                self.loop.run_until_complete(client.process_messages())
+                self.loop.run_until_complete(await client.process_messages())
 
         mock_send_message.assert_called_once_with('mock_message_1', 'mock_user_message_1')
         mock_message_queue.task_done.assert_called_once()
 
     @patch('src.aclient.logger')
     @patch.object(aclient, 'send_message')
-    def test_process_messages_2(self, mock_send_message, mock_logger):
+    async def test_process_messages_2(self, mock_send_message, mock_logger):
         print("\n==== Testing process_messages with send_message exception ====")
 
         client = aclient()
@@ -351,7 +376,7 @@ So pack your bags, embrace the unknown, and embark on an adventure of a lifetime
             mock_send_message.side_effect = Exception('mock exception')
 
             with self.assertRaises(StopAsyncIteration):
-                self.loop.run_until_complete(client.process_messages())
+                self.loop.run_until_complete(await client.process_messages())
 
             mock_send_message.assert_called_once_with('mock_message_1', 'mock_user_message_1')
             mock_logger.exception.assert_called_once()
