@@ -21,6 +21,10 @@ coverage run -m unittest ./AclientTest.py
 coverage report
 ```
 
+## Test Case
+* `AclientTest.py` : 40 cases
+* `MainTest.py` :  2 cases
+
 ## Note
 
 Since `AclientTest.py` will test environment variables `.env`. <br>
