@@ -23,7 +23,7 @@ coverage report
 
 ## Test Case
 * `MainTest.py` :  2 cases
-* `AclientTest.py` : 40 cases
+* `AclientTest.py` : 38 cases
 
 ## Note
 
