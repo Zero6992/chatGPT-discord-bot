@@ -7,10 +7,10 @@ python3 -m unittest ./AclientTest.py
 ```
 In the output of `AclientTest.py`,
 
-* <p style="color:yellow">The yellow text</p>
-  means use `getenv()` to obtain `.env` information for testing
-* <p style="color:blue">The blue text</p>
-  represents the use of Mock for testing
+* The yellow text
+  - means use `getenv()` to obtain `.env` information for testing
+* The blue text
+  - means use **Mock** for testing
 
 > Code coverage command
 ```
