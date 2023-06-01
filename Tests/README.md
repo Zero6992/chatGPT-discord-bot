@@ -1,3 +1,26 @@
+## Test Description
+
+> Test command
+```
+python3 -m unittest ./MainTest.py
+python3 -m unittest ./AclientTest.py
+```
+In the output of `AclientTest.py`,
+
+* <p style="color:yellow">The yellow text</p>
+  means use `getenv()` to obtain `.env` information for testing
+* <p style="color:blue">The blue text</p>
+  represents the use of Mock for testing
+
+> Code coverage command
+```
+coverage run -m unittest ./MainTest.py
+coverage report
+***********************************************
+coverage run -m unittest ./AclientTest.py
+coverage report
+```
+
 ## Note
 
 Since `AclientTest.py` will test environment variables `.env`. <br>

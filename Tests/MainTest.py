@@ -28,6 +28,8 @@ class MainTest(unittest.TestCase):
 
     @patch.object(pkg_resources, 'get_distribution')
     def test_check_version(self, mock_get_distribution):
+        print("\n==== Testing check_version ====")
+
         mock_logger = MagicMock()
 
         # Patch the setup_logger function to return the mock logger
@@ -53,6 +55,8 @@ class MainTest(unittest.TestCase):
                   return_value=pkg_resources.Distribution(project_name='discord.py',
                                                           version='1.2.3'))
     def test_check_version_error(self, mock_get_distribution):
+        print("\n==== Testing check_version with error ====")
+
         mock_logger = MagicMock()
 
         with patch('src.log.setup_logger', return_value=mock_logger):

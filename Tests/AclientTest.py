@@ -178,7 +178,7 @@ So pack your bags, embrace the unknown, and embark on an adventure of a lifetime
 
     def test_get_chatbot_model(self):
         print(
-            f"\n==== Testing get_chatbot_model with chat_model is {bcolors.WARNING}{chat_model_env}{bcolors.ENDC} ===="
+            f"\n==== Testing get_chatbot_model with chat_model is {bcolors.WARNING}{chat_model_env}{bcolors.ENDC}(use getenv()) ===="
         )
 
         client = aclient()
