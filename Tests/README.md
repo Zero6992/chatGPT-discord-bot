@@ -22,8 +22,8 @@ coverage report
 ```
 
 ## Test Case
-* `AclientTest.py` : 40 cases
 * `MainTest.py` :  2 cases
+* `AclientTest.py` : 40 cases
 
 ## Note
 
