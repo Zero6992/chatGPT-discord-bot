@@ -131,7 +131,7 @@
       (NOTICE:  AUTO-LOGIN ONLY WORKS FOR GOOGLE ACCOUNT THAT DOES NOT HAVE 2FA)
 * Microsoft Bing
    1. set `bing_enable_auto_login` to `True` in `.env`
-   2. Then fill `google_account` and `google_password` in `.env`
+   2. Then fill `bing_account` and `bing_password` in `.env`
 
 ## Optional: Setup system prompt
 
@@ -152,7 +152,7 @@
 * Set the value of `LOGGING` in the `.env` to False
 
 ------
->  [**中文設置教學**](https://zero6992.github.io/2023/03/09/chatGPT-discord-bot-chinese/)
+>  [**中文設置教學**](https://zero6992.me/2023/03/08/chatGPT-discord-bot-chinese/)
 ------
 ## Commands
 
