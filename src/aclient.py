@@ -1,4 +1,5 @@
 import os
+import json
 import discord
 import asyncio
 from typing import Union
@@ -8,7 +9,7 @@ from discord import app_commands
 from revChatGPT.V3 import Chatbot
 from revChatGPT.V1 import AsyncChatbot
 from Bard import Chatbot as BardChatbot
-from EdgeGPT import Chatbot as EdgeChatbot
+from EdgeGPT.EdgeGPT import Chatbot as EdgeChatbot
 from auto_login.AutoLogin import GoogleBardAutoLogin, MicrosoftBingAutoLogin
 
 logger = log.setup_logger(__name__)
@@ -73,7 +74,8 @@ class aclient(discord.Client):
         elif self.chat_model == "Bard":
             return BardChatbot(session_id=self.bard_session_id)
         elif self.chat_model == "Bing":
-            return EdgeChatbot(cookie_path='./cookies.json')
+            cookies = json.loads(open("./cookies.json", encoding="utf-8").read())
+            return EdgeChatbot(cookies=cookies)
 
     async def process_messages(self):
         while True:

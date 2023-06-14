@@ -1,5 +1,11 @@
+import json
+
+from src import log
 from src import personas
 from asgiref.sync import sync_to_async
+from EdgeGPT.EdgeGPT import ConversationStyle
+
+logger = log.setup_logger(__name__)
 
 async def official_handle_response(message, client) -> str:
     return await sync_to_async(client.chatbot.ask)(message)
@@ -14,14 +20,19 @@ async def bard_handle_response(message, client) -> str:
     responseMessage = response["content"]
     return responseMessage
 
-async def bing_handle_response(message, client) -> str:
-    async for response in client.chatbot.ask_stream(message):
-        responseMessage = response
-    if len(responseMessage[1]["item"]["messages"]) > 1 and "text" in responseMessage[1]["item"]["messages"][1]:
-        return responseMessage[1]["item"]["messages"][1]["text"]
-    else:
+async def bing_handle_response(message, client, conversation_style = ConversationStyle.creative) -> str:
+    try:
+        response = await client.chatbot.ask(prompt = message,
+                                            conversation_style = conversation_style,
+                                            simplify_response = True)
+        responseMessage = response['text']
+    except Exception as e:
+        logger.error(f'Error occurred: {e}')
         await client.chatbot.reset()
-        raise Exception("Bing is unable to continue the previous conversation and will automatically RESET this conversation.")
+        raise Exception("Bing is fail to continue the conversation, this conversation will automatically reset.")
+
+    return responseMessage
+
 
 # prompt engineering
 async def switch_persona(persona, client) -> None:
