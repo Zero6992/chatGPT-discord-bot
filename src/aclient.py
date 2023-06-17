@@ -38,7 +38,7 @@ class aclient(discord.Client):
         self.openAI_gpt_engine = os.getenv("GPT_ENGINE")
         self.chatgpt_session_token = os.getenv("SESSION_TOKEN")
         self.chatgpt_access_token = os.getenv("ACCESS_TOKEN")
-        self.chatgpt_paid = os.getenv("UNOFFICIAL_PAID")
+        self.chatgpt_paid = os.getenv("PUID")
 
         bing_enable_auto_login = os.getenv("bing_enable_auto_login")
         bard_enable_auto_login = os.getenv("bard_enable_auto_login")
@@ -63,11 +63,9 @@ class aclient(discord.Client):
     def get_chatbot_model(self, prompt=prompt) -> Union[AsyncChatbot, Chatbot]:
         if self.chat_model == "UNOFFICIAL":
             return AsyncChatbot(config = {
-                "email": self.openAI_email,
-                "password": self.openAI_password,
                 "access_token": self.chatgpt_access_token,
                 "model": "text-davinci-002-render-sha" if self.openAI_gpt_engine == "gpt-3.5-turbo" else self.openAI_gpt_engine,
-                "paid": self.chatgpt_paid
+                "PUID": self.chatgpt_paid
             })
         elif self.chat_model == "OFFICIAL":
                 return Chatbot(api_key=self.openAI_API_key, engine=self.openAI_gpt_engine, system_prompt=prompt)
