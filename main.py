@@ -25,7 +25,6 @@ def check_version() -> None:
             logger.error(f'{name} version {version} is installed but does not match the requirements')
             sys.exit()
 
-if __name__ == '__main__': 
+if __name__ == '__main__':  # pragma: no cover
     check_version()
     bot.run_discord_bot()
-    
