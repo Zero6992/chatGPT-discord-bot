@@ -2,12 +2,12 @@ import os
 import openai
 import asyncio
 import discord
+from src.log import logger
 from random import randrange
 from src.aclient import client
 from discord import app_commands
 from src import log, art, personas, responses
 
-logger = log.setup_logger(__name__)
 
 def run_discord_bot():
     @client.event

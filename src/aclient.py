@@ -3,7 +3,8 @@ import json
 import discord
 import asyncio
 from typing import Union
-from src import log, responses
+from src import responses
+from src.log import logger
 from dotenv import load_dotenv
 from discord import app_commands
 from revChatGPT.V3 import Chatbot
@@ -12,7 +13,6 @@ from Bard import Chatbot as BardChatbot
 from EdgeGPT.EdgeGPT import Chatbot as EdgeChatbot
 from auto_login.AutoLogin import GoogleBardAutoLogin, MicrosoftBingAutoLogin
 
-logger = log.setup_logger(__name__)
 load_dotenv()
 
 config_dir = os.path.abspath(f"{__file__}/../../")

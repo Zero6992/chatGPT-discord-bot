@@ -69,3 +69,5 @@ def setup_logger(module_name:str) -> logging.Logger:
         logger.addHandler(log_handler)
 
     return logger
+
+logger = setup_logger(__name__)

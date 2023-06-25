@@ -1,13 +1,14 @@
-from src import bot
-from dotenv import load_dotenv
 import sys
+import pkg_resources
+
+from src import bot
+from src.log import logger
+from dotenv import load_dotenv
+
 
 def check_version() -> None:
-    import pkg_resources
-    import src.log
 
     load_dotenv()
-    logger = src.log.setup_logger(__name__)
 
     # Read the requirements.txt file and add each line to a list
     with open('requirements.txt') as f:
@@ -25,7 +26,6 @@ def check_version() -> None:
             logger.error(f'{name} version {version} is installed but does not match the requirements')
             sys.exit()
 
-if __name__ == '__main__': 
+if __name__ == '__main__':
     check_version()
     bot.run_discord_bot()
-    

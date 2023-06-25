@@ -1,11 +1,8 @@
-import json
-
-from src import log
 from src import personas
+from src.log import logger
 from asgiref.sync import sync_to_async
 from EdgeGPT.EdgeGPT import ConversationStyle
 
-logger = log.setup_logger(__name__)
 
 async def official_handle_response(message, client) -> str:
     return await sync_to_async(client.chatbot.ask)(message)

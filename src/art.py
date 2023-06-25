@@ -1,6 +1,5 @@
 import os
 import json
-from typing import List
 
 import openai
 from pathlib import Path
