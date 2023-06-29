@@ -64,7 +64,9 @@ class aclient(discord.Client):
         self.chatbot = self.get_chatbot_model()
         self.message_queue = asyncio.Queue()
 
-    def get_chatbot_model(self) -> Union[AsyncChatbot, Chatbot]:
+    def get_chatbot_model(self, prompt = None) -> Union[AsyncChatbot, Chatbot]:
+        if not prompt:
+            prompt = self.starting_prompt
         if self.chat_model == "UNOFFICIAL":
             return AsyncChatbot(config = {
                 "access_token": self.chatgpt_access_token,
@@ -72,7 +74,7 @@ class aclient(discord.Client):
                 "PUID": self.chatgpt_paid
             })
         elif self.chat_model == "OFFICIAL":
-                return Chatbot(api_key=self.openAI_API_key, engine=self.openAI_gpt_engine, system_prompt=self.starting_prompt)
+                return Chatbot(api_key=self.openAI_API_key, engine=self.openAI_gpt_engine, system_prompt=prompt)
         elif self.chat_model == "Bard":
             return BardChatbot(session_id=self.bard_session_id)
         elif self.chat_model == "Bing":
