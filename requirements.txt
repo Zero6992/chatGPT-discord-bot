@@ -1,9 +1,9 @@
-discord.py==2.3.0
+discord.py==2.3.1
 python-dotenv==1.0.0
 asgiref==3.6.0
 openai==0.27.8
-revChatGPT==6.3.3
+revChatGPT==6.8.1
 GoogleBard==1.4.0
-EdgeGPT==0.10.13
+EdgeGPT==0.12.1
 selenium==4.9.1
 undetected-chromedriver==3.4.7
