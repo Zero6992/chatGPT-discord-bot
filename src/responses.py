@@ -26,7 +26,7 @@ async def bing_handle_response(message, client, conversation_style = Conversatio
     except Exception as e:
         logger.error(f'Error occurred: {e}')
         await client.chatbot.reset()
-        raise Exception("Bing is fail to continue the conversation, this conversation will automatically reset.")
+        raise Exception(f'{e}\nBing is fail to continue the conversation, this conversation will automatically reset.')
 
     return responseMessage
 
