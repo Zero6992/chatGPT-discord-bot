@@ -1,5 +1,5 @@
 version: "3"
-
+#test
 services:
   chatgpt-discord-bot:
     build: .
