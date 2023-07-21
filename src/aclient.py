@@ -23,10 +23,11 @@ class aclient(discord.Client):
     def __init__(self) -> None:
         intents = discord.Intents.default()
         intents.message_content = True
+        intents.reactions = True
         super().__init__(intents=intents)
         self.tree = app_commands.CommandTree(self)
         self.current_channel = None
-        self.activity = discord.Activity(type=discord.ActivityType.listening, name="/chat | /help")
+        self.activity = discord.Activity(type=discord.ActivityType.playing, name="OMORI")
         self.isPrivate = False
         self.is_replying_all = os.getenv("REPLYING_ALL")
         self.replying_all_discord_channel_id = os.getenv("REPLYING_ALL_DISCORD_CHANNEL_ID")
@@ -37,6 +38,7 @@ class aclient(discord.Client):
         self.chatgpt_session_token = os.getenv("SESSION_TOKEN")
         self.chatgpt_access_token = os.getenv("ACCESS_TOKEN")
         self.chatgpt_paid = os.getenv("PUID")
+        self.history = {}
 
         bing_enable_auto_login = os.getenv("bing_enable_auto_login")
         bard_enable_auto_login = os.getenv("bard_enable_auto_login")
@@ -95,7 +97,6 @@ class aclient(discord.Client):
                             self.message_queue.task_done()
             await asyncio.sleep(1)
 
-
     async def enqueue_message(self, message, user_message):
         await message.response.defer(ephemeral=self.isPrivate) if self.is_replying_all == "False" else None
         await self.message_queue.put((message, user_message))
@@ -106,22 +107,53 @@ class aclient(discord.Client):
         else:
             author = message.author.id
         try:
-            response = (f'> **{user_message}** - <@{str(author)}> \n\n')
+            response_mention = (f'> **{user_message}** - <@{str(author)}> \n\n')
+
             if self.chat_model == "OFFICIAL":
-                response = f"{response}{await responses.official_handle_response(user_message, self)}"
+                response = await responses.official_handle_response(user_message, self)
             elif self.chat_model == "UNOFFICIAL":
-                response = f"{response}{await responses.unofficial_handle_response(user_message, self)}"
+                response = await responses.unofficial_handle_response(user_message, self)
             elif self.chat_model == "Bard":
-                response = f"{response}{await responses.bard_handle_response(user_message, self)}"
+                response = await responses.bard_handle_response(user_message, self)
             elif self.chat_model == "Bing":
-                response = f"{response}{await responses.bing_handle_response(user_message, self)}"
-            await send_split_message(self, response, message)
+                response = await responses.bing_handle_response(user_message, self)
+
+            await send_split_message(self, response_mention + response, message)
+
+            self.history[response] = user_message # log message to history dict
+
         except Exception as e:
             logger.exception(f"Error while sending : {e}")
             if self.is_replying_all == "True":
                 await message.channel.send(f"> **ERROR: Something went wrong, please try again later!** \n ```ERROR MESSAGE: {e}```")
             else:
                 await message.followup.send(f"> **ERROR: Something went wrong, please try again later!** \n ```ERROR MESSAGE: {e}```")
+
+
+    async def regen_message(self, prompt) -> str:
+        try:
+            response_mention = (f'> **{prompt}** \n\n')
+
+            if self.chat_model == "OFFICIAL":
+                response = await responses.official_handle_response(prompt, self)
+            elif self.chat_model == "UNOFFICIAL":
+                response = await responses.unofficial_handle_response(prompt, self)
+            elif self.chat_model == "Bard":
+                response = await responses.bard_handle_response(prompt, self)
+            elif self.chat_model == "Bing":
+                response = await responses.bing_handle_response(prompt, self)
+            
+            self.history[response] = prompt # log message to history dict
+            return response_mention + response
+            
+
+        except Exception as e:
+            logger.exception(f"Error while sending : {e}")
+            if self.is_replying_all == "True":
+                await message.channel.send(f"> **ERROR: Something went wrong, please try again later!** \n ```ERROR MESSAGE: {e}```")
+            else:
+                await message.followup.send(f"> **ERROR: Something went wrong, please try again later!** \n ```ERROR MESSAGE: {e}```")
+
 
     async def send_start_prompt(self):
         discord_channel_id = os.getenv("DISCORD_CHANNEL_ID")

@@ -299,7 +299,6 @@ gpt-engine: {chat_engine_status}
             await interaction.followup.send(
                 f"> **INFO: Switched to `{chosen_persona}` persona**")
 
-
         elif persona in personas.PERSONAS:
             try:
                 await responses.switch_persona(persona, client)
@@ -320,6 +319,9 @@ gpt-engine: {chat_engine_status}
 
     @client.event
     async def on_message(message):
+        if message.author == client.user:
+            await message.add_reaction("♻️") # add regen reaction to bot messages
+            return
         if client.is_replying_all == "True":
             if message.author == client.user:
                 return
@@ -329,10 +331,26 @@ gpt-engine: {chat_engine_status}
                     user_message = str(message.content)
                     client.current_channel = message.channel
                     logger.info(f"\x1b[31m{username}\x1b[0m : '{user_message}' ({client.current_channel})")
-
                     await client.enqueue_message(message, user_message)
             else:
                 logger.exception("replying_all_discord_channel_id not found, please use the command `/replyall` again.")
+
+
+    @client.event
+    async def on_reaction_add(reaction, user):
+        if user == client.user:
+            return
+        
+        if reaction.emoji == "♻️" and reaction.message.author == client.user:
+            try:
+                prompt = client.history[reaction.message.content.split("\n\n")[1]]
+                await reaction.message.edit(content="Regenerating...")
+                await reaction.message.edit(content=await client.regen_message(prompt))
+            except Exception as e:
+                await reaction.message.edit(content=f"> **ERROR: Regeneration failed** \n ```ERROR MESSAGE: {e}```")
+                logger.info(
+                    f'Regeneration failed')
+
 
     TOKEN = os.getenv("DISCORD_BOT_TOKEN")
 
