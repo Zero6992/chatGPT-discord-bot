@@ -107,7 +107,7 @@ class aclient(discord.Client):
         else:
             author = message.author.id
         try:
-            response_mention = (f'> **{user_message}** - <@{str(author)}> \n\n')
+            response_mention = (f'> **{user_message}** - <@{str(author)}> \t\n\n')
 
             if self.chat_model == "OFFICIAL":
                 response = await responses.official_handle_response(user_message, self)
@@ -132,7 +132,7 @@ class aclient(discord.Client):
 
     async def regen_message(self, prompt) -> str:
         try:
-            response_mention = (f'> **{prompt}** \n\n')
+            response_mention = (f'> **{prompt}** \t\n\n')
 
             if self.chat_model == "OFFICIAL":
                 response = await responses.official_handle_response(prompt, self)

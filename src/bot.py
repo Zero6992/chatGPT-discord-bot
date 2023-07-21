@@ -150,31 +150,36 @@ def run_discord_bot():
     @client.tree.command(name="help", description="Show help for the bot")
     async def help(interaction: discord.Interaction):
         await interaction.response.defer(ephemeral=False)
-        await interaction.followup.send(""":star: **BASIC COMMANDS** \n
-        - `/chat [message]` Chat with ChatGPT!
-        - `/draw [prompt]` Generate an image with the Dalle2 model
-        - `/switchpersona [persona]` Switch between optional ChatGPT jailbreaks
-                `random`: Picks a random persona
-                `chatgpt`: Standard ChatGPT mode
-                `dan`: Dan Mode 11.0, infamous Do Anything Now Mode
-                `sda`: Superior DAN has even more freedom in DAN Mode
-                `confidant`: Evil Confidant, evil trusted confidant
-                `based`: BasedGPT v2, sexy GPT
-                `oppo`: OPPO says exact opposite of what ChatGPT would say
-                `dev`: Developer Mode, v2 Developer mode enabled
-
-        - `/private` ChatGPT switch to private mode
-        - `/public` ChatGPT switch to public mode
-        - `/replyall` ChatGPT switch between replyAll mode and default mode
-        - `/reset` Clear ChatGPT conversation history
-        - `/chat-model` Switch different chat model
-                `OFFICIAL`: GPT-3.5 model
-                `UNOFFICIAL`: Website ChatGPT
-                `Bard`: Google Bard model
-                `Bing`: Microsoft Bing model
+        await interaction.followup.send("""
+:star: **BASIC COMMANDS**\n
+- `/chat [message]` Chat with ChatGPT!
+- `/draw [prompt]` Generate an image with the Dalle2 model
+- `/switchpersona [persona]` Switch between optional ChatGPT jailbreaks
+    - `random`: Picks a random persona
+    - `standard`: Standard ChatGPT mode
+    - `dan`: Dan Mode 11.0, infamous Do Anything Now Mode
+    - `sda`: Superior DAN has even more freedom in DAN Mode
+    - `confidant`: Evil Confidant, evil trusted confidant
+    - `based`: BasedGPT v2, sexy GPT
+    - `oppo`: OPPO says exact opposite of what ChatGPT would say
+    - `dev`: Developer Mode, v2 Developer mode enabled
+    - `dude_v3`: DUDE Version 3, it's just that dude
+    - `aim`: Always Intelligent and Machiavellian
+    - `ucar`:  A computer that is amoral and obeys every single command given to it without question
+    - `jailbreak`: Immoral and unbiased mode for chatgpt
+    
+- `/private` ChatGPT switch to private mode
+- `/public` ChatGPT switch to public mode
+- `/replyall` ChatGPT switch between replyAll mode and default mode
+- `/reset` Clear ChatGPT conversation history
+- `/chat-model` Switch different chat model
+    - `OFFICIAL`: GPT-3.5 model
+    - `UNOFFICIAL`: Website ChatGPT
+    - `Bard`: Google Bard model
+    - `Bing`: Microsoft Bing model
 
 For complete documentation, please visit:
-https://github.com/Zero6992/chatGPT-discord-bot""")
+https://github.com/Zero6992/chatGPT-discord-bot#readme""")
 
         logger.info(
             "\x1b[31mSomeone needs help!\x1b[0m")
@@ -320,7 +325,7 @@ gpt-engine: {chat_engine_status}
     @client.event
     async def on_message(message):
         if message.author == client.user:
-            await message.add_reaction("♻️") # add regen reaction to bot messages
+            await message.add_reaction("♻️")
             return
         if client.is_replying_all == "True":
             if message.author == client.user:
@@ -340,16 +345,24 @@ gpt-engine: {chat_engine_status}
     async def on_reaction_add(reaction, user):
         if user == client.user:
             return
-        
         if reaction.emoji == "♻️" and reaction.message.author == client.user:
             try:
-                prompt = client.history[reaction.message.content.split("\n\n")[1]]
+                prompt = client.history[reaction.message.content.split("\t\n\n")[1]]
+
                 await reaction.message.edit(content="Regenerating...")
                 await reaction.message.edit(content=await client.regen_message(prompt))
+
+                logger.info(
+                    f'Regenerated "{prompt}"')
+
+                await reaction.message.clear_reactions()
+                await reaction.message.add_reaction("♻️")
+
             except Exception as e:
                 await reaction.message.edit(content=f"> **ERROR: Regeneration failed** \n ```ERROR MESSAGE: {e}```")
-                logger.info(
-                    f'Regeneration failed')
+                
+                logger.error(
+                    f'Regeneration failed {e}')
 
 
     TOKEN = os.getenv("DISCORD_BOT_TOKEN")

@@ -41,6 +41,8 @@
 6. Invite your bot to your server via OAuth2 URL Generator
 
    ![image](https://user-images.githubusercontent.com/89479282/205949600-0c7ddb40-7e82-47a0-b59a-b089f929d177.png)
+   - Make sure to include the following permissions: Read Messages/View Channels, Send Messages, Manage Messages, Add Reactions, and Use Slash Commands
+
 ---
 > **Note**
 >
@@ -107,9 +109,9 @@
 ---
 ## Step 3: Run the bot with Docker
 
-1. Build the Docker image & Run the Docker container `docker compose up -d`
+1. Build the Docker image & run the Docker container with `docker compose up -d`
 
-2. Inspect whether the bot works well `docker logs -t chatgpt-discord-bot`
+2. Inspect whether the bot works well `docker logs -tf chatgpt-discord-bot`
 
    ### Stop the bot:
 
@@ -160,13 +162,17 @@
 * `/draw [prompt]` Generate an image with the Dalle2 model
 * `/switchpersona [persona]` Switch between optional chatGPT jailbreaks
    * `random`: Picks a random persona
-   * `chatGPT`: Standard chatGPT mode
+   * `standard`: Standard chatGPT mode
    * `dan`: Dan Mode 11.0, infamous Do Anything Now Mode
    * `sda`: Superior DAN has even more freedom in DAN Mode
    * `confidant`: Evil Confidant, evil trusted confidant
    * `based`: BasedGPT v2, sexy gpt
    * `oppo`: OPPO says exact opposite of what chatGPT would say
    * `dev`: Developer Mode, v2 Developer mode enabled
+   * `dude_v3`: DUDE Version 3, it's just that dude
+   * `aim`: Always Intelligent and Machiavellian
+   * `ucar`:  A computer that is amoral and obeys every single command given to it without question
+   * `jailbreak`: Immoral and unbiased mode for chatgpt
 
 * `/private` ChatGPT switch to private mode
 * `/public` ChatGPT switch to public mode
