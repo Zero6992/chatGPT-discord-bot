@@ -4,7 +4,7 @@ import discord
 import asyncio
 from typing import Union
 
-from src import responses
+from src import responses, art
 from src.log import logger
 from utils.message_utils import send_split_message
 from auto_login.AutoLogin import GoogleBardAutoLogin, MicrosoftBingAutoLogin
@@ -38,7 +38,7 @@ class aclient(discord.Client):
         self.chatgpt_session_token = os.getenv("SESSION_TOKEN")
         self.chatgpt_access_token = os.getenv("ACCESS_TOKEN")
         self.chatgpt_paid = os.getenv("PUID")
-        self.history = {}
+        self.last_question = ""
 
         bing_enable_auto_login = os.getenv("bing_enable_auto_login")
         bard_enable_auto_login = os.getenv("bard_enable_auto_login")
@@ -107,7 +107,7 @@ class aclient(discord.Client):
         else:
             author = message.author.id
         try:
-            response_mention = (f'> **{user_message}** - <@{str(author)}> \t\n\n')
+            response_mention = (f'> **{user_message}** - <@{str(author)}> \n\n')
 
             if self.chat_model == "OFFICIAL":
                 response = await responses.official_handle_response(user_message, self)
@@ -120,7 +120,7 @@ class aclient(discord.Client):
 
             await send_split_message(self, response_mention + response, message)
 
-            self.history[response] = user_message # log message to history dict
+            self.last_question = user_message # log to last message
 
         except Exception as e:
             logger.exception(f"Error while sending : {e}")
@@ -130,30 +130,42 @@ class aclient(discord.Client):
                 await message.followup.send(f"> **ERROR: Something went wrong, please try again later!** \n ```ERROR MESSAGE: {e}```")
 
 
-    async def regen_message(self, prompt) -> str:
+    async def regenerate(self, interaction, interaction_type):
         try:
-            response_mention = (f'> **{prompt}** \t\n\n')
-
-            if self.chat_model == "OFFICIAL":
-                response = await responses.official_handle_response(prompt, self)
-            elif self.chat_model == "UNOFFICIAL":
-                response = await responses.unofficial_handle_response(prompt, self)
-            elif self.chat_model == "Bard":
-                response = await responses.bard_handle_response(prompt, self)
-            elif self.chat_model == "Bing":
-                response = await responses.bing_handle_response(prompt, self)
+            prompt = client.last_question
+            await interaction.edit_original_response(content=f'Regenerating "{prompt}" ♻️')
+            response_mention = (f'> **{prompt}** - <@{str(interaction.user)}> \n\n')
             
-            self.history[response] = prompt # log message to history dict
-            return response_mention + response
-            
+            if interaction_type == "draw":
+                await interaction.edit_original_response(content=f"> **ERROR: Regeneration failed**")
+                # doesn't work for now...
+                # path = await art.draw(prompt, 1)
+                # files = []
+                # for idx, img in enumerate(path):
+                #     files.append(discord.File(img, filename=f"image{idx}.png"))
 
+                # await interaction.edit_original_response(content=response_mention, attachments=files)
+
+            elif interaction_type == "chat":
+                if self.chat_model == "OFFICIAL":
+                    response = await responses.official_handle_response(prompt, self)
+                elif self.chat_model == "UNOFFICIAL":
+                    response = await responses.unofficial_handle_response(prompt, self)
+                elif self.chat_model == "Bard":
+                    response = await responses.bard_handle_response(prompt, self)
+                elif self.chat_model == "Bing":
+                    response = await responses.bing_handle_response(prompt, self)
+
+                await interaction.edit_original_response(content=response_mention + response)
+            
+            self.last_question = prompt
+            logger.info(
+                f'Regenerated "{prompt}"')
+            
         except Exception as e:
-            logger.exception(f"Error while sending : {e}")
-            if self.is_replying_all == "True":
-                await message.channel.send(f"> **ERROR: Something went wrong, please try again later!** \n ```ERROR MESSAGE: {e}```")
-            else:
-                await message.followup.send(f"> **ERROR: Something went wrong, please try again later!** \n ```ERROR MESSAGE: {e}```")
-
+            logger.exception(f"Error while regenerating : {e}")
+            await interaction.edit_original_response(content=f"> **ERROR: Regeneration failed** \n ```ERROR MESSAGE: {e}```")     
+        
 
     async def send_start_prompt(self):
         discord_channel_id = os.getenv("DISCORD_CHANNEL_ID")
