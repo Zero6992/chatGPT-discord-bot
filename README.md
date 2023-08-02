@@ -6,8 +6,8 @@
 > **Warning**
 >
 > #### 2023-04-12 Bing now supported
-> #### 2023-04-01 Only Plus account can access Unofficial model
 > #### 2023-03-27 Bard now supported
+> #### 2023-08-02 Unofficial GPT-4 is currently down
 
 ### Chat
 
@@ -45,7 +45,7 @@
 > **Note**
 >
 > In Step 2, you only need to complete the authentication process for the model you want to use (it's not necessary to complete all Step 2)
-> 
+>
 > Remember to modify `CHAT_MODEL` to the default model you want to use in `.env` file
 
 ## Step 2: Official API authentication
@@ -127,7 +127,7 @@
 * Google Bard
    1. set `bard_enable_auto_login` to `True` in `.env`
    2. Fill `google_account` and `google_password` in `.env`
-  
+
       (NOTICE:  AUTO-LOGIN ONLY WORKS FOR GOOGLE ACCOUNT THAT DOES NOT HAVE 2FA)
 * Microsoft Bing
    1. set `bing_enable_auto_login` to `True` in `.env`
