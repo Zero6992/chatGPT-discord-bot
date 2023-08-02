@@ -41,8 +41,7 @@ async def send_response_with_images(self, response: dict, message: Message):
     response_images = response.get("images")
 
     split_message_text = re.split(r'\[Image of.*?\]', response_content)
-    print('123')
-    print(split_message_text)
+
     for i in range(len(split_message_text)):
         if split_message_text[i].strip():
             await send_split_message(self, split_message_text[i].strip(), message, has_followed_up=True)
