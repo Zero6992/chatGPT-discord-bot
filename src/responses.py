@@ -14,8 +14,7 @@ async def unofficial_handle_response(message, client) -> str:
 
 async def bard_handle_response(message, client) -> str:
     response = await sync_to_async(client.chatbot.ask)(message)
-    responseMessage = response["content"]
-    return responseMessage
+    return response
 
 async def bing_handle_response(message, client, conversation_style = ConversationStyle.creative) -> str:
     try:
