@@ -1,10 +1,10 @@
-# ChatGPT Discord Bot
+# ChatGPT Discord Bot - Nova
 
 > ### Build your own Discord bot using ChatGPT
 
 ---
 > **Warning**
->
+> #### 2023-10-28 Nova now supported
 > #### 2023-04-12 Bing now supported
 > #### 2023-03-27 Bard now supported
 > #### 2023-08-02 Unofficial GPT-4 is currently down
@@ -152,8 +152,6 @@
 * Set the value of `LOGGING` in the `.env` to False
 
 ------
->  [**中文設置教學**](https://zero6992.me/2023/03/08/chatGPT-discord-bot-chinese/)
-------
 ## Commands
 
 * `/chat [message]` Chat with ChatGPT!
@@ -179,6 +177,7 @@
    * `Website ChatGPT-4.0`: Website ChatGPT-4.0 model (UNOFFICIAL)(available if you got a plus account)
    * `Bard`: Google Bard Model
    * `Bing`: Microsoft Bing Model
+   * `Nova`: Nova Model
 ### Special Features
 
 #### Draw
