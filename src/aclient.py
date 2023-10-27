@@ -6,12 +6,13 @@ from typing import Union
 
 from src import responses
 from src.log import logger
+from utils.message_utils import send_split_message
 from auto_login.AutoLogin import GoogleBardAutoLogin, MicrosoftBingAutoLogin
-from utils.message_utils import send_split_message, send_response_with_images
 
 from dotenv import load_dotenv
 from discord import app_commands
 
+import openai #
 from revChatGPT.V3 import Chatbot
 from revChatGPT.V1 import AsyncChatbot
 from Bard import Chatbot as BardChatbot
@@ -47,8 +48,7 @@ class aclient(discord.Client):
             google_password = os.getenv("google_password")
             self.bard_session_id = GoogleBardAutoLogin(google_account, google_password, chrome_version).get_cookie()
         else:
-            self.bard_secure_1psid = os.getenv("BARD_SECURE_1PSID")
-            self.bard_secure_1psidts = os.getenv("BARD_SECURE_1PSIDTS")
+            self.bard_session_id = os.getenv("BARD_SESSION_ID")
 
         if bing_enable_auto_login == 'True':
             bing_account = os.getenv("bing_account")
@@ -77,10 +77,12 @@ class aclient(discord.Client):
         elif self.chat_model == "OFFICIAL":
                 return Chatbot(api_key=self.openAI_API_key, engine=self.openAI_gpt_engine, system_prompt=prompt)
         elif self.chat_model == "Bard":
-            return BardChatbot(secure_1psid=self.bard_secure_1psid, secure_1psidts=self.bard_secure_1psidts)
+            return BardChatbot(session_id=self.bard_session_id)
         elif self.chat_model == "Bing":
             cookies = json.loads(open("./cookies.json", encoding="utf-8").read())
             return EdgeChatbot(cookies=cookies)
+        elif self.chat_model == "OpenAI":
+            return openai.Completion.create(engine="text-davinci-002", prompt=prompt, max_tokens=150)
 
     async def process_messages(self):
         while True:
@@ -110,20 +112,15 @@ class aclient(discord.Client):
             response = (f'> **{user_message}** - <@{str(author)}> \n\n')
             if self.chat_model == "OFFICIAL":
                 response = f"{response}{await responses.official_handle_response(user_message, self)}"
-                await send_split_message(self, response, message)
             elif self.chat_model == "UNOFFICIAL":
                 response = f"{response}{await responses.unofficial_handle_response(user_message, self)}"
-                await send_split_message(self, response, message)
             elif self.chat_model == "Bard":
-                if self.is_replying_all == "True":
-                    await message.channel.send(response)
-                else:
-                    await message.followup.send(response)
-                response = await responses.bard_handle_response(user_message, self)
-                await send_response_with_images(self, response, message)
+                response = f"{response}{await responses.bard_handle_response(user_message, self)}"
+            elif self.chat_model == "OpenAI":
+                response = f"{response}{await responses.openai_handle_response(user_message, self)}"
             elif self.chat_model == "Bing":
                 response = f"{response}{await responses.bing_handle_response(user_message, self)}"
-                await send_split_message(self, response, message)
+            await send_split_message(self, response, message)
         except Exception as e:
             logger.exception(f"Error while sending : {e}")
             if self.is_replying_all == "True":
@@ -136,21 +133,18 @@ class aclient(discord.Client):
         try:
             if self.starting_prompt:
                 if (discord_channel_id):
-                    channel = self.get_channel(int(discord_channel_id))
                     logger.info(f"Send system prompt with size {len(self.starting_prompt)}")
                     response = ""
                     if self.chat_model == "OFFICIAL":
                         response = f"{response}{await responses.official_handle_response(self.starting_prompt, self)}"
-                        await channel.send(response)
                     elif self.chat_model == "UNOFFICIAL":
                         response = f"{response}{await responses.unofficial_handle_response(self.starting_prompt, self)}"
-                        await channel.send(response)
                     elif self.chat_model == "Bard":
-                        response = await responses.bard_handle_response(self.starting_prompt, self)
-                        await channel.send(response.get("content"))
+                        response = f"{response}{await responses.bard_handle_response(self.starting_prompt, self)}"
                     elif self.chat_model == "Bing":
                         response = f"{response}{await responses.bing_handle_response(self.starting_prompt, self)}"
-                        await channel.send(response)
+                    channel = self.get_channel(int(discord_channel_id))
+                    await channel.send(response)
                     logger.info(f"System prompt response:{response}")
                 else:
                     logger.info("No Channel selected. Skip sending system prompt.")
