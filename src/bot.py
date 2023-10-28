@@ -8,7 +8,6 @@ from src.aclient import client
 from discord import app_commands
 from src import log, art, personas, responses
 
-
 def run_discord_bot():
     @client.event
     async def on_ready():
@@ -89,6 +88,7 @@ def run_discord_bot():
         app_commands.Choice(name="Website ChatGPT-4.0", value="UNOFFICIAL-GPT4"),
         app_commands.Choice(name="Bard", value="Bard"),
         app_commands.Choice(name="Bing", value="Bing"),
+        app_commands.Choice(name="Nova", value="Nova"),
     ])
 
     async def chat_model(interaction: discord.Interaction, choices: app_commands.Choice[str]):
@@ -100,6 +100,9 @@ def run_discord_bot():
             if choices.value == "OFFICIAL":
                 client.openAI_gpt_engine = "gpt-3.5-turbo"
                 client.chat_model = "OFFICIAL"
+            elif choices.value == "Nova":
+                client.openAI_gpt_engine = "gpt-3.5-turbo"
+                client.chat_model = "OpenAI"
             elif choices.value == "OFFICIAL-GPT4":
                 client.openAI_gpt_engine = "gpt-4"
                 client.chat_model = "OFFICIAL"
