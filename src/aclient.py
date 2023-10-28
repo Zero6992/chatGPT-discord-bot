@@ -81,7 +81,7 @@ class aclient(discord.Client):
         elif self.chat_model == "Bing":
             cookies = json.loads(open("./cookies.json", encoding="utf-8").read())
             return EdgeChatbot(cookies=cookies)
-        elif self.chat_model == "OpenAI":
+        elif self.chat_model == "Nova":
             return openai.Completion.create(engine="text-davinci-002", prompt=prompt, max_tokens=150)
 
     async def process_messages(self):
@@ -116,7 +116,7 @@ class aclient(discord.Client):
                 response = f"{response}{await responses.unofficial_handle_response(user_message, self)}"
             elif self.chat_model == "Bard":
                 response = f"{response}{await responses.bard_handle_response(user_message, self)}"
-            elif self.chat_model == "OpenAI":
+            elif self.chat_model == "Nova":
                 response = f"{response}{await responses.openai_handle_response(user_message, self)}"
             elif self.chat_model == "Bing":
                 response = f"{response}{await responses.bing_handle_response(user_message, self)}"
