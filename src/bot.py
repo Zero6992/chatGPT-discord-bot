@@ -202,20 +202,8 @@ gpt-engine: {chat_engine_status}
 """)
 
 
-    @client.tree.command(name="draw", description="Generate an image with the Dalle2 model")
-    @app_commands.choices(amount=[
-        app_commands.Choice(name="1", value=1),
-        app_commands.Choice(name="2", value=2),
-        app_commands.Choice(name="3", value=3),
-        app_commands.Choice(name="4", value=4),
-        app_commands.Choice(name="5", value=5),
-        app_commands.Choice(name="6", value=6),
-        app_commands.Choice(name="7", value=7),
-        app_commands.Choice(name="8", value=8),
-        app_commands.Choice(name="9", value=9),
-        app_commands.Choice(name="10", value=10),
-    ])
-    async def draw(interaction: discord.Interaction, *, prompt: str, amount: int = 1):
+    @client.tree.command(name="draw", description="Generate an image with the Dall-e-3 model")
+    async def draw(interaction: discord.Interaction, *, prompt: str):
         if interaction.user == client.user:
             return
 
@@ -226,24 +214,14 @@ gpt-engine: {chat_engine_status}
 
         await interaction.response.defer(thinking=True, ephemeral=client.isPrivate)
         try:
-            path = await art.draw(prompt, amount)
-            files = []
-            for idx, img in enumerate(path):
-                files.append(discord.File(img, filename=f"image{idx}.png"))
-            title = f'> **{prompt}** - {str(interaction.user.mention)} \n\n'
+            image_url = await art.draw(prompt)
 
-            await interaction.followup.send(files=files, content=title)
-
-        except openai.InvalidRequestError:
-            await interaction.followup.send(
-                "> **ERROR: Inappropriate request 😿**")
-            logger.info(
-            f"\x1b[31m{username}\x1b[0m made an inappropriate request.!")
+            await interaction.followup.send(image_url)
 
         except Exception as e:
             await interaction.followup.send(
-                "> **ERROR: Something went wrong 😿**")
-            logger.exception(f"Error while generating image: {e}")
+                f'> **Something Went Wrong: {e}**')
+            logger.info(f"\x1b[31m{username}\x1b[0m :{e}")
 
 
     @client.tree.command(name="switchpersona", description="Switch between optional chatGPT jailbreaks")
