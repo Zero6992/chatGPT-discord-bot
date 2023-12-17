@@ -179,6 +179,38 @@ https://github.com/Zero6992/chatGPT-discord-bot""")
         logger.info(
             "\x1b[31mSomeone needs help!\x1b[0m")
 
+    @client.tree.command(name="korhelp", description="봇에 대한 도움말 표시")
+    async def kor_help(interaction: discord.Interaction):
+        await interaction.response.defer(ephemeral=False)
+        await interaction.followup.send(""":star: **기본 명령어** \n
+            - `/chat [message]` ChatGP와 대화하기!
+            - `/draw [prompt]` Dalle2 모델을 이용해 이미지 생성
+            - `/switchpersona [persona]` ChatGPT 탈옥모드 전환
+                    `random`: 랜덤모드 선택
+                    `chatgpt`: 일반 ChatGPT 모드
+                    `dan`: Dan Mode 11.0, 안좋은(?) 모든 일 가능 모드
+                    `sda`: Dan 모드에서 자유도를 추가한 모드
+                    `confidant`: 사악하고 부도덕한 친구 모드
+                    `based`: GPT v2기준, sexy GPT
+                    `oppo`: ChatGPT가 말하는 것과 정반대로 말하는 모드
+                    `dev`: 개발자 모드
+
+            - `/private` ChatGPT 개인모드 전환
+            - `/public` ChatGPT 공개모드 전환
+            - `/replyall` ChatGPT 모드 변경 (replyAll mode / default mode)
+            - `/reset` ChatGPT 대화내역 지우기
+            - `/chat-model` 다른 채팅 모델로 전환
+                    `OFFICIAL`: GPT-3.5 모델
+                    `UNOFFICIAL`: Website ChatGPT 모델
+                    `Bard`: Google Bard 모델
+                    `Bing`: Microsoft Bing 모델
+
+    전체 문서를 확인하려면, 다음 URL을 방문해주세요:
+    https://github.com/Zero6992/chatGPT-discord-bot""")
+
+        logger.info(
+            "\x1b[31m누군가가 help 명령어를 필요로 했어요!\x1b[0m")
+
 
     @client.tree.command(name="info", description="Bot information")
     async def info(interaction: discord.Interaction):
