@@ -5,10 +5,7 @@
 ---
 > **Warning**
 >
-> #### 2023-04-12 Bing now supported
-> #### 2023-03-27 Bard now supported
-> #### 2023-08-02 Unofficial GPT-4 is currently down(dut to a [**unmaintained repository**](https://github.com/acheong08/ChatGPT))
-> #### 2024-03-07 Update API endpoints to support gpt-4 and gemeni-pro
+> #### 2024-03-07 GPT-4 and Gemini-Pro supported / Big Updated
 
 ### Chat
 
@@ -52,7 +49,7 @@
 
 3. Run `python3 main.py` or `python main.py` to start the bot
 ---
-## Step 2: Run the bot with Docker
+## Step 2: Run the bot with Docker (Currently Down)
 
 1. Build the Docker image & Run the Docker container `docker compose up -d`
 
