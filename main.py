@@ -1,31 +1,18 @@
-import sys
-import pkg_resources
+import os
 
 from src import bot
-from src.log import logger
 from dotenv import load_dotenv
+from g4f.cookies import set_cookies
 
-
-def check_version() -> None:
-
-    load_dotenv()
-
-    # Read the requirements.txt file and add each line to a list
-    with open('requirements.txt') as f:
-        required = f.read().splitlines()
-
-    # For each library listed in requirements.txt, check if the corresponding version is installed
-    for package in required:
-        # Use the pkg_resources library to get information about the installed version of the library
-        package_name, package_version = package.split('==')
-        installed = pkg_resources.get_distribution(package_name)
-        # Extract the library name and version number
-        name, version = installed.project_name, installed.version
-        # Compare the version number to see if it matches the one in requirements.txt
-        if package != f'{name}=={version}':
-            logger.error(f'{name} version {version} is installed but does not match the requirements')
-            sys.exit()
 
 if __name__ == '__main__':
-    check_version()
+    set_cookies(".bing.com", {
+    "_U": str(os.getenv("BING_COOKIE"))
+    })
+    set_cookies("chat.openai.com", {
+    "access_token": str(os.getenv("OPENAI_TOKEN"))
+    })
+    set_cookies(".google.com", {
+    "__Secure-1PSID": str(os.getenv("GOOGLE_PSID"))
+    })
     bot.run_discord_bot()
