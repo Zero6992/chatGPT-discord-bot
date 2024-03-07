@@ -1,21 +1,11 @@
-import os
-import openai
-
-from dotenv import load_dotenv
+from g4f.client import Client
 from asgiref.sync import sync_to_async
 
-load_dotenv()
-openai.api_key = os.getenv("OPENAI_API_KEY")
+g4f_client = Client()
 
-async def draw(prompt) -> list[str]:
-
-    response = await sync_to_async(openai.images.generate)(
-        model="dall-e-3",
-        prompt=prompt,
-        n=1,
-        size="1024x1024",
-        quality="standard",
-    )
+async def draw(model: str, prompt: str) -> str:
+    async_generate = sync_to_async(g4f_client.images.generate, thread_sensitive=True)
+    response = await async_generate(model = model, prompt = prompt)
     image_url = response.data[0].url
 
     return image_url
