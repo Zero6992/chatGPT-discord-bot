@@ -7,7 +7,8 @@
 >
 > #### 2023-04-12 Bing now supported
 > #### 2023-03-27 Bard now supported
-> #### 2023-08-02 Unofficial GPT-4 is currently down
+> #### 2023-08-02 Unofficial GPT-4 is currently down(dut to a [**unmaintained repository**](https://github.com/acheong08/ChatGPT))
+> #### 2024-03-07 Update API endpoints to support gpt-4 and gemeni-pro
 
 ### Chat
 
@@ -41,63 +42,9 @@
 6. Invite your bot to your server via OAuth2 URL Generator
 
    ![image](https://user-images.githubusercontent.com/89479282/205949600-0c7ddb40-7e82-47a0-b59a-b089f929d177.png)
----
-> **Note**
->
-> In Step 2, you only need to complete the authentication process for the model you want to use (it's not necessary to complete all Step 2)
->
-> Remember to modify `CHAT_MODEL` to the default model you want to use in `.env` file
 
-## Step 2: Official API authentication
 
-### Geanerate an OpenAI API key
-1. Go to https://beta.openai.com/account/api-keys
-
-2. Click Create new secret key
-
-   ![image](https://user-images.githubusercontent.com/89479282/207970699-2e0cb671-8636-4e27-b1f3-b75d6db9b57e.PNG)
-
-3. Store the SECRET KEY to `.env` under the `OPENAI_API_KEY`
-
----
-## Step 2: Website ChatGPT authentication
-
-> **Only Support ChatGPT Plus Account**
-
-1. Open https://chat.openai.com/api/auth/session
-
-2. Open console with `F12`
-
-3. Open `Application` tab > Cookies
-
-   ![image](https://user-images.githubusercontent.com/89479282/229298001-41ab4f61-5b79-4c65-b08c-708ee6fe2304.png)
-
-4. Copy the value for `_puid` from cookies and paste it into `.env` under `PUID`
-
-5. Copy the value for `accessToken` from cookies and paste it into `.env` under `ACCESS_TOKEN`
-
----
-## Step 2: Google Bard authentication
-1. Go to https://bard.google.com/
-
-2. Open console with `F12`
-
-3. Open `Application` tab > Cookies
-
-4. Copy the value for `__Secure-1PSID` from cookies and paste it into `.env` under `BARD_SESSION_ID`
-
----
-## Step 2: Microsoft Bing authentication
-1. **Rename the file `cookies.dev.json` to `cookies.json`**
-
-2. Go to https://bing.com/chat and log in your Microsoft account
-
-3. Use Cookie Editor or similar extensions to export the cookies
-
-4. Paste it into `cookies.json`
-
----
-## Step 3: Run the bot on the desktop
+## Step 2: Run the bot on the desktop
 
 1. Open a terminal or command prompt
 
@@ -105,7 +52,7 @@
 
 3. Run `python3 main.py` or `python main.py` to start the bot
 ---
-## Step 3: Run the bot with Docker
+## Step 2: Run the bot with Docker
 
 1. Build the Docker image & Run the Docker container `docker compose up -d`
 
@@ -118,20 +65,33 @@
 
 ### Have a good chat!
 ---
+## Image Generation
 
-## Optional: Auto-Login
->  * The auto-login feature allows your bot to automatically login to either Google Bard or Microsoft Bing using provided credentials
->  * It will auto fetch the cookies you need
+![image](https://github.com/Zero6992/chatGPT-discord-bot/assets/89479282/e20533a4-a563-4fcd-8ec5-d5beb20ae72a)
 
-*  To enable this feature, first specify your Chrome browser's version by filling in the `chrome_version` field in the `.env` file
-* Google Bard
-   1. set `bard_enable_auto_login` to `True` in `.env`
-   2. Fill `google_account` and `google_password` in `.env`
+### OpenAI DALLE3 Image Generation
+1. Go to https://chat.openai.com/api/auth/session
 
-      (NOTICE:  AUTO-LOGIN ONLY WORKS FOR GOOGLE ACCOUNT THAT DOES NOT HAVE 2FA)
-* Microsoft Bing
-   1. set `bing_enable_auto_login` to `True` in `.env`
-   2. Then fill `bing_account` and `bing_password` in `.env`
+2. Copy the value for `access_token` and paste it into `.env` under `OPENAI_TOKEN`
+
+### Microsoft Bing Image Generation
+1. Go to https://www.bing.com/chat and log in
+
+2. Open console with `F12`
+
+3. Open `Application` tab > Cookies
+
+4. Copy the value for `_U` from cookies and paste it into `.env` under `BING_COOKIE`
+
+### Google Gemini Image Generation
+1. Go to https://gemini.google.com/app and log in
+
+2. Open console with `F12`
+
+3. Open `Application` tab > Cookies
+
+4. Copy the value for `__Secure-1PSID` from cookies and paste it into `.env` under `GOOGLE_PSID`
+
 
 ## Optional: Setup system prompt
 
@@ -156,8 +116,8 @@
 ------
 ## Commands
 
-* `/chat [message]` Chat with ChatGPT!
-* `/draw [prompt]` Generate an image with the Dalle2 model
+* `/chat [message]` Chat with ChatGPT/Gemeni
+* `/draw [prompt]` Generate an image with Gemini/OpenAI/Bing
 * `/switchpersona [persona]` Switch between optional chatGPT jailbreaks
    * `random`: Picks a random persona
    * `chatGPT`: Standard chatGPT mode
@@ -173,17 +133,9 @@
 * `/replyall` ChatGPT switch between replyAll mode and default mode
 * `/reset` Clear ChatGPT conversation history
 * `/chat-model` Switch different chat model
-   * `OFFICIAL-GPT-3.5`: GPT-3.5 model
-   * `OFFICIAL-GPT-4.0`: GPT-4.0 model (make sure your account can access gpt-4 model)
-   * `Website ChatGPT-3.5`: Website ChatGPT-3.5 model (UNOFFICIAL)
-   * `Website ChatGPT-4.0`: Website ChatGPT-4.0 model (UNOFFICIAL)(available if you got a plus account)
-   * `Bard`: Google Bard Model
-   * `Bing`: Microsoft Bing Model
+   * `gpt-4`: GPT-4 model
+   * `Gemini`: Google Gemini Model
 ### Special Features
-
-#### Draw
-
-![image](https://user-images.githubusercontent.com/91911303/223772051-13f840d5-99ef-4762-98d2-d15ce23cbbd5.png)
 
 #### Switch Persona
 
