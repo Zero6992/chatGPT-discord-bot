@@ -6,7 +6,7 @@
 > [!IMPORTANT]
 >
 > **Major Update (2024/03):**
-> - Gemini-Pro and GPT-4 support added!
+> - Gemini-Pro and GPT-4 now supported for free
 > - See README for details and dependency updates.
 
 ### Chat
