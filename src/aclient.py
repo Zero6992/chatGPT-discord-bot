@@ -95,8 +95,8 @@ class discordClient(discord.Client):
 
     async def handle_response(self, user_message) -> str:
         self.conversation_history.append({'role': 'user', 'content': user_message})
-        if len(self.conversation_history) > 24:
-            self.conversation_history = self.conversation_history[2:]
+        if len(self.conversation_history) > 26:
+             del self.conversation_history[4:6]
 
         async_create = sync_to_async(self.chatBot.chat.completions.create, thread_sensitive=True)
 
@@ -112,7 +112,8 @@ class discordClient(discord.Client):
     # prompt engineering
     async def switch_persona(self, persona) -> None:
         self.reset_conversation_history()
-        self.handle_response(persona)
+        await self.handle_response(persona)
+        await self.send_start_prompt()
 
 
 
