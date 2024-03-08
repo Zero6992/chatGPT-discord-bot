@@ -115,7 +115,7 @@ def run_discord_bot():
         await interaction.followup.send("> **INFO: I have forgotten everything.**")
         personas.current_persona = "standard"
         logger.warning(
-            f"\x1b[31m{discordClient.chat_model} bot has been successfully reset\x1b[0m")
+            f"\x1b[31m{discordClient.chatModel} bot has been successfully reset\x1b[0m")
 
 
     @discordClient.tree.command(name="help", description="Show help for the bot")
