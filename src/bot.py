@@ -166,7 +166,7 @@ https://github.com/Zero6992/chatGPT-discord-bot""")
 
         except Exception as e:
             await interaction.followup.send(
-                f'> **Something Went Wrong: Please try again later.\n\nError Message:{e}**')
+                f'> Something Went Wrong, try again later.\n\nError Message:{e}')
             logger.info(f"\x1b[31m{username}\x1b[0m :{e}")
 
     @discordClient.tree.command(name="switchpersona", description="Switch between optional chatGPT jailbreaks")
@@ -197,7 +197,7 @@ https://github.com/Zero6992/chatGPT-discord-bot""")
                 f"> **INFO: Switched to `{persona}` persona**")
             except Exception as e:
                 await interaction.followup.send(
-                    "> **ERROR: Something went wrong, please try again later! **")
+                    "> ERROR: Something went wrong, try again later! ")
                 logger.exception(f"Error while switching persona: {e}")
         else:
             await interaction.followup.send(
