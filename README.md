@@ -14,14 +14,10 @@
 ![image](https://user-images.githubusercontent.com/89479282/206497774-47d960cd-1aeb-4fba-9af5-1f9d6ff41f00.gif)
 
 # Setup
-
-## Critical prerequisites to install
-
-* run ```pip3 install -r requirements.txt```
-
+## Prerequisites
+* **Python 3.9 or later**
 * **Rename the file `.env.example` to `.env`**
-
-* Recommended python version `3.9` +
+* Running `pip3 install -r requirements.txt` to install the required dependencies
 ---
 ## Step 1: Create a Discord bot
 
