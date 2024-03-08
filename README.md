@@ -3,9 +3,11 @@
 > ### Build your own Discord bot using ChatGPT
 
 ---
-> **Warning**
+> [!IMPORTANT]  
 >
-> #### 2024-03-07 GPT-4 and Gemini-Pro supported / Big Updated
+> **Major Update (2024/03):**
+> - Gemini-Pro and GPT-4 support added!
+> - See README for details and dependency updates.
 
 ### Chat
 
