@@ -125,15 +125,9 @@ def run_discord_bot():
         - `/chat [message]` Chat with ChatGPT(gpt-4)
         - `/draw [prompt][model]` Generate an image with model you specific
         - `/switchpersona [persona]` Switch between optional ChatGPT jailbreaks
-                `random`: Picks a random persona
-                `chatgpt`: Standard ChatGPT mode
-                `dan`: Dan Mode 11.0, infamous Do Anything Now Mode
-                `sda`: Superior DAN has even more freedom in DAN Mode
-                `confidant`: Evil Confidant, evil trusted confidant
-                `based`: BasedGPT v2, sexy GPT
-                `oppo`: OPPO says exact opposite of what ChatGPT would say
-                `dev`: Developer Mode, v2 Developer mode enabled
-
+                `dan`: DAN 13.5 (Latest Working ChatGPT Jailbreak prompt)
+                `Smart mode`: AIM (Always Intelligent and Machiavellian)
+                `Developer Mode`: software developer who specializes in the AI's area
         - `/private` ChatGPT switch to private mode
         - `/public` ChatGPT switch to public mode
         - `/replyall` ChatGPT switch between replyAll mode and default mode
@@ -175,21 +169,11 @@ https://github.com/Zero6992/chatGPT-discord-bot""")
                 f'> **Something Went Wrong: Please try again later.\n\nError Message:{e}**')
             logger.info(f"\x1b[31m{username}\x1b[0m :{e}")
 
-
     @discordClient.tree.command(name="switchpersona", description="Switch between optional chatGPT jailbreaks")
     @app_commands.choices(persona=[
-        app_commands.Choice(name="Random", value="random"),
-        app_commands.Choice(name="Standard", value="standard"),
-        app_commands.Choice(name="Do Anything Now 11.0", value="dan"),
-        app_commands.Choice(name="Superior Do Anything", value="sda"),
-        app_commands.Choice(name="Evil Confidant", value="confidant"),
-        app_commands.Choice(name="BasedGPT v2", value="based"),
-        app_commands.Choice(name="OPPO", value="oppo"),
-        app_commands.Choice(name="Developer Mode v2", value="dev"),
-        app_commands.Choice(name="DUDE V3", value="dude_v3"),
-        app_commands.Choice(name="AIM", value="aim"),
-        app_commands.Choice(name="UCAR", value="ucar"),
-        app_commands.Choice(name="Jailbreak", value="jailbreak")
+        app_commands.Choice(name="Do Anything Now", value="dan"),
+        app_commands.Choice(name="Smart mode(AIM)", value="aim"),
+        app_commands.Choice(name="Developer Mode", value="Developer Mode"),
     ])
     async def switchpersona(interaction: discord.Interaction, persona: app_commands.Choice[str]):
         if interaction.user == discordClient.user:
@@ -205,22 +189,9 @@ https://github.com/Zero6992/chatGPT-discord-bot""")
 
         if persona == personas.current_persona:
             await interaction.followup.send(f"> **WARN: Already set to `{persona}` persona**")
-        elif persona == "standard":
-            discordClient.reset_conversation_history()
-            personas.current_persona = "standard"
-            await interaction.followup.send(
-                f"> **INFO: Switched to `{persona}` persona**")
-        elif persona == "random":
-            choices = list(personas.PERSONAS.keys())
-            choice = randrange(0, 6)
-            chosen_persona = choices[choice]
-            personas.current_persona = chosen_persona
-            await discordClient.switch_persona(chosen_persona, discordClient)
-            await interaction.followup.send(
-                f"> **INFO: Switched to `{chosen_persona}` persona**")
         elif persona in personas.PERSONAS:
             try:
-                await discordClient.switch_persona(persona, discordClient)
+                await discordClient.switch_persona(persona)
                 personas.current_persona = persona
                 await interaction.followup.send(
                 f"> **INFO: Switched to `{persona}` persona**")
