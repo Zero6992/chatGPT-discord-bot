@@ -108,11 +108,12 @@ class discordClient(discord.Client):
 
     def reset_conversation_history(self):
         self.conversation_history = []
+        personas.current_persona = "standard"
 
     # prompt engineering
     async def switch_persona(self, persona) -> None:
         self.reset_conversation_history()
-        await self.handle_response(persona)
+        await self.handle_response(personas.PERSONAS.get(persona))
         await self.send_start_prompt()
 
 
