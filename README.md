@@ -3,7 +3,7 @@
 > ### Build your own Discord bot using ChatGPT
 
 ---
-> [!IMPORTANT]  
+> [!IMPORTANT]
 >
 > **Major Update (2024/03):**
 > - Gemini-Pro and GPT-4 support added!
@@ -45,11 +45,11 @@
 
 2. Navigate to the directory where you installed the ChatGPT Discord bot
 
-3. Run `python3 main.py` or `python main.py` to start the bot
+3. Run `python3 main.py` or `python main.py` to run the bot
 ---
-## Step 2: Run the bot with Docker (Currently Down)
+## Step 2: Run the bot with Docker
 
-1. Build the Docker image & Run the Docker container `docker compose up -d`
+1. Build the Docker image & run the Docker container with `docker compose up -d`
 
 2. Inspect whether the bot works well `docker logs -t chatgpt-discord-bot`
 
@@ -115,13 +115,10 @@
 * `/draw [prompt]` Generate an image with Gemini/OpenAI/Bing
 * `/switchpersona [persona]` Switch between optional chatGPT jailbreaks
    * `random`: Picks a random persona
-   * `chatGPT`: Standard chatGPT mode
-   * `dan`: Dan Mode 11.0, infamous Do Anything Now Mode
-   * `sda`: Superior DAN has even more freedom in DAN Mode
-   * `confidant`: Evil Confidant, evil trusted confidant
-   * `based`: BasedGPT v2, sexy gpt
-   * `oppo`: OPPO says exact opposite of what chatGPT would say
-   * `dev`: Developer Mode, v2 Developer mode enabled
+   * `standard`: Standard chatGPT mode
+   * `dan`: DAN 13.5 (Latest Working ChatGPT Jailbreak prompt)
+   * `Smart mode`: AIM (Always Intelligent and Machiavellian)
+   * `Developer Mode`: software developer who specializes in the AI's area
 
 * `/private` ChatGPT switch to private mode
 * `/public` ChatGPT switch to public mode
@@ -136,7 +133,7 @@
 
 > **Warning**
 >
-> Using certain personas may generate vulgar or disturbing content. Use at your own risk.
+> Certain personas may generate vulgar or disturbing content. Use at your own risk.
 
 ![image](https://user-images.githubusercontent.com/91911303/223772334-7aece61f-ead7-4119-bcd4-7274979c4702.png)
 
