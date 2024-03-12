@@ -65,10 +65,12 @@
 
 ![image](https://github.com/Zero6992/chatGPT-discord-bot/assets/89479282/e20533a4-a563-4fcd-8ec5-d5beb20ae72a)
 
-### OpenAI DALLE3 Image Generation
-1. Go to https://chat.openai.com/api/auth/session
+### OpenAI DALLE3 Image Generation (Requires a GPT Plus account)
+1. Log into your openai account
 
-2. Copy the value for `access_token` and paste it into `.env` under `OPENAI_TOKEN`
+2. Go to https://chat.openai.com/api/auth/session
+
+3. Copy the value for `access_token` and paste it into `.env` under `OPENAI_TOKEN`
 
 ### Microsoft Bing Image Generation
 1. Go to https://www.bing.com/chat and log in
