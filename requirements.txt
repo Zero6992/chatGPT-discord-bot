@@ -3,4 +3,5 @@ python-dotenv==1.0.0
 asgiref==3.6.0
 openai==1.13.3
 selenium==4.9.1
+g4f==0.2.6.1
 g4f[all]
