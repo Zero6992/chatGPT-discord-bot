@@ -6,6 +6,7 @@
 > [!IMPORTANT]
 >
 > **Major Update (2024/03):**
+> - Due to instability issues with GPT-4 model, we have defaulted back to GPT-3.5-turbo
 > - Gemini-Pro and GPT-4 now supported for free
 > - See README for details and dependency updates.
 
