@@ -2,10 +2,11 @@ import os
 import asyncio
 import discord
 from src.log import logger
-from random import randrange
 
 from g4f.client import Client
-from g4f.Provider import RetryProvider, OpenaiChat, FreeChatgpt, Gemini, Liaobots, Bing, Gemini
+from g4f.Provider import (RetryProvider, FreeGpt, ChatgptNext, AItianhuSpace,
+                        You, OpenaiChat, FreeChatgpt, Liaobots,
+                        Gemini, Bing)
 
 from src.aclient import discordClient
 from discord import app_commands
@@ -88,6 +89,7 @@ def run_discord_bot():
     @app_commands.choices(model=[
         app_commands.Choice(name="gemeni", value="gemeni"),
         app_commands.Choice(name="gpt-4", value="gpt-4"),
+        app_commands.Choice(name="gpt-3.5-turbo", value="gpt-3.5-turbo"),
     ])
     async def chat_model(interaction: discord.Interaction, model: app_commands.Choice[str]):
         await interaction.response.defer(ephemeral=True)
@@ -98,7 +100,11 @@ def run_discord_bot():
                 discordClient.chatModel = model.value
             elif model.value == "gpt-4":
                 discordClient.reset_conversation_history()
-                discordClient.chatBot = Client(provider=RetryProvider([Liaobots, OpenaiChat, Bing], shuffle=False))
+                discordClient.chatBot = Client(provider=RetryProvider([Liaobots, You, OpenaiChat, Bing], shuffle=False))
+                discordClient.chatModel = model.value
+            elif model.value == "gpt-3.5-turbo":
+                discordClient.reset_conversation_history()
+                discordClient.chatBot = Client(provider=RetryProvider([FreeGpt, ChatgptNext, AItianhuSpace], shuffle=False))
                 discordClient.chatModel = model.value
 
             await interaction.followup.send(f"> **INFO: Chat model switched to {model.name}.**")

@@ -4,7 +4,7 @@ import asyncio
 
 from src import personas
 from src.log import logger
-from utils.message_utils import send_split_message, send_response_with_images
+from utils.message_utils import send_split_message
 
 from dotenv import load_dotenv
 from discord import app_commands
@@ -14,6 +14,7 @@ import g4f.debug
 from g4f.client import Client
 from g4f.stubs import ChatCompletion
 from g4f.Provider import RetryProvider, OpenaiChat, Bing, You
+from g4f.Provider import  FreeGpt, ChatgptNext, AItianhuSpace
 
 g4f.debug.logging = True
 
@@ -26,9 +27,9 @@ class discordClient(discord.Client):
         super().__init__(intents=intents)
         self.tree = app_commands.CommandTree(self)
         self.chatBot = Client(
-            provider = RetryProvider([You, Bing, OpenaiChat], shuffle=False),
+            provider = RetryProvider([FreeGpt, ChatgptNext, AItianhuSpace, OpenaiChat, Bing, You], shuffle=False),
         )
-        self.chatModel = 'gpt-4'
+        self.chatModel = os.getenv("MODEL")
         self.conversation_history = []
         self.current_channel = None
         self.activity = discord.Activity(type=discord.ActivityType.listening, name="/chat | /help")
