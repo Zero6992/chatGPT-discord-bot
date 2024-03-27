@@ -64,7 +64,7 @@
 ---
 ## Image Generation
 
-![image](https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExZjh1aWFxY2Vpeng5djNsMXRmNzdncG42cm9vbzVkYnlreHJ0Z3V5MCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/NI7JVCkT3Pz9QjCDUg/giphy.gif)
+<img src="https://i.imgur.com/Eo1ZzKk.png" width="300" alt="image">
 
 ### OpenAI DALLE3 Image Generation (Requires a GPT Plus account)
 1. Log into your openai account
