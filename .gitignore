@@ -3,7 +3,7 @@ images/
 
 config.json
 cookies.json
-
+*.har
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
