@@ -13,7 +13,7 @@ from asgiref.sync import sync_to_async
 import g4f.debug
 from g4f.client import Client
 from g4f.stubs import ChatCompletion
-from g4f.Provider import RetryProvider, OpenaiChat, Bing, You
+from g4f.Provider import RetryProvider, OpenaiChat, Liaobots,Bing, You
 from g4f.Provider import  FreeGpt, ChatgptNext, AItianhuSpace
 
 g4f.debug.logging = True
@@ -27,7 +27,7 @@ class discordClient(discord.Client):
         super().__init__(intents=intents)
         self.tree = app_commands.CommandTree(self)
         self.chatBot = Client(
-            provider = RetryProvider([FreeGpt, ChatgptNext, AItianhuSpace, OpenaiChat, Bing, You], shuffle=False),
+            provider = RetryProvider([OpenaiChat, Liaobots, FreeGpt, ChatgptNext, AItianhuSpace, Bing, You], shuffle=False),
         )
         self.chatModel = os.getenv("MODEL")
         self.conversation_history = []

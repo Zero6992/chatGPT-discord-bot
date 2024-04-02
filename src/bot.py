@@ -153,7 +153,8 @@ https://github.com/Zero6992/chatGPT-discord-bot""")
     @app_commands.choices(model=[
         app_commands.Choice(name="gemeni", value="gemeni"),
         app_commands.Choice(name="openai", value="openai"),
-        app_commands.Choice(name="bing", value="bing")
+        app_commands.Choice(name="bing", value="bing"),
+        app_commands.Choice(name="you", value="You"),
     ])
     async def draw(interaction: discord.Interaction, *, prompt: str, model: app_commands.Choice[str]):
         if interaction.user == discordClient.user:
