@@ -45,11 +45,17 @@
 If you possess an OpenAI Plus account, utilizing the OpenAI provider is recommended for a smoother experience.
 
 1. Navigate to https://chat.openai.com/ and log in with your account credentials.
+   
 2. Launch the Developer Tools in your browser.
+ 
 3. In the Developer Tools, navigate to the `Network` tab.
+
 4. Refresh the page to record the network activity.
+ 
 5. Chat whth the bot one time.
+
 6. In the Network tab, right-click on any item in the list of network activities and choose `Save all as HAR with content`. Save the file with the name `a.har`.
+
 7. place the `a.har` file in the `./hardir` directory.
 
 * You can change `MODEL` in `.env` to `gpt-4` also
