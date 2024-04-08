@@ -40,7 +40,7 @@
 
    ![image](https://user-images.githubusercontent.com/89479282/205949600-0c7ddb40-7e82-47a0-b59a-b089f929d177.png)
 
-## Optional: OPENAI ACCESS (gpt-4 supported)
+## Optional: OPENAI ACCESS (gpt-4 & DALL-E-3 supported)
 
 If you possess an OpenAI Plus account, utilizing the OpenAI provider is recommended for a smoother experience.
 
@@ -56,6 +56,8 @@ If you possess an OpenAI Plus account, utilizing the OpenAI provider is recommen
 
 > [!CAUTION]
 > Ensure that your `a.har` file is stored securely, as it may contain sensitive information.
+>
+> This is not an OpenAI API. For API access, please refer here
 
 ## Step 2: Run the bot on the desktop
 
@@ -107,7 +109,17 @@ If you possess an OpenAI Plus account, utilizing the OpenAI provider is recommen
 
 4. Copy the value for `__Secure-1PSID` from cookies and paste it into `.env` under `GOOGLE_PSID`
 
+## Optional: Configuring OpenAI API
 
+To use the OpenAI API features, follow these steps:
+
+1. Obtain your API key by visiting https://platform.openai.com/api-keys
+2. Paste the API key under `OPENAI_KEY` in `.env`
+3. Set `OPENAI_ENABLED` to `True` in `.env`
+
+> [!INFO]
+> GPT-4 API is subject to certain restrictions 
+> For more details, please visit https://help.openai.com/en/articles/7102672-how-can-i-access-gpt-4
 ## Optional: Setup system prompt
 
 * A system prompt would be invoked when the bot is first started or reset
