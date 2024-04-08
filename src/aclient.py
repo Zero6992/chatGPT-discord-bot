@@ -16,6 +16,8 @@ from g4f.stubs import ChatCompletion
 from g4f.Provider import RetryProvider, OpenaiChat, Liaobots,Bing, You
 from g4f.Provider import  FreeGpt, ChatgptNext, AItianhuSpace
 
+from openai import AsyncOpenAI
+
 g4f.debug.logging = True
 
 load_dotenv()
@@ -36,7 +38,7 @@ class discordClient(discord.Client):
         self.isPrivate = False
         self.is_replying_all = os.getenv("REPLYING_ALL")
         self.replying_all_discord_channel_id = os.getenv("REPLYING_ALL_DISCORD_CHANNEL_ID")
-        self.chatgpt_access_token = os.getenv("ACCESS_TOKEN")
+        self.openai_client = AsyncOpenAI(api_key=os.getenv("OPENAI_KEY"))
 
 
         config_dir = os.path.abspath(f"{__file__}/../../")
@@ -99,10 +101,17 @@ class discordClient(discord.Client):
         self.conversation_history.append({'role': 'user', 'content': user_message})
         if len(self.conversation_history) > 26:
              del self.conversation_history[4:6]
+        if os.getenv("OPENAI_ENABLED") == "False":
+            async_create = sync_to_async(self.chatBot.chat.completions.create, 
+                                         thread_sensitive=True)
+            response: ChatCompletion = await async_create(model=self.chatModel, 
+                                                          messages=self.conversation_history)
+        else:
+            response = await self.openai_client.chat.completions.create(
+                model=self.chatModel,
+                messages=self.conversation_history
+            )
 
-        async_create = sync_to_async(self.chatBot.chat.completions.create, thread_sensitive=True)
-
-        response: ChatCompletion = await async_create(model=self.chatModel, messages=self.conversation_history)
         bot_response = response.choices[0].message.content
         self.conversation_history.append({'role': 'assistant', 'content': bot_response})
 
