@@ -63,7 +63,7 @@ If you possess an OpenAI Plus account, utilizing the OpenAI provider is recommen
 > [!CAUTION]
 > Ensure that your `a.har` file is stored securely, as it may contain sensitive information.
 >
-> This is not OpenAI API. For API access, please refer [Optional: Configuring OpenAI API](#optional-configuring-openai-api)
+> This is not OpenAI API. For API access, refer [Optional: Configuring OpenAI API](#optional-configuring-openai-api)
 
 ## Step 2: Run the bot on the desktop
 
@@ -124,7 +124,8 @@ To use the OpenAI API features, follow these steps:
 3. Set `OPENAI_ENABLED` to `True` in `.env`
 
 > [!NOTE]
-> GPT-4 API is subject to certain restrictions 
+> GPT-4 API is subject to certain restrictions.
+> 
 > For more details, please visit https://help.openai.com/en/articles/7102672-how-can-i-access-gpt-4
 ## Optional: Setup system prompt
 
