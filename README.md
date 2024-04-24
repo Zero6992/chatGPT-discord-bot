@@ -90,13 +90,6 @@ If you possess an OpenAI Plus account, utilizing the OpenAI provider is recommen
 
 <img src="https://i.imgur.com/Eo1ZzKk.png" width="300" alt="image">
 
-### OpenAI DALLE3 Image Generation (Requires a GPT Plus account)
-1. Log into your openai account
-
-2. Go to https://chat.openai.com/api/auth/session
-
-3. Copy the value for `access_token` and paste it into `.env` under `OPENAI_TOKEN`
-
 ### Microsoft Bing Image Generation
 1. Go to https://www.bing.com/chat and log in
 
