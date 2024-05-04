@@ -1,7 +1,7 @@
 discord.py==2.3.2
 python-dotenv==1.0.0
 asgiref==3.6.0
-openai==1.16.2
+openai==1.25.1
 selenium==4.9.1
-g4f==0.3.0.6
+g4f==0.3.0.8
 g4f[all]
