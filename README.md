@@ -52,11 +52,9 @@ If you possess an OpenAI Plus account, utilizing the OpenAI provider is recommen
 
 4. Refresh the page to record the network activity.
  
-5. Chat whth the bot one time.
+5. In the Network tab, right-click on any item in the list of network activities and choose `Save all as HAR with content`. Save the file with the name `a.har`.
 
-6. In the Network tab, right-click on any item in the list of network activities and choose `Save all as HAR with content`. Save the file with the name `a.har`.
-
-7. place the `a.har` file in the `./hardir` directory.
+6. place the `a.har` file in the `./hardir` directory.
 
 * You can change `MODEL` in `.env` to `gpt-4` also
 
@@ -143,7 +141,7 @@ To use the OpenAI API features, follow these steps:
 ------
 ## Commands
 
-* `/chat [message]` Chat with ChatGPT/Gemeni
+* `/chat [message]` Chat with ChatGPT/Gemini
 * `/draw [prompt]` Generate an image with Gemini/OpenAI/Bing
 * `/switchpersona [persona]` Switch between optional chatGPT jailbreaks
    * `random`: Picks a random persona
