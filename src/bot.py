@@ -85,16 +85,16 @@ def run_discord_bot():
             logger.warning("\x1b[31mSwitch to replyAll mode\x1b[0m")
 
 
-    @discordClient.tree.command(name="chat-model", description="Switch the chat model between 'gemeni' and 'gpt-4'")
+    @discordClient.tree.command(name="chat-model", description="Switch the chat model between 'gemini' and 'gpt-4'")
     @app_commands.choices(model=[
-        app_commands.Choice(name="gemeni", value="gemeni"),
+        app_commands.Choice(name="gemini", value="gemini"),
         app_commands.Choice(name="gpt-4", value="gpt-4"),
         app_commands.Choice(name="gpt-3.5-turbo", value="gpt-3.5-turbo"),
     ])
     async def chat_model(interaction: discord.Interaction, model: app_commands.Choice[str]):
         await interaction.response.defer(ephemeral=True)
         try:
-            if model.value == "gemeni":
+            if model.value == "gemini":
                 discordClient.reset_conversation_history()
                 discordClient.chatBot = Client(provider=RetryProvider([Gemini, FreeChatgpt], shuffle=False))
                 discordClient.chatModel = model.value
@@ -140,7 +140,7 @@ def run_discord_bot():
         - `/reset` Clear conversation history
         - `/chat-model` Switch different chat model
                 `gpt-4`: GPT-4 model
-                `Gemini`: Google gemeni-pro model
+                `Gemini`: Google gemini-pro model
 
 For complete documentation, please visit:
 https://github.com/Zero6992/chatGPT-discord-bot""")
@@ -151,7 +151,7 @@ https://github.com/Zero6992/chatGPT-discord-bot""")
 
     @discordClient.tree.command(name="draw", description="Generate an image with the Dall-e-3 model")
     @app_commands.choices(model=[
-        app_commands.Choice(name="gemeni", value="gemeni"),
+        app_commands.Choice(name="gemini", value="gemini"),
         app_commands.Choice(name="openai", value="openai"),
         app_commands.Choice(name="bing", value="bing"),
         app_commands.Choice(name="you", value="You"),
