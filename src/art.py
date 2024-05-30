@@ -1,16 +1,24 @@
 import os
 
-from g4f.client import Client
 from openai import AsyncOpenAI
-from asgiref.sync import sync_to_async
+from g4f.client import AsyncClient
+from g4f.Provider import BingCreateImages, Gemini, OpenaiChat
 
 openai_client = AsyncOpenAI(api_key=os.getenv("OPENAI_KEY"))
-g4f_client = Client()
+
+def get_image_provider(provider_name: str):
+    providers = {
+        "Gemini": Gemini,
+        "openai": OpenaiChat,
+        "BingCreateImages": BingCreateImages,
+    }
+    return providers.get(provider_name, BingCreateImages)
 
 async def draw(model: str, prompt: str) -> str:
     if os.getenv("OPENAI_ENABLED") == "False":
-        async_generate = sync_to_async(g4f_client.images.generate, thread_sensitive=True)
-        response = await async_generate(model = model, prompt = prompt)
+        image_provider = get_image_provider(model)
+        g4f_client = AsyncClient(image_provider=image_provider)
+        response = await g4f_client.images.generate(prompt=prompt)
     else:
         response = await openai_client.images.generate(
             model="dall-e-3",
@@ -19,14 +27,6 @@ async def draw(model: str, prompt: str) -> str:
             quality="hd",
             n=1,
         )
-    image_url = response.data[0].url
-
-    return image_url
+    return response.data[0].url
 
 
-async def imitate(model: str, image) -> str:
-    async_generate = sync_to_async(g4f_client.images.create_variation, thread_sensitive=True)
-    response = await async_generate(model = model, image = image)
-    image_url = response.data[0].url
-
-    return image_url
