@@ -7,7 +7,7 @@
 >
 > **Major Update (2024/03):**
 > - GPT-4 now supported for free
-> Utilize OpenAI API can ensure smoother experiences, refer[Optional: Configuring OpenAI API](#optional-configuring-openai-api)
+> - Utilize OpenAI API can ensure smoother experiences, refer [Optional: Configuring OpenAI API](#optional-configuring-openai-api)
 
 ### Chat
 
@@ -73,7 +73,7 @@
 > [!NOTE]
 > GPT-4 API is subject to certain restrictions.
 >
-> For more details, please visit https://help.openai.com/en/articles/7102672-how-can-i-access-gpt-4
+> Details https://help.openai.com/en/articles/7102672-how-can-i-access-gpt-4
 
 ## Image Generation
 
