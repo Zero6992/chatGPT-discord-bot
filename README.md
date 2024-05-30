@@ -6,9 +6,8 @@
 > [!IMPORTANT]
 >
 > **Major Update (2024/03):**
-> - Due to instability issues with GPT-4 model, we have defaulted back to GPT-3.5-turbo
 > - GPT-4 now supported for free
-> - See README for details and dependency updates.
+> Utilize OpenAI API can ensure smoother experiences, refer[Optional: Configuring OpenAI API](#optional-configuring-openai-api)
 
 ### Chat
 
@@ -66,12 +65,15 @@
 
 ## Optional: Configuring OpenAI API
 
-Utilize the OpenAI API features can ensure a smoother experience, follow these steps:
 
 1. Obtain your API key by visiting https://platform.openai.com/api-keys
 2. Paste the API key under `OPENAI_KEY` in `.env`
 3. Set `OPENAI_ENABLED` to `True` in `.env`
 
+> [!NOTE]
+> GPT-4 API is subject to certain restrictions.
+>
+> For more details, please visit https://help.openai.com/en/articles/7102672-how-can-i-access-gpt-4
 
 ## Image Generation
 
@@ -95,10 +97,6 @@ Utilize the OpenAI API features can ensure a smoother experience, follow these s
 
 4. Copy the value for `__Secure-1PSID` from cookies and paste it into `.env` under `GOOGLE_PSID`
 
-> [!NOTE]
-> GPT-4 API is subject to certain restrictions.
-> 
-> For more details, please visit https://help.openai.com/en/articles/7102672-how-can-i-access-gpt-4
 ## Optional: Setup system prompt
 
 * A system prompt would be invoked when the bot is first started or reset
