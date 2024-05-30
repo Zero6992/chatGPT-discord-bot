@@ -7,7 +7,7 @@
 >
 > **Major Update (2024/03):**
 > - Due to instability issues with GPT-4 model, we have defaulted back to GPT-3.5-turbo
-> - Gemini-Pro and GPT-4 now supported for free
+> - GPT-4 now supported for free
 > - See README for details and dependency updates.
 
 ### Chat
@@ -40,28 +40,7 @@
 
    ![image](https://user-images.githubusercontent.com/89479282/205949600-0c7ddb40-7e82-47a0-b59a-b089f929d177.png)
 
-## Optional: OPENAI ACCESS (gpt-4 & DALL-E-3 supported)
 
-If you possess an OpenAI Plus account, utilizing the OpenAI provider is recommended for a smoother experience.
-
-1. Navigate to https://chat.openai.com/ and log in with your account credentials.
-   
-2. Launch the Developer Tools in your browser.
- 
-3. In the Developer Tools, navigate to the `Network` tab.
-
-4. Refresh the page to record the network activity.
- 
-5. In the Network tab, right-click on any item in the list of network activities and choose `Save all as HAR with content`. Save the file with the name `a.har`.
-
-6. place the `a.har` file in the `./hardir` directory.
-
-* You can change `MODEL` in `.env` to `gpt-4` also
-
-> [!CAUTION]
-> Ensure that your `a.har` file is stored securely, as it may contain sensitive information.
->
-> This is not OpenAI API. For API access, refer [Optional: Configuring OpenAI API](#optional-configuring-openai-api)
 
 ## Step 2: Run the bot on the desktop
 
@@ -84,6 +63,16 @@ If you possess an OpenAI Plus account, utilizing the OpenAI provider is recommen
 
 ### Have a good chat!
 ---
+
+## Optional: Configuring OpenAI API
+
+Utilize the OpenAI API features can ensure a smoother experience, follow these steps:
+
+1. Obtain your API key by visiting https://platform.openai.com/api-keys
+2. Paste the API key under `OPENAI_KEY` in `.env`
+3. Set `OPENAI_ENABLED` to `True` in `.env`
+
+
 ## Image Generation
 
 <img src="https://i.imgur.com/Eo1ZzKk.png" width="300" alt="image">
@@ -105,14 +94,6 @@ If you possess an OpenAI Plus account, utilizing the OpenAI provider is recommen
 3. Open `Application` tab > Cookies
 
 4. Copy the value for `__Secure-1PSID` from cookies and paste it into `.env` under `GOOGLE_PSID`
-
-## Optional: Configuring OpenAI API
-
-To use the OpenAI API features, follow these steps:
-
-1. Obtain your API key by visiting https://platform.openai.com/api-keys
-2. Paste the API key under `OPENAI_KEY` in `.env`
-3. Set `OPENAI_ENABLED` to `True` in `.env`
 
 > [!NOTE]
 > GPT-4 API is subject to certain restrictions.
