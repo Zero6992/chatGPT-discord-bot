@@ -13,8 +13,8 @@ from asgiref.sync import sync_to_async
 import g4f.debug
 from g4f.client import Client
 from g4f.stubs import ChatCompletion
-from g4f.Provider import RetryProvider, OpenaiChat, Liaobots,Bing, You
-from g4f.Provider import  FreeGpt, ChatgptNext, AItianhuSpace
+from g4f.Provider import RetryProvider, OpenaiChat, Aichatos, Liaobots # gpt-4
+from g4f.Provider import  DuckDuckGo, Ecosia  # gpt-3.5-turbo
 
 from openai import AsyncOpenAI
 
@@ -29,7 +29,7 @@ class discordClient(discord.Client):
         super().__init__(intents=intents)
         self.tree = app_commands.CommandTree(self)
         self.chatBot = Client(
-            provider = RetryProvider([OpenaiChat, Liaobots, FreeGpt, ChatgptNext, AItianhuSpace, Bing, You], shuffle=False),
+            provider = RetryProvider([OpenaiChat, Aichatos, DuckDuckGo, Ecosia, Liaobots], shuffle=False),
         )
         self.chatModel = os.getenv("MODEL")
         self.conversation_history = []
@@ -39,7 +39,6 @@ class discordClient(discord.Client):
         self.is_replying_all = os.getenv("REPLYING_ALL")
         self.replying_all_discord_channel_id = os.getenv("REPLYING_ALL_DISCORD_CHANNEL_ID")
         self.openai_client = AsyncOpenAI(api_key=os.getenv("OPENAI_KEY"))
-
 
         config_dir = os.path.abspath(f"{__file__}/../../")
         prompt_name = 'system_prompt.txt'
