@@ -14,7 +14,7 @@ import g4f.debug
 from g4f.client import Client
 from g4f.stubs import ChatCompletion
 from g4f.Provider import RetryProvider, OpenaiChat, Aichatos, Liaobots # gpt-4
-from g4f.Provider import  DuckDuckGo, Ecosia  # gpt-3.5-turbo
+from g4f.Provider import  Blackbox  # gpt-3.5-turbo
 
 from openai import AsyncOpenAI
 
@@ -29,7 +29,7 @@ class discordClient(discord.Client):
         super().__init__(intents=intents)
         self.tree = app_commands.CommandTree(self)
         self.chatBot = Client(
-            provider = RetryProvider([OpenaiChat, Aichatos, DuckDuckGo, Ecosia, Liaobots], shuffle=False),
+            provider = RetryProvider([OpenaiChat, Aichatos, Blackbox, Liaobots], shuffle=False),
         )
         self.chatModel = os.getenv("MODEL")
         self.conversation_history = []
