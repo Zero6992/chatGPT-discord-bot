@@ -47,6 +47,8 @@ class discordClient(discord.Client):
             self.starting_prompt = f.read()
 
         self.message_queue = asyncio.Queue()
+        self.web_search_queue = asyncio.Queue()
+        self.web_search_mode = os.getenv("WEB_SEARCH_ENABLED") == "True"
 
     async def process_messages(self):
         while True:
@@ -60,6 +62,17 @@ class discordClient(discord.Client):
                             logger.exception(f"Error while processing message: {e}")
                         finally:
                             self.message_queue.task_done()
+                
+                # Process web search messages
+                while not self.web_search_queue.empty():
+                    async with self.current_channel.typing():
+                        message, user_message = await self.web_search_queue.get()
+                        try:
+                            await self.send_web_search_message(message, user_message)
+                        except Exception as e:
+                            logger.exception(f"Error while processing web search message: {e}")
+                        finally:
+                            self.web_search_queue.task_done()
             await asyncio.sleep(1)
 
 
@@ -67,7 +80,13 @@ class discordClient(discord.Client):
         await message.response.defer(ephemeral=self.isPrivate) if self.is_replying_all == "False" else None
         await self.message_queue.put((message, user_message))
 
+    async def enqueue_web_search_message(self, message, user_message):
+        """Enqueue a message for web search processing"""
+        await message.response.defer(ephemeral=self.isPrivate) if self.is_replying_all == "False" else None
+        await self.web_search_queue.put((message, user_message))
+
     async def send_message(self, message, user_message):
+        logger.info(f"Starting to process regular message: {user_message}")
         if self.is_replying_all == "False":
             author = message.user.id
         else:
@@ -79,6 +98,19 @@ class discordClient(discord.Client):
         except Exception as e:
             logger.exception(f"Error while sending : {e}")
             # Error handling as before
+
+    async def send_web_search_message(self, message, user_message):
+        """Send message with web search capability"""
+        if self.is_replying_all == "False":
+            author = message.user.id
+        else:
+            author = message.author.id
+        try:
+            response = await self.handle_web_search_response(user_message)
+            response_content = f'> **{user_message}** - <@{str(author)}> \n\n{response}'
+            await send_split_message(self, response_content, message)
+        except Exception as e:
+            logger.exception(f"Error while sending web search message: {e}")
 
     async def send_start_prompt(self):
         discord_channel_id = os.getenv("DISCORD_CHANNEL_ID")
@@ -96,25 +128,45 @@ class discordClient(discord.Client):
         except Exception as e:
             logger.exception(f"Error while sending system prompt: {e}")
 
-    async def handle_response(self, user_message) -> str:
-        self.conversation_history.append({'role': 'user', 'content': user_message})
-        if len(self.conversation_history) > 26:
-             del self.conversation_history[4:6]
-        if os.getenv("OPENAI_ENABLED") == "False":
+    async def handle_response(self, user_message, use_web_search=False) -> str:
+        if os.getenv("OPENAI_ENABLED") == "False" or self.openai_client is None:
+            self.conversation_history.append({'role': 'user', 'content': user_message})
+            if len(self.conversation_history) > 26:
+                 del self.conversation_history[4:6]
             async_create = sync_to_async(self.chatBot.chat.completions.create, 
                                          thread_sensitive=True)
             response: ChatCompletion = await async_create(model=self.chatModel, 
                                                           messages=self.conversation_history)
+            bot_response = response.choices[0].message.content
+            self.conversation_history.append({'role': 'assistant', 'content': bot_response})
         else:
-            response = await self.openai_client.chat.completions.create(
-                model=self.chatModel,
-                messages=self.conversation_history
-            )
-
-        bot_response = response.choices[0].message.content
-        self.conversation_history.append({'role': 'assistant', 'content': bot_response})
+            # Try web search if conditions are met, otherwise use regular chat
+            if (
+                os.getenv("OPENAI_ENABLED") == "True"
+                and (use_web_search or self.web_search_mode)
+                and self.openai_client is not None
+            ):
+                try:
+                    response = await self.openai_client.responses.create(
+                        model=self.chatModel,
+                        tools=[{"type": "web_search_preview", "search_context_size": "low"}],
+                        input=user_message
+                    )
+                    bot_response = response.output_text
+                    self.conversation_history.append({'role': 'user', 'content': user_message})
+                    self.conversation_history.append({'role': 'assistant', 'content': bot_response})
+                    return bot_response
+                except Exception as e:
+                    logger.warning(f"Web search failed, falling back to regular chat: {e}")
+            
+            # Regular chat completions (either by choice or fallback from web search)
+            bot_response = await self._handle_openai_chat_completion(user_message)
 
         return bot_response
+
+    async def handle_web_search_response(self, user_message) -> str:
+        """Handle responses that require web search capabilities"""
+        return await self.handle_response(user_message, use_web_search=True)
 
     def reset_conversation_history(self):
         self.conversation_history = []

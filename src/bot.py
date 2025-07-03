@@ -23,6 +23,33 @@ def run_discord_bot():
         logger.info(f'{discordClient.user} is now running!')
 
 
+    @discordClient.tree.command(name="websearch", description="Chat with web search capabilities")
+    async def websearch(interaction: discord.Interaction, *, message: str):
+        if discordClient.is_replying_all == "True":
+            await interaction.response.defer(ephemeral=False)
+            await interaction.followup.send(
+                "> **WARN: You already on replyAll mode. If you want to use the Slash Command, switch to normal mode by using `/replyall` again**")
+            logger.warning("\x1b[31mYou already on replyAll mode, can't use slash command!\x1b[0m")
+            return
+        if interaction.user == discordClient.user:
+            return
+        
+        # Check if OpenAI is enabled for web search
+        if os.getenv("OPENAI_ENABLED") == "False":
+            await interaction.response.defer(ephemeral=False)
+            await interaction.followup.send(
+                "> **ERROR: Web search requires OpenAI to be enabled. Please set OPENAI_ENABLED=True in your environment variables.**")
+            logger.error("Web search attempted but OpenAI is disabled")
+            return
+            
+        username = str(interaction.user)
+        discordClient.current_channel = interaction.channel
+        logger.info(
+            f"\x1b[31m{username}\x1b[0m : /websearch [{message}] in ({discordClient.current_channel})")
+
+        await discordClient.enqueue_web_search_message(interaction, message)
+
+
     @discordClient.tree.command(name="chat", description="Have a chat with ChatGPT")
     async def chat(interaction: discord.Interaction, *, message: str):
         if discordClient.is_replying_all == "True":
@@ -38,7 +65,11 @@ def run_discord_bot():
         logger.info(
             f"\x1b[31m{username}\x1b[0m : /chat [{message}] in ({discordClient.current_channel})")
 
-        await discordClient.enqueue_message(interaction, message)
+        # Check if web search mode is enabled and use appropriate method
+        if discordClient.web_search_mode and os.getenv("OPENAI_ENABLED") == "True":
+            await discordClient.enqueue_web_search_message(interaction, message)
+        else:
+            await discordClient.enqueue_message(interaction, message)
 
 
     @discordClient.tree.command(name="private", description="Toggle private access")
@@ -128,7 +159,8 @@ def run_discord_bot():
     async def help(interaction: discord.Interaction):
         await interaction.response.defer(ephemeral=False)
         await interaction.followup.send(""":star: **BASIC COMMANDS** \n
-        - `/chat [message]` Chat with ChatGPT(gpt-4)
+        - `/chat [message]` Chat with ChatGPT(gpt-4) - respects web search toggle
+        - `/websearch [message]` Chat with web search capabilities (requires OpenAI)
         - `/draw [prompt][model]` Generate an image with model you specific
         - `/switchpersona [persona]` Switch between optional ChatGPT jailbreaks
                 `dan`: DAN 13.5 (Latest Working ChatGPT Jailbreak prompt)
@@ -224,7 +256,11 @@ https://github.com/Zero6992/chatGPT-discord-bot""")
                     discordClient.current_channel = message.channel
                     logger.info(f"\x1b[31m{username}\x1b[0m : '{user_message}' ({discordClient.current_channel})")
 
-                    await discordClient.enqueue_message(message, user_message)
+                    # Use web search if enabled and OpenAI is available
+                    if discordClient.web_search_mode and os.getenv("OPENAI_ENABLED") == "True":
+                        await discordClient.enqueue_web_search_message(message, user_message)
+                    else:
+                        await discordClient.enqueue_message(message, user_message)
             else:
                 logger.exception("replying_all_discord_channel_id not found, please use the command `/replyall` again.")
 
