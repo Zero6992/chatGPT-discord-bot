@@ -48,7 +48,7 @@ class discordClient(discord.Client):
 
         self.message_queue = asyncio.Queue()
         self.web_search_queue = asyncio.Queue()
-        self.web_search_mode = os.getenv("WEB_SEARCH_ENABLED") == "True"
+        self.web_search_mode = os.getenv("WEB_SEARCH_ENABLED")  
 
     async def process_messages(self):
         while True:
@@ -127,6 +127,20 @@ class discordClient(discord.Client):
                 logger.info("No starting prompt given or no Discord channel selected. Skipping sending system prompt.")
         except Exception as e:
             logger.exception(f"Error while sending system prompt: {e}")
+
+    async def _handle_openai_chat_completion(self, user_message: str) -> str:
+        """Helper method to handle regular OpenAI chat completion"""
+        self.conversation_history.append({'role': 'user', 'content': user_message})
+        if len(self.conversation_history) > 26:
+             del self.conversation_history[4:6]
+        
+        response = await self.openai_client.chat.completions.create(
+            model=self.chatModel,
+            messages=self.conversation_history
+        )
+        bot_response = response.choices[0].message.content
+        self.conversation_history.append({'role': 'assistant', 'content': bot_response})
+        return bot_response
 
     async def handle_response(self, user_message, use_web_search=False) -> str:
         if os.getenv("OPENAI_ENABLED") == "False" or self.openai_client is None:

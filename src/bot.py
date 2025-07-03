@@ -100,6 +100,29 @@ def run_discord_bot():
             logger.info("You already on public mode!")
 
 
+    @discordClient.tree.command(name="togglewebsearch", description="Toggle web search mode for all chat commands")
+    async def togglewebsearch(interaction: discord.Interaction):
+        await interaction.response.defer(ephemeral=False)
+        
+        # Check if OpenAI is enabled
+        if os.getenv("OPENAI_ENABLED") == "False":
+            await interaction.followup.send(
+                "> **ERROR: Web search requires OpenAI to be enabled. Please set OPENAI_ENABLED=True in your environment variables.**")
+            logger.error("Web search toggle attempted but OpenAI is disabled")
+            return
+            
+        discordClient.web_search_mode = not discordClient.web_search_mode
+        
+        if discordClient.web_search_mode:
+            await interaction.followup.send(
+                "> **INFO: Web search mode enabled. All chat commands (/chat and replyall) will now use web search capabilities.**")
+            logger.info("Web search mode enabled for all chat commands")
+        else:
+            await interaction.followup.send(
+                "> **INFO: Web search mode disabled. Chat commands will use standard chat without web search.**")
+            logger.info("Web search mode disabled for all chat commands")
+
+
     @discordClient.tree.command(name="replyall", description="Toggle replyAll access")
     async def replyall(interaction: discord.Interaction):
         discordClient.replying_all_discord_channel_id = str(interaction.channel_id)
@@ -169,6 +192,7 @@ def run_discord_bot():
         - `/private` ChatGPT switch to private mode
         - `/public` ChatGPT switch to public mode
         - `/replyall` ChatGPT switch between replyAll mode and default mode
+        - `/togglewebsearch` Toggle web search mode for all chat commands (requires OpenAI)
         - `/reset` Clear conversation history
         - `/chat-model` Switch different chat model
                 `gpt-4`: GPT-4 model
