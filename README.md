@@ -65,7 +65,6 @@
 
 ## Optional: Configuring OpenAI API
 
-
 1. Obtain your API key by visiting https://platform.openai.com/api-keys
 2. Paste the API key under `OPENAI_KEY` in `.env`
 3. Set `OPENAI_ENABLED` to `True` in `.env`
@@ -74,6 +73,10 @@
 > GPT-4 API is subject to certain restrictions.
 >
 > Details https://help.openai.com/en/articles/7102672-how-can-i-access-gpt-4
+
+> [!TIP]
+> The web search feature (`/websearch` command) requires OpenAI API to be enabled.
+> This feature uses OpenAI's web search tool to provide real-time information.
 
 ## Image Generation
 
@@ -121,6 +124,7 @@
 ## Commands
 
 * `/chat [message]` Chat with ChatGPT/Gemini
+* `/websearch [message]` Chat with web search capabilities (requires OpenAI API)
 * `/draw [prompt]` Generate an image with Gemini/OpenAI/Bing
 * `/switchpersona [persona]` Switch between optional chatGPT jailbreaks
    * `random`: Picks a random persona
@@ -132,10 +136,31 @@
 * `/private` ChatGPT switch to private mode
 * `/public` ChatGPT switch to public mode
 * `/replyall` ChatGPT switch between replyAll mode and default mode
+* `/togglewebsearch` Toggle web search mode for replyall (requires OpenAI API)
 * `/reset` Clear ChatGPT conversation history
 * `/chat-model` Switch different chat model
    * `gpt-4`: GPT-4 model
    * `Gemini`: Google Gemini Model
+
+### Web Search Feature
+
+The web search functionality allows the bot to search the web for real-time information to answer your questions. This feature:
+
+* Requires OpenAI API to be enabled (`OPENAI_ENABLED=True`)
+* Uses OpenAI's web search tool to find current information
+* Can answer questions about recent events, current prices, latest news, etc.
+* Provides more accurate and up-to-date responses compared to regular chat
+
+**Available Commands:**
+* `/websearch [message]` - Single web search query
+* `/togglewebsearch` - Enable/disable web search mode for replyall mode
+
+When web search mode is enabled in replyall mode, all messages will automatically use web search capabilities.
+
+Example usage:
+* `/websearch What's the latest news about AI developments?`
+* `/websearch Current price of Bitcoin`
+* `/websearch Recent weather in New York`
 ### Special Features
 
 #### Switch Persona
