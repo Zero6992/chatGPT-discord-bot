@@ -5,13 +5,8 @@
 ---
 > [!IMPORTANT]
 >
-> **Major Refactor (2025/01):**
+> **Major Refactor (2025/07):**
 > - **5 AI Providers**: Free (g4f), OpenAI, Claude, Gemini, Grok
-> - **Dynamic Provider Switching**: Use `/provider` command to switch between providers
-> - **Enhanced Security**: Admin-only jailbreak personas with modern prompts
-> - **Improved Architecture**: Modular provider system with fallback support
-> - **Docker Security**: Hardened containers with non-root user and read-only filesystem
-> - **Comprehensive Testing**: Full test suite with pytest integration
 > - **No Cookie Authentication**: Removed unreliable cookie-based auth for free providers
 
 ### Chat
@@ -70,13 +65,10 @@
 
 ## Provider Configuration
 
-### Free Provider (Always Available)
-The bot includes a free provider using g4f library with multiple fallback providers:
-- **Blackbox**: General-purpose AI chat
-- **Chatai**: GPT-3.5 and GPT-4 compatible models
-- **CohereForAI**: Command-R and Command-R Plus models
+### Free Provider (unstable)
+Outdated model, close to GPT-3.5 or GPT-4 capabilities
 
-No configuration required - works out of the box!
+No configuration required
 
 ### Premium Providers (Optional)
 
@@ -96,7 +88,7 @@ No configuration required - works out of the box!
 1. Get API key from https://x.ai/api
 2. Add to `.env`: `GROK_KEY=your_api_key_here`
 
-Use `/provider` command in Discord to switch between available providers!
+Use `/provider` command in Discord to switch between available providers
 
 ## Image Generation
 
@@ -136,9 +128,6 @@ Image generation is now integrated with the provider system:
 
 * Set the value of `LOGGING` in the `.env` to False
 
-------
->  [**中文設置教學**](https://zero6992.me/2023/03/08/chatGPT-discord-bot-chinese/)
-------
 ## Commands
 
 ### Core Commands
@@ -179,45 +168,3 @@ Jailbreak personas require admin privileges for enhanced security:
 - Secure API key management via environment variables
 - Docker security hardening with non-root user
 - Read-only filesystem for container security
-
-
-## Testing
-
-Run the comprehensive test suite:
-
-```bash
-# Run all tests
-pytest
-
-# Run specific test categories
-pytest -m unit          # Unit tests only
-pytest -m integration   # Integration tests only  
-pytest -m slow          # Slow tests only
-
-# Run with coverage
-pytest --cov=src
-
-# Run specific test file
-pytest tests/test_providers.py
-```
-
-## Architecture
-
-### Provider System
-- **BaseProvider**: Abstract base class defining provider interface
-- **Concrete Providers**: Free, OpenAI, Claude, Gemini, Grok implementations
-- **ProviderManager**: Handles dynamic switching and fallback logic
-- **Automatic Fallback**: Falls back to free provider if premium providers fail
-
-### Security Layers
-1. **Environment Variables**: Secure API key storage
-2. **Admin Controls**: Restricted access to sensitive features
-3. **Input Validation**: All commands validate user input
-4. **Docker Hardening**: Non-root user, read-only filesystem
-
-### Conversation Management
-- Configurable conversation length limits
-- Automatic history trimming to prevent memory issues
-- Persona persistence across conversation resets
-
----
