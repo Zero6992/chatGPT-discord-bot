@@ -11,6 +11,9 @@ __pycache__/
 
 # C extensions
 *.so
+# ai file
+
+claude.md
 
 # Distribution / packaging
 .Python
