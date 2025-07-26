@@ -21,10 +21,10 @@ async def draw(model: str, prompt: str) -> str:
         response = await g4f_client.images.generate(prompt=prompt)
     else:
         response = await openai_client.images.generate(
-            model="dall-e-3",
+            model="gpt-image-1",
             prompt=prompt,
             size="1792x1024",
-            quality="hd",
+            quality="auto",
             n=1,
         )
     return response.data[0].url
