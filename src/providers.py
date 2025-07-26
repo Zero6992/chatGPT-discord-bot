@@ -449,13 +449,17 @@ class ProviderManager:
     def _validate_api_key(self, api_key: str, provider_name: str, pattern: Optional[str] = None) -> bool:
         """Validate API key format"""
         if not api_key or len(api_key) < 10:
-            logger.warning(f"Invalid {provider_name} API key: too short")
+            logger.warning(f"Invalid {provider_name} API key: too short (length: {len(api_key)})")
             return False
-            
+        
+        # Skip pattern validation for now to be more permissive
+        # Most API key issues are due to overly strict regex patterns
         if pattern and not re.match(pattern, api_key):
-            logger.warning(f"Invalid {provider_name} API key format")
-            return False
-            
+            logger.warning(f"API key format warning for {provider_name} (pattern: {pattern})")
+            logger.warning(f"Key format: {api_key[:15]}... (length: {len(api_key)})")
+            # Return True anyway - let the provider initialization handle validity
+            logger.info(f"Proceeding with {provider_name} despite format warning")
+        
         return True
     
     def _initialize_providers(self):
@@ -466,23 +470,26 @@ class ProviderManager:
         
         # API key configurations: (env_var, provider_type, provider_class, validation_pattern)
         api_configs = [
-            ("OPENAI_KEY", ProviderType.OPENAI, OpenAIProvider, r'^sk-[a-zA-Z0-9-]{43,}$'),
-            ("CLAUDE_KEY", ProviderType.CLAUDE, ClaudeProvider, r'^sk-ant-[a-zA-Z0-9-]{95,}$'),
-            ("GEMINI_KEY", ProviderType.GEMINI, GeminiProvider, r'^[a-zA-Z0-9_-]{39}$'),
-            ("GROK_KEY", ProviderType.GROK, GrokProvider, r'^xai-[a-zA-Z0-9-]{40,}$')
+            ("OPENAI_KEY", ProviderType.OPENAI, OpenAIProvider, r'^sk-[a-zA-Z0-9]{20,}$'),  # More flexible OpenAI key format
+            ("CLAUDE_KEY", ProviderType.CLAUDE, ClaudeProvider, r'^sk-ant-[a-zA-Z0-9-]{50,}$'),  # More flexible Claude key
+            ("GEMINI_KEY", ProviderType.GEMINI, GeminiProvider, r'^[a-zA-Z0-9_-]{20,}$'),  # More flexible Gemini key
+            ("GROK_KEY", ProviderType.GROK, GrokProvider, r'^xai-[a-zA-Z0-9-]{20,}$')  # More flexible Grok key
         ]
         
         for env_key, provider_type, provider_class, pattern in api_configs:
             api_key = os.getenv(env_key)
             if api_key:
+                logger.info(f"Found {env_key} with length {len(api_key)}, prefix: {api_key[:10]}...")
                 if self._validate_api_key(api_key, provider_type.value, pattern):
                     try:
                         self.providers[provider_type] = provider_class(api_key)
-                        logger.info(f"Initialized {provider_type.value} provider")
+                        logger.info(f"✅ Successfully initialized {provider_type.value} provider")
                     except Exception as e:
-                        logger.error(f"Failed to initialize {provider_type.value}: {e}")
+                        logger.error(f"❌ Failed to initialize {provider_type.value}: {e}")
                 else:
-                    logger.warning(f"Skipping {provider_type.value} due to invalid API key")
+                    logger.warning(f"❌ Skipping {provider_type.value} due to invalid API key format")
+            else:
+                logger.debug(f"No {env_key} provided - {provider_type.value} provider disabled")
     
     def get_provider(self, provider_type: Optional[ProviderType] = None) -> BaseProvider:
         """Get specific provider or current provider"""
