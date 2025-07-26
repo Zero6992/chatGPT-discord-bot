@@ -53,20 +53,25 @@ def setup_logger(module_name:str) -> logging.Logger:
     logger.addHandler(console_handler)
 
     if os.getenv("LOGGING") == "True":  # Check if logging is enabled
-        # specify that the log file path is the same as `main.py` file path
-        grandparent_dir = os.path.abspath(f"{__file__}/../../")
+        # Use /tmp for Docker read-only filesystem compatibility
+        log_dir = "/tmp" if os.path.exists("/tmp") else os.path.abspath(f"{__file__}/../../")
         log_name = 'chatgpt_discord_bot.log'
-        log_path = os.path.join(grandparent_dir, log_name)
-        # create local log handler
-        log_handler = logging.handlers.RotatingFileHandler(
-            filename=log_path,
-            encoding='utf-8',
-            maxBytes=32 * 1024 * 1024,  # 32 MiB
-            backupCount=2,  # Rotate through 5 files
-        )
-        log_handler.setFormatter(CustomFormatter())
-        log_handler.setLevel(level)
-        logger.addHandler(log_handler)
+        log_path = os.path.join(log_dir, log_name)
+        
+        try:
+            # create local log handler
+            log_handler = logging.handlers.RotatingFileHandler(
+                filename=log_path,
+                encoding='utf-8',
+                maxBytes=32 * 1024 * 1024,  # 32 MiB
+                backupCount=2,  # Rotate through 2 files
+            )
+            log_handler.setFormatter(CustomFormatter())
+            log_handler.setLevel(level)
+            logger.addHandler(log_handler)
+        except (OSError, IOError) as e:
+            # If file logging fails (e.g., read-only filesystem), continue with console only
+            logger.warning(f"Could not create log file at {log_path}: {e}. Using console logging only.")
 
     return logger
 
