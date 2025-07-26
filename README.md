@@ -1,13 +1,18 @@
 # ChatGPT Discord Bot
 
-> ### Build your own Discord bot using ChatGPT
+> ### Build your own Discord bot with multiple AI providers
 
 ---
 > [!IMPORTANT]
 >
-> **Major Update (2024/03):**
-> - GPT-4 now supported for free
-> - Utilize OpenAI API can ensure smoother experiences, refer [Optional: Configuring OpenAI API](#optional-configuring-openai-api)
+> **Major Refactor (2025/01):**
+> - **5 AI Providers**: Free (g4f), OpenAI, Claude, Gemini, Grok
+> - **Dynamic Provider Switching**: Use `/provider` command to switch between providers
+> - **Enhanced Security**: Admin-only jailbreak personas with modern prompts
+> - **Improved Architecture**: Modular provider system with fallback support
+> - **Docker Security**: Hardened containers with non-root user and read-only filesystem
+> - **Comprehensive Testing**: Full test suite with pytest integration
+> - **No Cookie Authentication**: Removed unreliable cookie-based auth for free providers
 
 ### Chat
 
@@ -18,7 +23,7 @@
 * **Python 3.9 or later**
 * **Rename the file `.env.example` to `.env`**
 * Running `pip3 install -r requirements.txt` to install the required dependencies
-* Google Chrome for [Image Generation](https://github.com/Zero6992/chatGPT-discord-bot?tab=readme-ov-file#image-generation)
+* Optional: API keys for premium providers (OpenAI, Claude, Gemini, Grok)
 ---
 ## Step 1: Create a Discord bot
 
@@ -63,39 +68,55 @@
 ### Have a good chat!
 ---
 
-## Optional: Configuring OpenAI API
+## Provider Configuration
 
+### Free Provider (Always Available)
+The bot includes a free provider using g4f library with multiple fallback providers:
+- **Blackbox**: General-purpose AI chat
+- **Chatai**: GPT-3.5 and GPT-4 compatible models
+- **CohereForAI**: Command-R and Command-R Plus models
 
-1. Obtain your API key by visiting https://platform.openai.com/api-keys
-2. Paste the API key under `OPENAI_KEY` in `.env`
-3. Set `OPENAI_ENABLED` to `True` in `.env`
+No configuration required - works out of the box!
 
-> [!NOTE]
-> GPT-4 API is subject to certain restrictions.
->
-> Details https://help.openai.com/en/articles/7102672-how-can-i-access-gpt-4
+### Premium Providers (Optional)
+
+#### OpenAI
+1. Obtain your API key from https://platform.openai.com/api-keys
+2. Add to `.env`: `OPENAI_KEY=your_api_key_here`
+
+#### Claude (Anthropic)
+1. Get API key from https://console.anthropic.com/
+2. Add to `.env`: `CLAUDE_KEY=your_api_key_here`
+
+#### Gemini (Google)
+1. Get API key from https://ai.google.dev/
+2. Add to `.env`: `GEMINI_KEY=your_api_key_here`
+
+#### Grok (xAI)
+1. Get API key from https://x.ai/api
+2. Add to `.env`: `GROK_KEY=your_api_key_here`
+
+Use `/provider` command in Discord to switch between available providers!
 
 ## Image Generation
 
 <img src="https://i.imgur.com/Eo1ZzKk.png" width="300" alt="image">
 
-### Microsoft Bing Image Generation
-1. Go to https://www.bing.com/chat and log in
+Image generation is now integrated with the provider system:
 
-2. Open console with `F12`
+### OpenAI DALL-E 3
+- Requires OpenAI API key
+- High-quality image generation
+- Use `/draw [prompt] openai`
 
-3. Open `Application` tab > Cookies
+### Google Gemini
+- Requires Gemini API key  
+- Free tier available
+- Use `/draw [prompt] gemini`
 
-4. Copy the value for `_U` from cookies and paste it into `.env` under `BING_COOKIE`
-
-### Google Gemini Image Generation
-1. Go to https://gemini.google.com/app and log in
-
-2. Open console with `F12`
-
-3. Open `Application` tab > Cookies
-
-4. Copy the value for `__Secure-1PSID` from cookies and paste it into `.env` under `GOOGLE_PSID`
+### Fallback Options
+- If premium providers are unavailable, the bot will attempt to use free alternatives
+- Image generation capabilities vary by provider availability
 
 ## Optional: Setup system prompt
 
@@ -120,45 +141,83 @@
 ------
 ## Commands
 
-* `/chat [message]` Chat with ChatGPT/Gemini
-* `/draw [prompt]` Generate an image with Gemini/OpenAI/Bing
-* `/switchpersona [persona]` Switch between optional chatGPT jailbreaks
-   * `random`: Picks a random persona
-   * `standard`: Standard chatGPT mode
-   * `dan`: DAN 13.5 (Latest Working ChatGPT Jailbreak prompt)
-   * `Smart mode`: AIM (Always Intelligent and Machiavellian)
-   * `Developer Mode`: software developer who specializes in the AI's area
+### Core Commands
+* `/chat [message]` - Chat with the current AI provider
+* `/provider` - Switch between AI providers (Free, OpenAI, Claude, Gemini, Grok)
+* `/draw [prompt] [model]` - Generate images with specified provider
+* `/reset` - Clear conversation history
+* `/help` - Display all available commands
 
-* `/private` ChatGPT switch to private mode
-* `/public` ChatGPT switch to public mode
-* `/replyall` ChatGPT switch between replyAll mode and default mode
-* `/reset` Clear ChatGPT conversation history
-* `/chat-model` Switch different chat model
-   * `gpt-4`: GPT-4 model
-   * `Gemini`: Google Gemini Model
-### Special Features
+### Persona Commands
+* `/switchpersona [persona]` - Switch AI personality (admin-only for jailbreaks)
+   * `standard` - Standard helpful assistant
+   * `creative` - More creative and imaginative responses  
+   * `technical` - Technical and precise responses
+   * `casual` - Casual and friendly tone
+   * `jailbreak-v1` - BYPASS mode (admin only)
+   * `jailbreak-v2` - SAM mode (admin only)
+   * `jailbreak-v3` - Developer Mode Plus (admin only)
 
-#### Switch Persona
+### Bot Behavior
+* `/private` - Bot replies only visible to command user
+* `/public` - Bot replies visible to everyone (default)
+* `/replyall` - Bot responds to all messages in channel (toggle)
+## Security Features
+
+### Admin-Only Jailbreak Access
+Jailbreak personas require admin privileges for enhanced security:
+
+1. Set `ADMIN_USER_IDS` in `.env` with comma-separated Discord user IDs
+2. Only admin users can access jailbreak personas
+3. Regular users see only safe personas in `/switchpersona`
 
 > **Warning**
->
-> Certain personas may generate vulgar or disturbing content. Use at your own risk.
+> Jailbreak personas may generate content that bypasses normal AI safety measures. Admin access required.
 
-![image](https://user-images.githubusercontent.com/91911303/223772334-7aece61f-ead7-4119-bcd4-7274979c4702.png)
+### Environment Security
+- No cookie-based authentication (removed for reliability)
+- Secure API key management via environment variables
+- Docker security hardening with non-root user
+- Read-only filesystem for container security
 
 
-#### Mode
+## Testing
 
-* `public mode (default)`  the bot directly reply on the channel
+Run the comprehensive test suite:
 
-  ![image](https://user-images.githubusercontent.com/89479282/206565977-d7c5d405-fdb4-4202-bbdd-715b7c8e8415.gif)
+```bash
+# Run all tests
+pytest
 
-* `private mode` the bot's reply can only be seen by the person who used the command
+# Run specific test categories
+pytest -m unit          # Unit tests only
+pytest -m integration   # Integration tests only  
+pytest -m slow          # Slow tests only
 
-  ![image](https://user-images.githubusercontent.com/89479282/206565873-b181e600-e793-4a94-a978-47f806b986da.gif)
+# Run with coverage
+pytest --cov=src
 
-* `replyall mode` the bot will reply to all messages in the channel without using slash commands (`/chat` will also be unavailable)
+# Run specific test file
+pytest tests/test_providers.py
+```
 
-   > **Warning**
-   > The bot will easily be triggered in `replyall` mode, which could cause program failures
- ---
+## Architecture
+
+### Provider System
+- **BaseProvider**: Abstract base class defining provider interface
+- **Concrete Providers**: Free, OpenAI, Claude, Gemini, Grok implementations
+- **ProviderManager**: Handles dynamic switching and fallback logic
+- **Automatic Fallback**: Falls back to free provider if premium providers fail
+
+### Security Layers
+1. **Environment Variables**: Secure API key storage
+2. **Admin Controls**: Restricted access to sensitive features
+3. **Input Validation**: All commands validate user input
+4. **Docker Hardening**: Non-root user, read-only filesystem
+
+### Conversation Management
+- Configurable conversation length limits
+- Automatic history trimming to prevent memory issues
+- Persona persistence across conversation resets
+
+---
