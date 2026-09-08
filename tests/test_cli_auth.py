@@ -199,7 +199,9 @@ async def test_device_prompt_wrong_pipe_and_bounded_output():
 
 
 @pytest.mark.parametrize("termination", ["timeout", "cancel"])
-async def test_device_login_wait_cleans_actual_process_tree(tmp_path, termination):
+async def test_device_login_wait_cleans_actual_process_tree(
+    tmp_path, termination, assert_process_stopped
+):
     script = tmp_path / "native_login.py"
     pid_file = tmp_path / "child.pid"
     script.write_text(
@@ -229,10 +231,7 @@ async def test_device_login_wait_cleans_actual_process_tree(tmp_path, terminatio
     else:
         with pytest.raises(BotError, match="timed out"):
             await task
-    from pathlib import Path
-
-    status = Path(f"/proc/{pid_file.read_text()}/stat")
-    assert not status.exists() or status.read_text().split()[2] == "Z"
+    await assert_process_stopped(int(pid_file.read_text()))
 
 
 async def test_failed_relogin_rotates_and_disables_previous_profile(auth_settings):

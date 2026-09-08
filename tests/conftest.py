@@ -1,5 +1,7 @@
+import asyncio
 import os
 import socket
+from pathlib import Path
 
 import pytest
 
@@ -7,6 +9,29 @@ from src.config import Backend, Model, Settings
 from src.domain import Capability, Completion
 from src.service import ConversationService
 from src.storage import Store
+
+
+@pytest.fixture
+def assert_process_stopped():
+    if not Path("/proc/self/stat").is_file():
+        pytest.skip("Process-tree cleanup checks require Linux /proc")
+
+    async def check(pid: int, timeout: float = 1) -> None:
+        # SIGKILL delivery and parent wait() do not synchronously reap descendants.
+        # Require the actual child to stop within a deadline, including under CI load.
+        deadline = asyncio.get_running_loop().time() + timeout
+        status = Path(f"/proc/{pid}/stat")
+        while True:
+            try:
+                state = status.read_text().rsplit(")", 1)[1].split()[0]
+            except FileNotFoundError:
+                return
+            if state == "Z":
+                return
+            assert asyncio.get_running_loop().time() < deadline, "Child process is still running"
+            await asyncio.sleep(0.01)
+
+    return check
 
 
 @pytest.fixture(autouse=True)

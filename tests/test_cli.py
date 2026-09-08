@@ -147,7 +147,9 @@ async def test_minimal_environment_and_shell_metacharacters(tmp_path):
 
 
 @pytest.mark.parametrize("mode,expected", [("overflow", "output exceeded"), ("hang", "timed out")])
-async def test_output_bounds_timeouts_and_descendant_cleanup(tmp_path, mode, expected):
+async def test_output_bounds_timeouts_and_descendant_cleanup(
+    tmp_path, mode, expected, assert_process_stopped
+):
     pid_file = tmp_path / "child.pid"
     with pytest.raises(BotError, match=expected):
         await run_process(
@@ -157,11 +159,10 @@ async def test_output_bounds_timeouts_and_descendant_cleanup(tmp_path, mode, exp
             timeout=0.3,
         )
     if pid_file.exists():
-        stat = Path(f"/proc/{pid_file.read_text()}/stat")
-        assert not stat.exists() or stat.read_text().split()[2] == "Z"
+        await assert_process_stopped(int(pid_file.read_text()))
 
 
-async def test_cancel_reaps_children(tmp_path):
+async def test_cancel_reaps_children(tmp_path, assert_process_stopped):
     pid_file = tmp_path / "child.pid"
     task = asyncio.create_task(
         run_process(
@@ -176,8 +177,20 @@ async def test_cancel_reaps_children(tmp_path):
     task.cancel()
     with pytest.raises(asyncio.CancelledError):
         await task
-    stat = Path(f"/proc/{pid_file.read_text()}/stat")
-    assert not stat.exists() or stat.read_text().split()[2] == "Z"
+    await assert_process_stopped(int(pid_file.read_text()))
+
+
+async def test_process_cleanup_assertion_rejects_a_running_child(assert_process_stopped):
+    process = await asyncio.create_subprocess_exec(
+        sys.executable, "-c", "import time;time.sleep(60)"
+    )
+    try:
+        with pytest.raises(AssertionError, match="still running"):
+            await assert_process_stopped(process.pid, timeout=0.05)
+    finally:
+        process.kill()
+        await process.wait()
+    await assert_process_stopped(process.pid)
 
 
 @pytest.mark.parametrize(

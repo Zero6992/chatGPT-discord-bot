@@ -47,7 +47,7 @@ async def run_process(
     maximum: int = 2 * 1024 * 1024,
     observe: Callable[[str, bytes], Awaitable[None]] | None = None,
 ) -> ProcessResult:
-    """Bound both pipes while draining concurrently; reap the entire process group."""
+    """Bound both pipes, terminate the process group and reap its leader."""
     if os.name != "posix":
         raise BotError("CLI execution requires the supported Linux runtime.")
     process = None
