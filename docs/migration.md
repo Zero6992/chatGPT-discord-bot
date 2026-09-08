@@ -16,9 +16,10 @@ arbitrary “latest” native sessions to a user. The new database starts empty.
    Keep `DISCORD_BOT_TOKEN`. Convert API variables using the table below. Set the
    default model alias explicitly; the example uses a local server.
 3. Configure allowed/admin user IDs and channels in TOML. Use a real local model
-   ID or your official API's current ID. Copy useful `system_prompt.txt` text into
-   `bot.system_prompt`; it is now an instruction, not a paid startup conversation.
-   The original prompt file and untracked user files are not deleted.
+   ID or your official API's current ID. Copy any customized legacy
+   `system_prompt.txt` text into `bot.system_prompt`; it is now an instruction,
+   not a paid startup conversation. The unused placeholder is no longer shipped.
+   Preserve your own prompt files before upgrading; the new bot does not read them.
 4. Remove outdated settings from the active `.env`. Preserve any archive privately.
    Startup rejects obsolete settings instead of silently changing backend or
    billing behavior. Consumer-site cookies and shared free credentials cannot be

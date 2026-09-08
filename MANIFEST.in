@@ -6,6 +6,7 @@ graft runtime
 graft scripts
 graft tests
 exclude todo.md docs/attribution.md docs/verification.md .env config.toml config.local.toml config.*.local.toml
+exclude system_prompt.txt
 prune .local
 prune data
 global-exclude __pycache__ *.py[cod]
