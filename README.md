@@ -167,6 +167,12 @@ and the CLI and media limitations below before enabling a backend.
 | `/replyall enabled` | Administrator control for automatic channel replies |
 | `/help` | Show the command reference |
 
+`/models` and `/help` use embeds. The model catalog highlights your current chat
+alias and provides page buttons for larger configurations. Model menus show the
+alias, API or CLI backend, and model ID. Click the `model` field to choose an
+option; typing filters the suggestions. Media menus show only matching
+capabilities, including image editing or animation when an input image is attached.
+
 Personas include `standard`, `creative`, `technical` and `casual`. Restricted
 personas require an ID listed in `bot.admin_user_ids`.
 

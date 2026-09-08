@@ -11,6 +11,7 @@ from src.cli_accounts import DeviceChallenge
 from src.config import Settings
 from src.domain import BotError, Capability
 from src.storage import Scope
+from utils.command_ui import ModelPages, help_embed, model_choices, model_pages, visible_models
 from utils.message_utils import send_artifact, send_search_images, send_text
 
 
@@ -61,18 +62,14 @@ def create_bot(settings: Settings) -> DiscordClient:
     )
     async def models(interaction: discord.Interaction) -> None:
         scope = await begin(interaction)
-        lines = []
-        for model in settings.models.values():
-            if model.backend.owner_id and model.backend.owner_id != scope.user_id:
-                continue
-            capabilities = ", ".join(sorted(c.value for c in model.capabilities))
-            auth = (
-                "CLI account / plan usage"
-                if model.backend.auth == "account"
-                else ("API key" if model.backend.auth == "api" else "local/custom, no key")
-            )
-            lines.append(f"{model.name}: {model.model} ({capabilities}; {auth})")
-        await send_text(interaction, "\n".join(lines), private=scope.private)
+        conversation = await client.service.conversation(scope)
+        pages = model_pages(visible_models(settings, scope.user_id), conversation.model)
+        await interaction.followup.send(
+            embed=pages[0],
+            view=ModelPages(pages, scope.user_id) if len(pages) > 1 else discord.utils.MISSING,
+            ephemeral=scope.private,
+            allowed_mentions=discord.AllowedMentions.none(),
+        )
 
     @client.tree.command(
         name="provider", description="Show or change this conversation's configured chat model"
@@ -105,13 +102,7 @@ def create_bot(settings: Settings) -> DiscordClient:
     async def autocomplete(
         interaction: discord.Interaction, current: str
     ) -> list[app_commands.Choice[str]]:
-        return [
-            app_commands.Choice(name=name, value=name)
-            for name, model in settings.models.items()
-            if Capability.CHAT in model.capabilities
-            and current.lower() in name.lower()
-            and model.backend.owner_id in {0, interaction.user.id}
-        ][:25]
+        return model_choices(settings, interaction.user.id, Capability.CHAT, current)
 
     @client.tree.command(
         name="cli_auth", description="Owner: native CLI account login, status, logout or cancel"
@@ -170,6 +161,12 @@ def create_bot(settings: Settings) -> DiscordClient:
             await progress(
                 interaction, "Image search cancelled. Provider work may still be billed."
             )
+
+    @image_search.autocomplete("model")
+    async def search_models(
+        interaction: discord.Interaction, current: str
+    ) -> list[app_commands.Choice[str]]:
+        return model_choices(settings, interaction.user.id, Capability.IMAGE_SEARCH, current)
 
     async def generate(
         interaction: discord.Interaction,
@@ -231,6 +228,28 @@ def create_bot(settings: Settings) -> DiscordClient:
         image: discord.Attachment | None = None,
     ) -> None:
         await generate(interaction, prompt, model, image, True)
+
+    @draw.autocomplete("model")
+    async def image_models(
+        interaction: discord.Interaction, current: str
+    ) -> list[app_commands.Choice[str]]:
+        capability = (
+            Capability.IMAGE_TO_IMAGE
+            if getattr(interaction.namespace, "image", None) is not None
+            else Capability.TEXT_TO_IMAGE
+        )
+        return model_choices(settings, interaction.user.id, capability, current)
+
+    @video.autocomplete("model")
+    async def video_models(
+        interaction: discord.Interaction, current: str
+    ) -> list[app_commands.Choice[str]]:
+        capability = (
+            Capability.IMAGE_TO_VIDEO
+            if getattr(interaction.namespace, "image", None) is not None
+            else Capability.TEXT_TO_VIDEO
+        )
+        return model_choices(settings, interaction.user.id, capability, current)
 
     @client.tree.command(
         name="job", description="Retrieve an existing video job without resubmitting generation"
@@ -339,9 +358,11 @@ def create_bot(settings: Settings) -> DiscordClient:
 
     @client.tree.command(name="help", description="Show bot commands and conversation behavior")
     async def help_command(interaction: discord.Interaction) -> None:
+        await client.scope(interaction)
         await interaction.response.send_message(
-            "Use /chat, /models, /provider, /switchpersona, /private, /public, /reset or /delete. Images: /image_search with an explicit search alias. Media: /draw or /video with an explicit model alias, /job to retrieve a video, /cancel to stop waiting. Personal CLI login: /cli_auth (always private). Histories belong to you and this channel; private/public contexts are separate. /replyall is restricted to administrators and configured channels.",
+            embed=help_embed(),
             ephemeral=True,
+            allowed_mentions=discord.AllowedMentions.none(),
         )
 
     return client
