@@ -1,523 +1,212 @@
-import os
-import logging
-import re
-from typing import Dict, List, Optional, Any
-from abc import ABC, abstractmethod
-from dataclasses import dataclass
-from enum import Enum
-import asyncio
+"""Official REST translations and explicitly configured compatible chat servers."""
 
-import g4f
-from g4f.client import Client
-from g4f.Provider import RetryProvider
-from openai import AsyncOpenAI
-import google.generativeai as genai
-from anthropic import AsyncAnthropic
-import aiohttp
+import json
+from typing import Any
+from urllib.parse import quote
 
-logger = logging.getLogger(__name__)
+import httpx
+
+from src.config import Model
+from src.domain import BotError, Capability, Completion, Message, Session
 
 
-class ProviderType(Enum):
-    FREE = "free"
-    OPENAI = "openai"
-    CLAUDE = "claude"
-    GEMINI = "gemini"
-    GROK = "grok"
-
-
-@dataclass
-class ModelInfo:
-    name: str
-    provider: ProviderType
-    description: str = ""
-    supports_vision: bool = False
-    supports_image_generation: bool = False
-
-
-class BaseProvider(ABC):
-    """Base class for all AI providers"""
-    
-    def __init__(self, api_key: Optional[str] = None):
-        self.api_key = api_key
-        self.models: List[ModelInfo] = []
-        
-    @abstractmethod
-    async def chat_completion(self, messages: List[Dict[str, str]], model: str, **kwargs) -> str:
-        """Generate chat completion"""
-        pass
-    
-    @abstractmethod
-    async def generate_image(self, prompt: str, model: Optional[str] = None, **kwargs) -> str:
-        """Generate image from prompt"""
-        pass
-    
-    @abstractmethod
-    def get_available_models(self) -> List[ModelInfo]:
-        """Get list of available models"""
-        pass
-    
-    @abstractmethod
-    def supports_image_generation(self) -> bool:
-        """Check if provider supports image generation"""
-        pass
-
-
-class FreeProvider(BaseProvider):
-    """Provider for free models via g4f - COMPLETELY AUTH-FREE"""
-    
-    def __init__(self):
-        super().__init__()
-        
-        # ONLY use providers that work 100% without ANY authentication
-        # These have been tested and verified to work in 2025
-        self.working_providers = [
-            {
-                'provider': g4f.Provider.Blackbox,
-                'models': ['blackboxai'],
-                'name': 'Blackbox'
-            },
-            {
-                'provider': g4f.Provider.Chatai, 
-                'models': ['gpt-3.5-turbo', 'gpt-4'],
-                'name': 'Chatai'
-            },
-            {
-                'provider': g4f.Provider.CohereForAI_C4AI_Command,
-                'models': ['command-r-plus', 'command-r'],
-                'name': 'CohereForAI'
-            }
-        ]
-        
-        # Create provider list for RetryProvider
-        providers_list = [p['provider'] for p in self.working_providers]
-        
-        logger.info(f"FreeProvider initialized with {len(providers_list)} VERIFIED working providers")
-        for provider_info in self.working_providers:
-            logger.info(f"  ✅ {provider_info['name']}: {', '.join(provider_info['models'])}")
-        
-        # Initialize with RetryProvider for automatic fallback
-        self.client = Client(
-            provider=RetryProvider(providers_list, shuffle=False)
+class HTTPTransport:
+    def __init__(
+        self, model: Model, timeout: float = 120, *, client: httpx.AsyncClient | None = None
+    ):
+        self.model = model
+        self.client = client or httpx.AsyncClient(
+            timeout=httpx.Timeout(timeout, connect=10),
+            trust_env=False,
+            follow_redirects=False,
+            limits=httpx.Limits(max_connections=8, max_keepalive_connections=4),
         )
-        
-        # Track current provider for better error handling
-        self.current_provider_index = 0
-        
-    async def chat_completion(self, messages: List[Dict[str, str]], model: str, **kwargs) -> str:
-        """Generate chat completion with robust fallback system"""
-        
-        # Determine the best model to use
-        target_model = self._select_model(model)
-        
-        # Try each provider with intelligent model matching
-        for attempt in range(len(self.working_providers)):
-            provider_info = self.working_providers[attempt]
-            
-            try:
-                # Select best model for this provider
-                provider_model = self._get_provider_model(provider_info, target_model)
-                
-                logger.info(f"Attempting {provider_info['name']} with model {provider_model}")
-                
-                # Create client for specific provider (bypass RetryProvider for better control)
-                client = Client(provider=provider_info['provider'])
-                
-                response = await asyncio.to_thread(
-                    client.chat.completions.create,
-                    model=provider_model,
-                    messages=messages,
-                    timeout=30,  # Add timeout
-                    **kwargs
-                )
-                
-                if response and response.choices and response.choices[0].message.content:
-                    result = response.choices[0].message.content
-                    logger.info(f"✅ Success with {provider_info['name']} + {provider_model}")
-                    return result
-                else:
-                    logger.warning(f"Empty response from {provider_info['name']}")
-                    continue
-                    
-            except Exception as e:
-                error_msg = str(e)
-                logger.warning(f"❌ {provider_info['name']} failed: {error_msg[:100]}...")
-                
-                # Don't give up immediately on certain errors
-                if attempt < len(self.working_providers) - 1:
-                    continue
-        
-        # If all providers fail, raise a meaningful error
-        raise Exception("All free providers failed. The service may be temporarily unavailable.")
-    
-    def _select_model(self, model: Optional[str]) -> str:
-        """Select the best available model"""
-        if not model or model == "auto":
-            # Default to a widely supported model
-            return "gpt-3.5-turbo"
-        return model
-    
-    def _get_provider_model(self, provider_info: dict, target_model: str) -> str:
-        """Get the best model for a specific provider"""
-        supported_models = provider_info['models']
-        
-        # Try exact match first
-        if target_model in supported_models:
-            return target_model
-        
-        # Smart fallback based on model type
-        if 'gpt' in target_model.lower():
-            for model in supported_models:
-                if 'gpt' in model.lower():
-                    return model
-        
-        if 'claude' in target_model.lower():
-            for model in supported_models:
-                if 'command' in model.lower():  # Cohere is Claude-like
-                    return model
-        
-        if 'llama' in target_model.lower() or 'meta' in target_model.lower():
-            # No llama support in current working providers
-            return supported_models[0]
-        
-        # Default to first available model
-        return supported_models[0]
-    
-    async def generate_image(self, prompt: str, model: Optional[str] = None, **kwargs) -> str:
-        """Generate image - simplified implementation"""
+
+    def headers(self) -> dict[str, str]:
+        backend = self.model.backend
+        key = backend.key()
+        if backend.kind == "anthropic":
+            return {"x-api-key": key, "anthropic-version": "2023-06-01"}
+        if backend.kind == "gemini":
+            return {"x-goog-api-key": key}
+        return {"Authorization": f"Bearer {key}"} if key else {}
+
+    async def request(self, method: str, path: str, **kwargs: Any) -> dict[str, Any]:
+        url = self.model.backend.base_url + "/" + path.lstrip("/")
         try:
-            # For now, use simple fallback message since image providers are less reliable
-            # Could be enhanced later with working image providers like PollinationsAI
-            logger.warning("Image generation via free providers is currently disabled for reliability")
-            raise NotImplementedError("Image generation is temporarily unavailable via free providers. Please use a paid provider.")
-        except Exception as e:
-            logger.error(f"Free provider image generation error: {e}")
+            async with self.client.stream(
+                method, url, headers=self.headers(), **kwargs
+            ) as response:
+                if response.status_code == 429 and self.model.backend.kind == "openai":
+                    await self.openai_limit_error(response)
+                self.check_status(response.status_code)
+                content = bytearray()
+                async for chunk in response.aiter_bytes():
+                    content.extend(chunk)
+                    if len(content) > 40 * 1024 * 1024:
+                        raise BotError("Provider response exceeded the size limit.")
+            result = json.loads(content)
+            if not isinstance(result, dict):
+                raise ValueError("expected object")
+            return result
+        except BotError:
             raise
-    
-    def get_available_models(self) -> List[ModelInfo]:
-        """Return only VERIFIED working models - no dead models!"""
-        models = [
-            # VERIFIED WORKING models from tested providers
-            ModelInfo("blackboxai", ProviderType.FREE, "Blackbox AI - reliable free model"),
-            ModelInfo("gpt-3.5-turbo", ProviderType.FREE, "GPT-3.5 via Chatai - tested working"),
-            ModelInfo("gpt-4", ProviderType.FREE, "GPT-4 via Chatai - tested working"),
-            ModelInfo("command-r-plus", ProviderType.FREE, "Cohere Command R+ - tested working"),
-            ModelInfo("command-r", ProviderType.FREE, "Cohere Command R - tested working"),
-        ]
-        
-        # Note: Removed all dead models like gpt-4o-mini, llama-3.1-70b, claude-3-haiku
-        # These were causing failures. Only include models that actually work.
-        
-        return models
-    
-    def supports_image_generation(self) -> bool:
-        return False  # Disabled for reliability - only working text providers included
+        except httpx.TimeoutException:
+            raise BotError(
+                "Provider timed out; the request may have been billed. No automatic retry was made."
+            ) from None
+        except httpx.HTTPError:
+            raise BotError("Provider connection failed; no automatic retry was made.") from None
+        except (ValueError, UnicodeError):
+            raise BotError("Provider returned malformed data.") from None
 
-
-class OpenAIProvider(BaseProvider):
-    """Official OpenAI API provider"""
-    
-    def __init__(self, api_key: str):
-        super().__init__(api_key)
-        self.client = AsyncOpenAI(api_key=api_key)
-        
-    async def chat_completion(self, messages: List[Dict[str, str]], model: str, **kwargs) -> str:
+    @staticmethod
+    async def openai_limit_error(response: httpx.Response) -> None:
+        """Classify bounded error codes without exposing the provider's diagnostic text."""
+        content = bytearray()
+        async for chunk in response.aiter_bytes():
+            content.extend(chunk)
+            if len(content) > 16384:
+                return  # The caller still raises the generic 429 error.
         try:
-            if not model:
-                model = "gpt-4o-mini"
-                
-            response = await self.client.chat.completions.create(
-                model=model,
-                messages=messages,
-                **kwargs
+            code = json.loads(content)["error"]["code"]
+        except (ValueError, KeyError, TypeError, UnicodeError):
+            return
+        messages = {
+            "billing_not_active": "OpenAI API billing is not active. The administrator must activate API billing before retrying.",
+            "credit_balance_exhausted": "OpenAI API prepaid credits are exhausted. Check API billing before retrying.",
+            "organization_spend_limit_exceeded": "OpenAI API organization spend limit reached. Check organization limits before retrying.",
+            "project_spend_limit_exceeded": "OpenAI API project spend limit reached. Check project limits before retrying.",
+            "organization_usage_limit_exceeded": "OpenAI API organization usage limit reached. Check approved usage limits before retrying.",
+            "insufficient_quota": "OpenAI API quota is unavailable. Check API billing and account limits before retrying.",
+        }
+        if isinstance(code, str) and code in messages:
+            raise BotError(messages[code])
+
+    @staticmethod
+    def check_status(status: int) -> None:
+        if status in {401, 403}:
+            raise BotError("Provider authentication or access failed; contact the administrator.")
+        if status == 429:
+            raise BotError(
+                "Provider quota or rate limit reached; check account billing and limits."
             )
-            return response.choices[0].message.content
-        except Exception as e:
-            logger.error(f"OpenAI provider error: {e}")
-            raise
-    
-    async def generate_image(self, prompt: str, model: Optional[str] = None, **kwargs) -> str:
+        if not 200 <= status < 300:
+            raise BotError("Provider rejected or failed the request; no automatic retry was made.")
+
+    async def close(self) -> None:
+        await self.client.aclose()
+
+
+def text_result(value: Any) -> str:
+    if not isinstance(value, str) or not value.strip():
+        raise BotError("Provider returned no text; it may have refused the request.")
+    if len(value.encode()) > 128000:
+        raise BotError("Provider text exceeded the response limit.")
+    return value
+
+
+class APIProvider:
+    def __init__(self, model: Model, http: HTTPTransport | None = None):
+        self.model = model
+        self.http = http or HTTPTransport(model)
+
+    async def complete(
+        self,
+        messages: list[Message],
+        session: Session | None = None,
+        *,
+        conversation_id: str = "",
+    ) -> Completion:
+        self.model.require(Capability.CHAT)
+        kind = self.model.backend.kind
+        params = self.model.parameters
+        history = [{"role": m.role, "content": m.content} for m in messages]
+        system = "\n\n".join(m.content for m in messages if m.role == "system")
+        turns = [m for m in history if m["role"] != "system"]
+        payload: dict[str, Any] = {"model": self.model.model}
         try:
-            response = await self.client.images.generate(
-                model=model or "dall-e-3",
-                prompt=prompt,
-                size=kwargs.get("size", "1024x1024"),
-                quality=kwargs.get("quality", "standard"),
-                n=1
-            )
-            return response.data[0].url
-        except Exception as e:
-            logger.error(f"OpenAI image generation error: {e}")
-            raise
-    
-    def get_available_models(self) -> List[ModelInfo]:
-        return [
-            ModelInfo("gpt-4o", ProviderType.OPENAI, "Most capable GPT-4 model", supports_vision=True),
-            ModelInfo("gpt-4o-mini", ProviderType.OPENAI, "Affordable GPT-4 model", supports_vision=True),
-            ModelInfo("o1", ProviderType.OPENAI, "Reasoning model"),
-            ModelInfo("o1-mini", ProviderType.OPENAI, "Smaller reasoning model"),
-            ModelInfo("dall-e-3", ProviderType.OPENAI, "DALL-E 3 image generation", supports_image_generation=True),
-            ModelInfo("dall-e-2", ProviderType.OPENAI, "DALL-E 2 image generation", supports_image_generation=True),
-        ]
-    
-    def supports_image_generation(self) -> bool:
-        return True
-
-
-class ClaudeProvider(BaseProvider):
-    """Official Anthropic Claude API provider"""
-    
-    def __init__(self, api_key: str):
-        super().__init__(api_key)
-        self.client = AsyncAnthropic(api_key=api_key)
-        
-    async def chat_completion(self, messages: List[Dict[str, str]], model: str, **kwargs) -> str:
-        try:
-            if not model:
-                model = "claude-3-5-haiku-latest"
-            
-            # Convert messages format for Claude
-            system_message = None
-            claude_messages = []
-            
-            for msg in messages:
-                if msg["role"] == "system":
-                    system_message = msg["content"]
-                else:
-                    claude_messages.append({
-                        "role": msg["role"],
-                        "content": msg["content"]
-                    })
-            
-            response = await self.client.messages.create(
-                model=model,
-                messages=claude_messages,
-                system=system_message,
-                max_tokens=kwargs.get("max_tokens", 4096)
-            )
-            
-            return response.content[0].text
-        except Exception as e:
-            logger.error(f"Claude provider error: {e}")
-            raise
-    
-    async def generate_image(self, prompt: str, model: Optional[str] = None, **kwargs) -> str:
-        raise NotImplementedError("Claude does not support image generation")
-    
-    def get_available_models(self) -> List[ModelInfo]:
-        return [
-            ModelInfo("claude-3-5-sonnet-latest", ProviderType.CLAUDE, "Most capable Claude model"),
-            ModelInfo("claude-3-5-haiku-latest", ProviderType.CLAUDE, "Fast and affordable"),
-            ModelInfo("claude-3-opus-latest", ProviderType.CLAUDE, "Previous flagship model"),
-        ]
-    
-    def supports_image_generation(self) -> bool:
-        return False
-
-
-class GeminiProvider(BaseProvider):
-    """Official Google Gemini API provider"""
-    
-    def __init__(self, api_key: str):
-        super().__init__(api_key)
-        genai.configure(api_key=api_key)
-        
-    async def chat_completion(self, messages: List[Dict[str, str]], model: str, **kwargs) -> str:
-        try:
-            if not model:
-                model = "gemini-2.0-flash-exp"
-            
-            # Initialize model
-            gemini_model = genai.GenerativeModel(model)
-            
-            # Convert messages to Gemini format
-            chat = gemini_model.start_chat(history=[])
-            
-            # Process messages
-            for msg in messages:
-                if msg["role"] == "user":
-                    response = await asyncio.to_thread(
-                        chat.send_message,
-                        msg["content"]
+            if kind in {"openai", "xai"}:
+                payload.update(input=history, store=False)
+                if "max_output_tokens" in params:
+                    payload["max_output_tokens"] = params["max_output_tokens"]
+                if "reasoning_effort" in params:
+                    payload["reasoning"] = {"effort": params["reasoning_effort"]}
+                result = await self.http.request("POST", "responses", json=payload)
+                if result.get("status") != "completed":
+                    raise BotError(
+                        "Provider did not complete the response; history was not changed."
                     )
-                elif msg["role"] == "assistant":
-                    # Add assistant messages to history
-                    chat.history.append({
-                        "role": "model",
-                        "parts": [msg["content"]]
-                    })
-            
-            return response.text
-        except Exception as e:
-            logger.error(f"Gemini provider error: {e}")
-            raise
-    
-    async def generate_image(self, prompt: str, model: Optional[str] = None, **kwargs) -> str:
-        try:
-            # Use Imagen via Gemini
-            model_name = model or "imagen-3.0-generate-001"
-            imagen = genai.ImageGenerationModel(model_name)
-            
-            response = await asyncio.to_thread(
-                imagen.generate_images,
-                prompt=prompt,
-                number_of_images=1,
-                aspect_ratio=kwargs.get("aspect_ratio", "1:1")
-            )
-            
-            # Save image and return URL or base64
-            return response.images[0]._image_bytes
-        except Exception as e:
-            logger.error(f"Gemini image generation error: {e}")
-            raise
-    
-    def get_available_models(self) -> List[ModelInfo]:
-        return [
-            ModelInfo("gemini-2.0-flash-exp", ProviderType.GEMINI, "Latest experimental model", supports_vision=True),
-            ModelInfo("gemini-1.5-pro", ProviderType.GEMINI, "Advanced reasoning", supports_vision=True),
-            ModelInfo("gemini-1.5-flash", ProviderType.GEMINI, "Fast multimodal", supports_vision=True),
-            ModelInfo("imagen-3.0-generate-001", ProviderType.GEMINI, "Image generation", supports_image_generation=True),
-        ]
-    
-    def supports_image_generation(self) -> bool:
-        return True
-
-
-class GrokProvider(BaseProvider):
-    """xAI Grok API provider"""
-    
-    def __init__(self, api_key: str):
-        super().__init__(api_key)
-        self.api_key = api_key
-        self.base_url = "https://api.x.ai/v1"
-        
-    async def chat_completion(self, messages: List[Dict[str, str]], model: str, **kwargs) -> str:
-        try:
-            if not model:
-                model = "grok-2-latest"
-            
-            headers = {
-                "Authorization": f"Bearer {self.api_key}",
-                "Content-Type": "application/json"
-            }
-            
-            data = {
-                "model": model,
-                "messages": messages,
-                "temperature": kwargs.get("temperature", 0.7),
-                "max_tokens": kwargs.get("max_tokens", 4096)
-            }
-            
-            async with aiohttp.ClientSession() as session:
-                async with session.post(
-                    f"{self.base_url}/chat/completions",
-                    headers=headers,
-                    json=data
-                ) as response:
-                    result = await response.json()
-                    
-                    if response.status != 200:
-                        raise Exception(f"Grok API error: {result}")
-                    
-                    return result["choices"][0]["message"]["content"]
-                    
-        except Exception as e:
-            logger.error(f"Grok provider error: {e}")
-            raise
-    
-    async def generate_image(self, prompt: str, model: Optional[str] = None, **kwargs) -> str:
-        raise NotImplementedError("Grok does not support image generation yet")
-    
-    def get_available_models(self) -> List[ModelInfo]:
-        return [
-            ModelInfo("grok-2-latest", ProviderType.GROK, "Latest Grok-2 model"),
-            ModelInfo("grok-2-mini", ProviderType.GROK, "Smaller, faster Grok model"),
-        ]
-    
-    def supports_image_generation(self) -> bool:
-        return False
-
-
-class ProviderManager:
-    """Manages all AI providers"""
-    
-    def __init__(self):
-        self.providers: Dict[ProviderType, BaseProvider] = {}
-        self.current_provider = ProviderType.FREE
-        self._initialize_providers()
-        
-    def _validate_api_key(self, api_key: str, provider_name: str, pattern: Optional[str] = None) -> bool:
-        """Validate API key format"""
-        if not api_key or len(api_key) < 10:
-            logger.warning(f"Invalid {provider_name} API key: too short (length: {len(api_key)})")
-            return False
-        
-        # Skip pattern validation for now to be more permissive
-        # Most API key issues are due to overly strict regex patterns
-        if pattern and not re.match(pattern, api_key):
-            logger.warning(f"API key format warning for {provider_name} (pattern: {pattern})")
-            logger.warning(f"Key format: {api_key[:15]}... (length: {len(api_key)})")
-            # Return True anyway - let the provider initialization handle validity
-            logger.info(f"Proceeding with {provider_name} despite format warning")
-        
-        return True
-    
-    def _initialize_providers(self):
-        """Initialize available providers based on API keys"""
-        # Always add free provider
-        self.providers[ProviderType.FREE] = FreeProvider()
-        logger.info("Initialized free provider")
-        
-        # API key configurations: (env_var, provider_type, provider_class, validation_pattern)
-        api_configs = [
-            ("OPENAI_KEY", ProviderType.OPENAI, OpenAIProvider, r'^sk-[a-zA-Z0-9]{20,}$'),  # More flexible OpenAI key format
-            ("CLAUDE_KEY", ProviderType.CLAUDE, ClaudeProvider, r'^sk-ant-[a-zA-Z0-9-]{50,}$'),  # More flexible Claude key
-            ("GEMINI_KEY", ProviderType.GEMINI, GeminiProvider, r'^[a-zA-Z0-9_-]{20,}$'),  # More flexible Gemini key
-            ("GROK_KEY", ProviderType.GROK, GrokProvider, r'^xai-[a-zA-Z0-9-]{20,}$')  # More flexible Grok key
-        ]
-        
-        for env_key, provider_type, provider_class, pattern in api_configs:
-            api_key = os.getenv(env_key)
-            if api_key:
-                logger.info(f"Found {env_key} with length {len(api_key)}, prefix: {api_key[:10]}...")
-                if self._validate_api_key(api_key, provider_type.value, pattern):
-                    try:
-                        self.providers[provider_type] = provider_class(api_key)
-                        logger.info(f"✅ Successfully initialized {provider_type.value} provider")
-                    except Exception as e:
-                        logger.error(f"❌ Failed to initialize {provider_type.value}: {e}")
-                else:
-                    logger.warning(f"❌ Skipping {provider_type.value} due to invalid API key format")
+                text = "\n".join(
+                    part["text"]
+                    for item in result["output"]
+                    if item.get("type") == "message"
+                    for part in item["content"]
+                    if part.get("type") == "output_text"
+                )
+            elif kind == "anthropic":
+                payload.update(messages=turns, max_tokens=params.get("max_output_tokens", 1024))
+                if system:
+                    payload["system"] = system
+                result = await self.http.request("POST", "messages", json=payload)
+                if result.get("stop_reason") not in {"end_turn", "stop_sequence"}:
+                    raise BotError(
+                        "Provider response was incomplete; increase the output budget if needed."
+                    )
+                text = "\n".join(p["text"] for p in result["content"] if p.get("type") == "text")
+            elif kind == "gemini":
+                payload = {
+                    "contents": [
+                        {
+                            "role": "model" if m["role"] == "assistant" else "user",
+                            "parts": [{"text": m["content"]}],
+                        }
+                        for m in turns
+                    ]
+                }
+                if system:
+                    payload["systemInstruction"] = {"parts": [{"text": system}]}
+                fields = {
+                    "max_output_tokens": "maxOutputTokens",
+                    "temperature": "temperature",
+                    "top_p": "topP",
+                }
+                if params:
+                    payload["generationConfig"] = {fields[k]: v for k, v in params.items()}
+                result = await self.http.request(
+                    "POST",
+                    f"models/{quote(self.model.model, safe='')}:generateContent",
+                    json=payload,
+                )
+                candidate = result["candidates"][0]
+                if candidate.get("finishReason") != "STOP":
+                    raise BotError(
+                        "Provider did not finish a text response; history was not changed."
+                    )
+                text = "\n".join(
+                    p["text"]
+                    for p in candidate["content"]["parts"]
+                    if "text" in p and not p.get("thought")
+                )
+            elif kind in {"deepseek", "compatible"}:
+                payload.update(messages=history, stream=False)
+                for key, value in params.items():
+                    if key == "thinking":
+                        payload["thinking"] = {"type": value}
+                    else:
+                        payload["max_tokens" if key == "max_output_tokens" else key] = value
+                result = await self.http.request("POST", "chat/completions", json=payload)
+                choice = result["choices"][0]
+                if choice.get("finish_reason") != "stop":
+                    raise BotError(
+                        "Provider response was incomplete or requested unsupported tools."
+                    )
+                text = choice["message"]["content"]
             else:
-                logger.debug(f"No {env_key} provided - {provider_type.value} provider disabled")
-    
-    def get_provider(self, provider_type: Optional[ProviderType] = None) -> BaseProvider:
-        """Get specific provider or current provider"""
-        if provider_type:
-            if provider_type not in self.providers:
-                raise ValueError(f"Provider {provider_type.value} not available")
-            return self.providers[provider_type]
-        return self.providers[self.current_provider]
-    
-    def set_current_provider(self, provider_type: ProviderType):
-        """Set current provider"""
-        if provider_type not in self.providers:
-            raise ValueError(f"Provider {provider_type.value} not available")
-        self.current_provider = provider_type
-    
-    def get_available_providers(self) -> List[ProviderType]:
-        """Get list of available providers"""
-        return list(self.providers.keys())
-    
-    def get_all_models(self) -> Dict[ProviderType, List[ModelInfo]]:
-        """Get all models from all providers"""
-        result = {}
-        for provider_type, provider in self.providers.items():
-            result[provider_type] = provider.get_available_models()
-        return result
-    
-    def get_provider_models(self, provider_type: ProviderType) -> List[ModelInfo]:
-        """Get models for specific provider"""
-        if provider_type not in self.providers:
-            return []
-        return self.providers[provider_type].get_available_models()
+                raise BotError("This backend cannot use the HTTP chat adapter.")
+            return Completion(text_result(text))
+        except (KeyError, IndexError, TypeError, AttributeError):
+            raise BotError("Provider returned an unexpected response structure.") from None
+
+    async def close(self) -> None:
+        await self.http.close()

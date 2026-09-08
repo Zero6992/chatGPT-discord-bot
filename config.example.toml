@@ -1,0 +1,116 @@
+# Copy to config.toml. Only administrators edit this file.
+# This example starts with a local server; it never selects a paid fallback.
+[bot]
+default_model = "local"
+database = "data/conversations.sqlite3"
+context_bytes = 24000
+max_turns = 100
+retention_days = 30
+max_conversations = 10000
+max_jobs = 1000
+concurrency = 4
+max_pending = 32
+request_timeout = 180
+media_timeout = 600
+poll_interval = 10
+attachment_bytes = 8388608
+input_chars = 4000
+reply_channels = []
+allowed_user_ids = []
+admin_user_ids = []
+system_prompt = "You are a helpful assistant."
+
+[backends.local]
+kind = "compatible"
+base_url = "http://127.0.0.1:11434/v1"
+auth = "none"
+account = "local-server"
+
+[models.local]
+backend = "local"
+model = "your-installed-model"
+capabilities = ["chat"]
+parameters = { max_output_tokens = 2048 }
+
+[backends.openai]
+kind = "openai"
+api_key_env = "OPENAI_API_KEY"
+account = "openai-project-1"
+
+[models.openai]
+backend = "openai"
+model = "gpt-5.6-terra"
+capabilities = ["chat"]
+parameters = { max_output_tokens = 4096 }
+
+[models.image]
+backend = "openai"
+model = "gpt-image-2"
+capabilities = ["text-to-image", "image-to-image"]
+parameters = { size = "1024x1024", quality = "low" }
+
+[backends.anthropic]
+kind = "anthropic"
+api_key_env = "ANTHROPIC_API_KEY"
+account = "anthropic-workspace-1"
+
+[models.claude]
+backend = "anthropic"
+model = "claude-sonnet-5"
+capabilities = ["chat"]
+parameters = { max_output_tokens = 4096 }
+
+[backends.gemini]
+kind = "gemini"
+api_key_env = "GEMINI_API_KEY"
+account = "google-project-1"
+
+[models.gemini]
+backend = "gemini"
+model = "gemini-3.5-flash"
+capabilities = ["chat"]
+parameters = { max_output_tokens = 4096 }
+
+[models.video]
+backend = "gemini"
+model = "veo-3.1-generate-preview"
+capabilities = ["text-to-video", "image-to-video"]
+parameters = { duration_seconds = 8, aspect_ratio = "16:9" }
+
+[backends.xai]
+kind = "xai"
+api_key_env = "XAI_API_KEY"
+account = "xai-team-1"
+
+[models.grok]
+backend = "xai"
+model = "grok-4.6"
+capabilities = ["chat"]
+parameters = { max_output_tokens = 4096 }
+
+[models.xai_video]
+backend = "xai"
+model = "grok-imagine-video"
+capabilities = ["text-to-video"]
+parameters = { duration_seconds = 1, resolution = "480p", aspect_ratio = "16:9" }
+
+[models.image_search]
+backend = "xai"
+model = "grok-4.6"
+capabilities = ["image-search"]
+parameters = { max_turns = 2, max_output_tokens = 2048 }
+
+[backends.deepseek]
+kind = "deepseek"
+api_key_env = "DEEPSEEK_API_KEY"
+account = "deepseek-account-1"
+
+[models.deepseek]
+backend = "deepseek"
+model = "deepseek-v4-flash"
+capabilities = ["chat"]
+parameters = { max_output_tokens = 4096, thinking = "disabled" }
+
+# See docs/cli.md for isolated CLI provisioning. CLI backends are absent/disabled
+# by default. See config.account.example.toml for native account/subscription
+# login on a personal bot. CLI media remains unsupported.

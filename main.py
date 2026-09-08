@@ -1,55 +1,33 @@
 #!/usr/bin/env python3
+"""Application entry point; configuration is loaded before client construction."""
+
 import os
+from pathlib import Path
+
 from dotenv import load_dotenv
+
 from src.bot import run_discord_bot
+from src.config import load_settings
+from src.domain import BotError
 from src.log import logger
 
-load_dotenv()
 
-def validate_environment():
-    """Validate required environment variables"""
-    required_vars = ["DISCORD_BOT_TOKEN"]
-    missing_vars = []
-    
-    for var in required_vars:
-        if not os.getenv(var):
-            missing_vars.append(var)
-    
-    if missing_vars:
-        logger.error(f"Missing required environment variables: {', '.join(missing_vars)}")
-        logger.error("Please check your .env file")
-        return False
-    
-    providers = []
-    if os.getenv("OPENAI_KEY"):
-        providers.append("OpenAI")
-    if os.getenv("CLAUDE_KEY"):
-        providers.append("Claude")
-    if os.getenv("GEMINI_KEY"):
-        providers.append("Gemini")
-    if os.getenv("GROK_KEY"):
-        providers.append("Grok")
-    
-    providers.append("Free (always available)")
-    
-    logger.info(f"Available providers: {', '.join(providers)}")
-    
-    return True
-
-def main():
-    """Main entry point"""
-    logger.info("Starting Discord AI Bot...")
-    
-    if not validate_environment():
-        return
-    
-    logger.info("Free provider configured - no authentication required")
-    
+def main() -> None:
+    load_dotenv()
+    os.umask(0o077)
     try:
-        run_discord_bot()
-    except Exception as e:
-        logger.error(f"Bot crashed: {e}")
-        raise
+        settings = load_settings(Path(os.environ.get("BOT_CONFIG", "config.toml")))
+        token = os.environ.get("DISCORD_BOT_TOKEN", "")
+        if not token:
+            raise BotError("DISCORD_BOT_TOKEN is required.")
+        run_discord_bot(settings, token)
+    except BotError as error:
+        logger.error("%s", error)
+        raise SystemExit(1) from None
+    except Exception:
+        logger.error("Bot stopped unexpectedly. Check runtime configuration and permissions.")
+        raise SystemExit(1) from None
+
 
 if __name__ == "__main__":
     main()

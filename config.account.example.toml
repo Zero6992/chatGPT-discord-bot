@@ -1,0 +1,60 @@
+# PERSONAL bot only. Replace every owner/user ID, image digest, and socket UID.
+# Native login: local cli-auth for all three; Discord /cli_auth for Codex/Grok.
+# No API keys, OAuth tokens, or existing host credential paths belong in this file.
+[bot]
+default_model = "codex_account"
+allowed_user_ids = [123456789]
+admin_user_ids = [123456789]
+database = "data/conversations.sqlite3"
+reply_channels = []
+
+[backends.codex_account]
+kind = "codex-cli"
+auth = "account"
+owner_id = 123456789
+account = "personal-codex"
+auth_profile = "data/cli-auth/codex"
+image = "sha256:REPLACE_WITH_64_HEX_DIGITS"
+cli_version = "0.153.4"
+docker_socket = "/run/user/1000/docker.sock"
+network = "bot-account-internal"
+proxy_url = "http://egress:3128"
+
+[models.codex_account]
+backend = "codex_account"
+model = "gpt-5.6-terra"
+capabilities = ["chat"]
+
+[backends.claude_account]
+kind = "claude-cli"
+auth = "account"
+owner_id = 123456789
+account = "personal-claude"
+auth_profile = "data/cli-auth/claude"
+image = "sha256:REPLACE_WITH_64_HEX_DIGITS"
+cli_version = "2.1.263"
+docker_socket = "/run/user/1000/docker.sock"
+network = "bot-account-internal"
+proxy_url = "http://egress:3128"
+
+[models.claude_account]
+backend = "claude_account"
+model = "claude-sonnet-5"
+capabilities = ["chat"]
+
+[backends.grok_account]
+kind = "grok-cli"
+auth = "account"
+owner_id = 123456789
+account = "personal-grok"
+auth_profile = "data/cli-auth/grok"
+image = "sha256:REPLACE_WITH_64_HEX_DIGITS"
+cli_version = "1.0.13"
+docker_socket = "/run/user/1000/docker.sock"
+network = "bot-account-internal"
+proxy_url = "http://egress:3128"
+
+[models.grok_account]
+backend = "grok_account"
+model = "grok-4.6"
+capabilities = ["chat"]

@@ -1,364 +1,341 @@
-import os
+"""Thin Discord commands. Model aliases and visibility belong to the requester."""
+
 import asyncio
+from dataclasses import replace
+
 import discord
 from discord import app_commands
-from typing import Optional
 
-from src.aclient import discordClient
-from src.providers import ProviderType
-from src import log, personas
-from src.log import logger
+from src.aclient import DiscordClient
+from src.cli_accounts import DeviceChallenge
+from src.config import Settings
+from src.domain import BotError, Capability
+from src.storage import Scope
+from utils.message_utils import send_artifact, send_search_images, send_text
 
 
-def run_discord_bot():
-    @discordClient.event
-    async def on_ready():
-        await discordClient.send_start_prompt()
-        await discordClient.tree.sync()
-        loop = asyncio.get_event_loop()
-        loop.create_task(discordClient.process_messages())
-        logger.info(f'{discordClient.user} is now running!')
+def create_bot(settings: Settings) -> DiscordClient:
+    client = DiscordClient(settings)
 
-    @discordClient.tree.command(name="chat", description="Have a chat with AI")
-    async def chat(interaction: discord.Interaction, *, message: str):
-        # Input validation
-        if len(message) > 2000:
-            await interaction.response.send_message(
-                "❌ Message too long (max 2000 characters)", 
-                ephemeral=True
-            )
-            return
-        
-        # Sanitize input
-        message = message.replace('\x00', '')  # Remove null bytes
-        message = message.strip()
-        
-        if not message:
-            await interaction.response.send_message(
-                "❌ Please provide a message", 
-                ephemeral=True
-            )
-            return
-        
-        if discordClient.is_replying_all:
-            await interaction.response.defer(ephemeral=False)
-            await interaction.followup.send(
-                "> **WARN: You already on replyAll mode. If you want to use the Slash Command, switch to normal mode by using `/replyall` again**")
-            logger.warning("\x1b[31mYou already on replyAll mode, can't use slash command!\x1b[0m")
-            return
-        if interaction.user == discordClient.user:
-            return
-        username = str(interaction.user)
-        discordClient.current_channel = interaction.channel
-        logger.info(
-            f"\x1b[31m{username}\x1b[0m : /chat [{message}] in ({discordClient.current_channel})")
+    async def begin(interaction: discord.Interaction) -> Scope:
+        scope = await client.scope(interaction)
+        await interaction.response.defer(ephemeral=scope.private, thinking=True)
+        return scope
 
-        await discordClient.enqueue_message(interaction, message)
-
-    @discordClient.tree.command(name="provider", description="Switch AI provider and model")
-    async def provider(interaction: discord.Interaction):
-        """Interactive provider and model selection"""
-        
-        # Create provider selection dropdown
-        class ProviderSelect(discord.ui.Select):
-            def __init__(self):
-                options = []
-                available_providers = discordClient.provider_manager.get_available_providers()
-                
-                for provider_type in available_providers:
-                    emoji_map = {
-                        ProviderType.FREE: "🆓",
-                        ProviderType.OPENAI: "🟢",
-                        ProviderType.CLAUDE: "🟣",
-                        ProviderType.GEMINI: "🔵",
-                        ProviderType.GROK: "⚫"
-                    }
-                    
-                    options.append(discord.SelectOption(
-                        label=provider_type.value.capitalize(),
-                        value=provider_type.value,
-                        emoji=emoji_map.get(provider_type, "🤖"),
-                        default=(provider_type == discordClient.provider_manager.current_provider)
-                    ))
-                
-                super().__init__(
-                    placeholder="Select a provider...",
-                    options=options,
-                    min_values=1,
-                    max_values=1
-                )
-            
-            async def callback(self, interaction: discord.Interaction):
-                selected_provider = ProviderType(self.values[0])
-                
-                # Get models for selected provider
-                provider = discordClient.provider_manager.get_provider(selected_provider)
-                models = provider.get_available_models()
-                
-                if not models:
-                    discordClient.switch_provider(selected_provider)
-                    await interaction.response.send_message(
-                        f"✅ Switched to **{selected_provider.value}** provider",
-                        ephemeral=True
-                    )
-                    return
-                
-                # Create model selection dropdown
-                class ModelSelect(discord.ui.Select):
-                    def __init__(self):
-                        options = [
-                            discord.SelectOption(
-                                label="Auto (Best Available)",
-                                value="auto",
-                                description="Let the provider choose the best model",
-                                emoji="🎯"
-                            )
-                        ]
-                        
-                        for model in models[:24]:  # Discord limit is 25 options
-                            desc = model.description[:100] if model.description else ""
-                            emoji = "🖼️" if model.supports_image_generation else "💬"
-                            
-                            options.append(discord.SelectOption(
-                                label=model.name,
-                                value=model.name,
-                                description=desc,
-                                emoji=emoji
-                            ))
-                        
-                        super().__init__(
-                            placeholder="Select a model...",
-                            options=options,
-                            min_values=1,
-                            max_values=1
-                        )
-                    
-                    async def callback(self, interaction: discord.Interaction):
-                        selected_model = self.values[0]
-                        discordClient.switch_provider(selected_provider, selected_model)
-                        
-                        await interaction.response.send_message(
-                            f"✅ Switched to **{selected_provider.value}** provider with **{selected_model}** model",
-                            ephemeral=True
-                        )
-                
-                model_view = discord.ui.View()
-                model_view.add_item(ModelSelect())
-                
-                await interaction.response.send_message(
-                    f"Select a model for **{selected_provider.value}** provider:",
-                    view=model_view,
-                    ephemeral=True
-                )
-        
-        # Create and send the provider selection view
-        provider_view = discord.ui.View()
-        provider_view.add_item(ProviderSelect())
-        
-        # Get current info
-        info = discordClient.get_current_provider_info()
-        
-        embed = discord.Embed(
-            title="🤖 AI Provider Settings",
-            description=f"**Current Provider:** {info['provider']}\n**Current Model:** {info['current_model']}",
-            color=discord.Color.blue()
-        )
-        
-        await interaction.response.send_message(
-            embed=embed,
-            view=provider_view,
-            ephemeral=True
+    async def progress(interaction: discord.Interaction, text: str) -> None:
+        await interaction.edit_original_response(
+            content=text, allowed_mentions=discord.AllowedMentions.none()
         )
 
-    @discordClient.tree.command(name="draw", description="Generate an image")
-    async def draw(interaction: discord.Interaction, *, prompt: str):
-        # Input validation
-        if len(prompt) > 500:
-            await interaction.response.send_message(
-                "❌ Prompt too long (max 500 characters)", 
-                ephemeral=True
+    @client.tree.error
+    async def error_handler(
+        interaction: discord.Interaction, error: app_commands.AppCommandError
+    ) -> None:
+        original = getattr(error, "original", error)
+        text = (
+            str(original)
+            if isinstance(original, BotError)
+            else "The request failed. Contact the administrator."
+        )
+        if interaction.response.is_done():
+            await interaction.edit_original_response(
+                content=text, allowed_mentions=discord.AllowedMentions.none()
             )
-            return
-        
-        prompt = prompt.strip()
-        if not prompt:
-            await interaction.response.send_message(
-                "❌ Please provide a prompt", 
-                ephemeral=True
-            )
-            return
-        
-        await interaction.response.defer()
-        
-        try:
-            # Generate image using current provider
-            image_url = await discordClient.generate_image(prompt)
-            
-            embed = discord.Embed(
-                title="🎨 Generated Image",
-                description=f"**Prompt:** {prompt}",
-                color=discord.Color.green()
-            )
-            embed.set_image(url=image_url)
-            
-            await interaction.followup.send(embed=embed)
-            
-        except Exception as e:
-            logger.error(f"Image generation error: {e}")
-            await interaction.followup.send(
-                f"❌ Failed to generate image: {str(e)}"
-            )
-
-    @discordClient.tree.command(name="switchpersona", description="Switch AI personality")
-    async def switchpersona(interaction: discord.Interaction, persona: str):
-        user_id = str(interaction.user.id)
-        
-        try:
-            available_personas = personas.get_available_personas(user_id)
-            
-            if persona not in available_personas:
-                await interaction.response.send_message(
-                    f"❌ Invalid persona. Available personas: {', '.join(available_personas)}",
-                    ephemeral=True
-                )
-                return
-            
-            # Check permissions for jailbreak personas
-            if personas.is_jailbreak_persona(persona):
-                try:
-                    personas.get_persona_prompt(persona, user_id)
-                except PermissionError:
-                    await interaction.response.send_message(
-                        f"❌ You don't have permission to use the '{persona}' persona. "
-                        f"This persona is restricted to administrators only.",
-                        ephemeral=True
-                    )
-                    return
-                
-                # Warn about jailbreak usage
-                await interaction.response.send_message(
-                    f"⚠️ **WARNING**: The '{persona}' persona is designed to bypass safety measures. "
-                    f"Use at your own risk and responsibility. This action has been logged.",
-                    ephemeral=False
-                )
-                logger.warning(f"User {user_id} activated jailbreak persona: {persona}")
-            else:
-                await interaction.response.defer(ephemeral=False)
-            
-            await discordClient.switch_persona(persona, user_id)
-            
-            message = f"🎭 Switched to **{persona}** persona"
-            if personas.is_jailbreak_persona(persona):
-                message += " (Jailbreak Mode Active - Admin Only)"
-            
-            if hasattr(interaction, 'followup'):
-                await interaction.followup.send(message)
-            else:
-                await interaction.channel.send(message)
-                
-        except Exception as e:
-            logger.error(f"Error switching persona: {e}")
-            await interaction.response.send_message(
-                f"❌ Failed to switch persona: {str(e)}",
-                ephemeral=True
-            )
-
-    @discordClient.tree.command(name="private", description="Toggle private access")
-    async def private(interaction: discord.Interaction):
-        await interaction.response.defer(ephemeral=False)
-        if not discordClient.isPrivate:
-            discordClient.isPrivate = not discordClient.isPrivate
-            logger.warning("\x1b[31mSwitch to private mode\x1b[0m")
-            await interaction.followup.send(
-                "> **INFO: Next, the response will be sent as ephemeral message and only visible to you.**")
         else:
-            discordClient.isPrivate = not discordClient.isPrivate
-            logger.info("Switch to public mode")
-            await interaction.followup.send(
-                "> **INFO: Next, the response will be sent as normal message and visible to everyone.**")
+            await interaction.response.send_message(
+                text, ephemeral=True, allowed_mentions=discord.AllowedMentions.none()
+            )
 
-    @discordClient.tree.command(name="replyall", description="Toggle replyAll access")
-    async def replyall(interaction: discord.Interaction):
-        await interaction.response.defer(ephemeral=False)
-        if discordClient.is_replying_all:
-            discordClient.is_replying_all = False
-            await interaction.followup.send("> **INFO: The bot will only respond to /chat commands.**")
-            logger.warning("\x1b[31mSwitch to normal mode\x1b[0m")
-        else:
-            discordClient.is_replying_all = True
-            await interaction.followup.send("> **INFO: The bot will respond to all messages in this channel.**")
-            logger.info("Switch to replyAll mode")
+    @client.tree.command(name="chat", description="Chat in your conversation in this channel")
+    async def chat(interaction: discord.Interaction, message: str) -> None:
+        scope = await begin(interaction)
+        try:
+            result = await client.service.chat(scope, message)
+            text = result.text + (f"\n\n{result.notice}" if result.notice else "")
+            await send_text(interaction, text, private=scope.private)
+        except asyncio.CancelledError:
+            await progress(interaction, "Request cancelled. Provider work may still be billed.")
 
-    @discordClient.tree.command(name="reset", description="Clear conversation history")
-    async def reset(interaction: discord.Interaction):
-        discordClient.reset_conversation_history()
-        await interaction.response.send_message(
-            "🔄 Conversation history has been cleared. Starting fresh!",
-            ephemeral=False
+    @client.tree.command(
+        name="models", description="List administrator-configured model aliases and capabilities"
+    )
+    async def models(interaction: discord.Interaction) -> None:
+        scope = await begin(interaction)
+        lines = []
+        for model in settings.models.values():
+            if model.backend.owner_id and model.backend.owner_id != scope.user_id:
+                continue
+            capabilities = ", ".join(sorted(c.value for c in model.capabilities))
+            auth = (
+                "CLI account / plan usage"
+                if model.backend.auth == "account"
+                else ("API key" if model.backend.auth == "api" else "local/custom, no key")
+            )
+            lines.append(f"{model.name}: {model.model} ({capabilities}; {auth})")
+        await send_text(interaction, "\n".join(lines), private=scope.private)
+
+    @client.tree.command(
+        name="provider", description="Switch this conversation to a configured chat model alias"
+    )
+    async def provider(interaction: discord.Interaction, model: str) -> None:
+        scope = await begin(interaction)
+        await client.service.switch(scope, model)
+        auth = (
+            "CLI account / plan usage"
+            if settings.models[model].backend.auth == "account"
+            else "configured API/local backend"
+        )
+        await send_text(
+            interaction,
+            f"Selected {model} ({auth}). Retained text history will be reconstructed for the next turn.",
+            private=scope.private,
         )
 
-    @discordClient.tree.command(name="help", description="Show all available commands")
-    async def help(interaction: discord.Interaction):
-        embed = discord.Embed(
-            title="🤖 AI Discord Bot - Help",
-            description="Here are all available commands:",
-            color=discord.Color.blue()
-        )
-        
-        commands = [
-            ("💬 **Chat Commands**", [
-                ("/chat [message]", "Chat with the AI"),
-                ("/reset", "Clear conversation history"),
-                ("/replyall", "Toggle bot responding to all messages")
-            ]),
-            ("🤖 **Provider & Model**", [
-                ("/provider", "Switch AI provider and model interactively")
-            ]),
-            ("🎨 **Image Generation**", [
-                ("/draw [prompt]", "Generate an image from text")
-            ]),
-            ("🎭 **Personas**", [
-                ("/switchpersona [name]", "Change AI personality"),
-                ("Available", "standard, creative, technical, casual"),
-                ("Admin Only", "jailbreak-v1, jailbreak-v2, jailbreak-v3 (restricted)")
-            ]),
-            ("⚙️ **Settings**", [
-                ("/private", "Toggle private/public responses"),
-                ("/help", "Show this help message")
-            ])
+    @provider.autocomplete("model")
+    async def autocomplete(
+        interaction: discord.Interaction, current: str
+    ) -> list[app_commands.Choice[str]]:
+        return [
+            app_commands.Choice(name=name, value=name)
+            for name, model in settings.models.items()
+            if Capability.CHAT in model.capabilities
+            and current.lower() in name.lower()
+            and model.backend.owner_id in {0, interaction.user.id}
+        ][:25]
+
+    @client.tree.command(
+        name="cli_auth", description="Owner: native CLI account login, status, logout or cancel"
+    )
+    @app_commands.choices(
+        action=[
+            app_commands.Choice(name=name, value=name)
+            for name in ("login", "status", "logout", "cancel")
         ]
-        
-        for category, cmds in commands:
-            value = "\n".join([f"`{cmd}` - {desc}" for cmd, desc in cmds])
-            embed.add_field(name=category, value=value, inline=False)
-        
-        # Add provider info
-        info = discordClient.get_current_provider_info()
-        embed.add_field(
-            name="📊 Current Settings",
-            value=f"**Provider:** {info['provider']}\n**Model:** {info['current_model']}",
-            inline=False
+    )
+    async def cli_auth(interaction: discord.Interaction, action: str, model: str) -> None:
+        scope = await client.scope(interaction, private=True)
+        await interaction.response.defer(ephemeral=True, thinking=True)
+
+        async def challenge(value: DeviceChallenge) -> None:
+            await progress(
+                interaction,
+                f"Sign in to your personal {model} CLI runtime at <{value.url}>\n"
+                f"Device code: `{value.code}`\n"
+                "Complete approval on the official website for the login you just started. "
+                "Do not paste codes or tokens into Discord. This request expires within 10 minutes.",
+            )
+
+        try:
+            result = await client.cli_auth.execute(action, model, scope.user_id, challenge)
+        except asyncio.CancelledError:
+            result = "Account operation cancelled. Login may need to be restarted."
+        except BotError as error:
+            result = str(error)
+        # Replace the authorization challenge after success, failure or cancellation.
+        await progress(interaction, result)
+
+    @cli_auth.autocomplete("model")
+    async def auth_autocomplete(
+        interaction: discord.Interaction, current: str
+    ) -> list[app_commands.Choice[str]]:
+        return [
+            app_commands.Choice(name=name, value=name)
+            for name, model in settings.models.items()
+            if model.backend.auth == "account"
+            and model.backend.owner_id == interaction.user.id
+            and settings.allowed_user_ids == (interaction.user.id,)
+            and current.lower() in name.lower()
+        ][:25]
+
+    @client.tree.command(
+        name="image_search", description="Find images using an explicit search model alias"
+    )
+    async def image_search(interaction: discord.Interaction, query: str, model: str) -> None:
+        scope = await begin(interaction)
+        try:
+            images = await client.search.search(scope, model, query)
+            await send_search_images(interaction, images, private=scope.private)
+            await progress(interaction, "Image search finished.")
+        except asyncio.CancelledError:
+            await progress(
+                interaction, "Image search cancelled. Provider work may still be billed."
+            )
+
+    async def generate(
+        interaction: discord.Interaction,
+        prompt: str,
+        model: str,
+        image: discord.Attachment | None,
+        video: bool,
+    ) -> None:
+        scope = await begin(interaction)
+        if image is not None and image.size > settings.attachment_bytes:
+            raise BotError("Input attachment exceeds the configured size limit.")
+
+        async def load_source() -> bytes:
+            assert image is not None
+            async with asyncio.timeout(30):
+                return await image.read()
+
+        try:
+            artifact = await client.media.generate(
+                scope,
+                model,
+                prompt,
+                str(interaction.id),
+                video=video,
+                load_source=load_source if image is not None else None,
+                progress=lambda text: progress(interaction, text),
+            )
+            await send_artifact(
+                interaction, artifact, private=scope.private, maximum=settings.attachment_bytes
+            )
+            await client.store.update_job(str(interaction.id), "delivered")
+            await progress(interaction, f"Media job {interaction.id} delivered.")
+        except BotError as error:
+            await progress(interaction, f"Media request {interaction.id}: {error}")
+        except asyncio.CancelledError:
+            await progress(
+                interaction,
+                f"Stopped waiting for job {interaction.id}. Provider generation may continue and be billed; /job can retrieve a submitted video.",
+            )
+
+    @client.tree.command(
+        name="draw", description="Generate or edit an image with an explicit image model alias"
+    )
+    async def draw(
+        interaction: discord.Interaction,
+        prompt: str,
+        model: str,
+        image: discord.Attachment | None = None,
+    ) -> None:
+        await generate(interaction, prompt, model, image, False)
+
+    @client.tree.command(
+        name="video", description="Generate a video with an explicit video model alias"
+    )
+    async def video(
+        interaction: discord.Interaction,
+        prompt: str,
+        model: str,
+        image: discord.Attachment | None = None,
+    ) -> None:
+        await generate(interaction, prompt, model, image, True)
+
+    @client.tree.command(
+        name="job", description="Retrieve an existing video job without resubmitting generation"
+    )
+    async def job(interaction: discord.Interaction, job_id: str) -> None:
+        scope = await begin(interaction)
+        try:
+            artifact = await client.media.retrieve(
+                scope, job_id, progress=lambda text: progress(interaction, text)
+            )
+            await send_artifact(
+                interaction, artifact, private=scope.private, maximum=settings.attachment_bytes
+            )
+            await client.store.update_job(job_id, "delivered")
+            await progress(interaction, f"Video job {job_id} delivered.")
+        except asyncio.CancelledError:
+            await progress(
+                interaction, "Stopped waiting. Use /job to retrieve the existing video later."
+            )
+
+    @client.tree.command(
+        name="cancel", description="Cancel outstanding requests in your current conversation"
+    )
+    async def cancel(interaction: discord.Interaction) -> None:
+        scope = await begin(interaction)
+        await client.service.gate.cancel(scope.key)
+        await send_text(
+            interaction,
+            "Outstanding requests cancelled. Submitted provider jobs may continue and be billed.",
+            private=scope.private,
         )
-        
-        await interaction.response.send_message(embed=embed, ephemeral=False)
 
-    # Handle regular messages when replyall is on
-    @discordClient.event
-    async def on_message(message):
-        if discordClient.is_replying_all:
-            if message.author == discordClient.user:
-                return
-            
-            if discordClient.replying_all_discord_channel_id:
-                if message.channel.id != int(discordClient.replying_all_discord_channel_id):
-                    return
-            
-            username = str(message.author)
-            user_message = message.content
-            discordClient.current_channel = message.channel
-            
-            logger.info(f"\x1b[31m{username}\x1b[0m : {user_message} in ({message.channel})")
-            await discordClient.enqueue_message(message, user_message)
+    @client.tree.command(
+        name="reset", description="Delete your current conversation history and job mappings"
+    )
+    async def reset(interaction: discord.Interaction) -> None:
+        scope = await begin(interaction)
+        await client.service.reset(scope)
+        await send_text(
+            interaction,
+            "Current conversation and job mappings deleted. Provider-side retention is separate.",
+            private=scope.private,
+        )
 
-    # Run the bot
-    discordClient.run(os.getenv("DISCORD_BOT_TOKEN"))
+    @client.tree.command(
+        name="delete", description="Delete both your private and public histories in this channel"
+    )
+    async def delete(interaction: discord.Interaction) -> None:
+        scope = await begin(interaction)
+        await client.service.reset(scope)
+        await client.service.reset(replace(scope, private=not scope.private))
+        await send_text(
+            interaction,
+            "Your private and public histories and job mappings in this channel were deleted.",
+            private=scope.private,
+        )
+
+    @client.tree.command(name="switchpersona", description="Change this conversation's personality")
+    async def switchpersona(interaction: discord.Interaction, persona: str) -> None:
+        scope = await begin(interaction)
+        await client.service.persona(scope, persona)
+        await send_text(
+            interaction,
+            f"Selected persona {persona}. Retained text history is preserved.",
+            private=scope.private,
+        )
+
+    async def visibility(interaction: discord.Interaction, private: bool) -> None:
+        scope = await client.scope(interaction)
+        await client.store.set_private(scope, private)
+        await interaction.response.send_message(
+            f"Future slash commands use your {'private' if private else 'public'} conversation. Each has separate history.",
+            ephemeral=True,
+        )
+
+    @client.tree.command(
+        name="private", description="Use your private conversation for future slash commands"
+    )
+    async def private(interaction: discord.Interaction) -> None:
+        await visibility(interaction, True)
+
+    @client.tree.command(
+        name="public", description="Use your public conversation for future slash commands"
+    )
+    async def public(interaction: discord.Interaction) -> None:
+        await visibility(interaction, False)
+
+    @client.tree.command(
+        name="replyall",
+        description="Administrator: enable or disable automatic replies in this allowed channel",
+    )
+    async def replyall(interaction: discord.Interaction, enabled: bool) -> None:
+        scope = await client.scope(interaction)
+        if (
+            scope.user_id not in settings.admin_user_ids
+            or scope.channel_id not in settings.reply_channels
+        ):
+            raise BotError(
+                "Only configured administrators can change auto-replies in allowed channels."
+            )
+        await client.store.set_reply(scope, enabled)
+        await interaction.response.send_message(
+            f"Automatic replies {'enabled' if enabled else 'disabled'} in this channel.",
+            ephemeral=True,
+        )
+
+    @client.tree.command(name="help", description="Show bot commands and conversation behavior")
+    async def help_command(interaction: discord.Interaction) -> None:
+        await interaction.response.send_message(
+            "Use /chat, /models, /provider, /switchpersona, /private, /public, /reset or /delete. Images: /image_search with an explicit search alias. Media: /draw or /video with an explicit model alias, /job to retrieve a video, /cancel to stop waiting. Personal CLI login: /cli_auth (always private). Histories belong to you and this channel; private/public contexts are separate. /replyall is restricted to administrators and configured channels.",
+            ephemeral=True,
+        )
+
+    return client
+
+
+def run_discord_bot(settings: Settings, token: str) -> None:
+    create_bot(settings).run(token, log_handler=None)

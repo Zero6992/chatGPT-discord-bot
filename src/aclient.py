@@ -1,238 +1,151 @@
-import os
-import discord
+"""Discord lifecycle and dependency wiring. No import-time clients or network calls."""
+
 import asyncio
-import logging
-from typing import List, Dict, Optional
+from dataclasses import replace
+from typing import Any
 
-from src import personas
-from src.log import logger
-from src.providers import ProviderManager, ProviderType, ModelInfo
-from utils.message_utils import send_split_message
-
-from dotenv import load_dotenv
+import discord
 from discord import app_commands
 
-load_dotenv()
+from src.art import MediaProvider, MediaService
+from src.cli import CLIProvider, DockerRunner
+from src.cli_auth import CLIAuth
+from src.config import CLI_KINDS, Settings
+from src.domain import BotError, Capability, ChatProvider
+from src.log import logger
+from src.providers import APIProvider, HTTPTransport
+from src.search import ImageSearchProvider, ImageSearchService
+from src.service import ConversationService
+from src.storage import Scope, Store
+from utils.message_utils import send_text
 
 
 class DiscordClient(discord.Client):
-    def __init__(self) -> None:
+    def __init__(self, settings: Settings):
         intents = discord.Intents.default()
-        intents.message_content = True
-        super().__init__(intents=intents)
-        
+        intents.message_content = bool(settings.reply_channels)
+        super().__init__(intents=intents, allowed_mentions=discord.AllowedMentions.none())
+        self.settings = settings
+        self.cli_auth = CLIAuth(settings)
         self.tree = app_commands.CommandTree(self)
-        
-        # Initialize provider manager
-        self.provider_manager = ProviderManager()
-        
-        # Set default provider and model
-        default_provider = os.getenv("DEFAULT_PROVIDER", "free")
-        try:
-            self.provider_manager.set_current_provider(ProviderType(default_provider))
-        except ValueError:
-            logger.warning(f"Invalid default provider {default_provider}, using free")
-            self.provider_manager.set_current_provider(ProviderType.FREE)
-        
-        self.current_model = os.getenv("DEFAULT_MODEL", "auto")
-        
-        # Conversation management
-        self.conversation_history = []
-        self.current_channel = None
-        self.current_persona = "standard"
-        
-        # Bot settings
-        self.activity = discord.Activity(
-            type=discord.ActivityType.listening, 
-            name="/chat | /help | /provider"
-        )
-        self.isPrivate = False
-        self.is_replying_all = os.getenv("REPLYING_ALL", "False") == "True"
-        self.replying_all_discord_channel_id = os.getenv("REPLYING_ALL_DISCORD_CHANNEL_ID")
-        
-        # Load system prompt
-        config_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-        prompt_path = os.path.join(config_dir, "system_prompt.txt")
-        try:
-            with open(prompt_path, "r", encoding="utf-8") as f:
-                self.starting_prompt = f.read()
-        except FileNotFoundError:
-            self.starting_prompt = ""
-            logger.warning("system_prompt.txt not found")
-        
-        # Message queue for rate limiting
-        self.message_queue = asyncio.Queue()
-    
-    async def process_messages(self):
-        """Process queued messages"""
-        while True:
-            if self.current_channel is not None:
-                while not self.message_queue.empty():
-                    async with self.current_channel.typing():
-                        message, user_message = await self.message_queue.get()
-                        try:
-                            await self.send_message(message, user_message)
-                        except Exception as e:
-                            logger.exception(f"Error while processing message: {e}")
-                        finally:
-                            self.message_queue.task_done()
-            await asyncio.sleep(1)
-    
-    async def enqueue_message(self, message, user_message):
-        """Add message to processing queue"""
-        await message.response.defer(ephemeral=self.isPrivate) if hasattr(message, 'response') else None
-        await self.message_queue.put((message, user_message))
-    
-    async def send_message(self, message, user_message):
-        """Send response to user"""
-        if hasattr(message, 'user'):  # Slash command
-            author = message.user.id
-        else:  # Regular message
-            author = message.author.id
-        
-        try:
-            response = await self.handle_response(user_message)
-            response_content = f'> **{user_message}** - <@{str(author)}> \n\n{response}'
-            await send_split_message(self, response_content, message)
-        except Exception as e:
-            logger.exception(f"Error while sending: {e}")
-            error_msg = f"❌ Error: {str(e)}"
-            if hasattr(message, 'followup'):
-                await message.followup.send(error_msg)
-            else:
-                await message.channel.send(error_msg)
-    
-    async def send_start_prompt(self):
-        """Send initial system prompt"""
-        discord_channel_id = os.getenv("DISCORD_CHANNEL_ID")
-        try:
-            if self.starting_prompt and discord_channel_id:
-                channel = self.get_channel(int(discord_channel_id))
-                logger.info(f"Send system prompt with size {len(self.starting_prompt)}")
-                
-                response = await self.handle_response(self.starting_prompt)
-                await channel.send(f"{response}")
-                
-                logger.info(f"System prompt response: {response}")
-            else:
-                logger.info("No starting prompt given or no Discord channel selected.")
-        except Exception as e:
-            logger.exception(f"Error while sending system prompt: {e}")
-    
-    async def handle_response(self, user_message: str) -> str:
-        """Generate response using current provider"""
-        # Add user message to history
-        self.conversation_history.append({'role': 'user', 'content': user_message})
-        
-        # Better conversation management
-        MAX_CONVERSATION_LENGTH = int(os.getenv("MAX_CONVERSATION_LENGTH", "20"))
-        CONVERSATION_TRIM_SIZE = int(os.getenv("CONVERSATION_TRIM_SIZE", "8"))
-        
-        if len(self.conversation_history) > MAX_CONVERSATION_LENGTH:
-            # Keep system prompts (first few messages) and recent context
-            system_messages = [m for m in self.conversation_history[:3] if m['role'] == 'system']
-            recent_messages = self.conversation_history[-CONVERSATION_TRIM_SIZE:]
-            
-            # Ensure we don't lose important context
-            if system_messages:
-                self.conversation_history = system_messages + recent_messages
-            else:
-                self.conversation_history = recent_messages
-            
-            logger.info(f"Trimmed conversation history to {len(self.conversation_history)} messages")
-        
-        # Get current provider
-        provider = self.provider_manager.get_provider()
-        
-        try:
-            # Generate response
-            response = await provider.chat_completion(
-                messages=self.conversation_history,
-                model=self.current_model if self.current_model != "auto" else None
-            )
-            
-            # Add to history
-            self.conversation_history.append({'role': 'assistant', 'content': response})
-            
-            return response
-            
-        except Exception as e:
-            logger.error(f"Provider error: {e}")
-            # Try fallback to free provider
-            if self.provider_manager.current_provider != ProviderType.FREE:
-                logger.info("Falling back to free provider")
-                try:
-                    free_provider = self.provider_manager.get_provider(ProviderType.FREE)
-                    response = await free_provider.chat_completion(
-                        messages=self.conversation_history,
-                        model=None
+        self.store = Store(settings.database)
+        self.service: ConversationService
+        self.media: MediaService
+        self.search: ImageSearchService
+        self.maintenance: asyncio.Task[None] | None = None
+        self.initialized = False
+
+    async def setup_hook(self) -> None:
+        await self.store.open()
+        providers: dict[str, ChatProvider] = {}
+        media = {}
+        searches = {}
+        for name, model in self.settings.models.items():
+            if Capability.IMAGE_SEARCH in model.capabilities:
+                searches[name] = ImageSearchProvider(
+                    model, HTTPTransport(model, self.settings.request_timeout)
+                )
+            elif Capability.CHAT in model.capabilities:
+                if model.backend.kind in CLI_KINDS:
+                    providers[name] = CLIProvider(
+                        model,
+                        DockerRunner(
+                            model,
+                            self.settings.request_timeout,
+                            str(self.settings.database.resolve()),
+                        ),
                     )
-                    self.conversation_history.append({'role': 'assistant', 'content': response})
-                    return f"{response}\n\n*⚠️ Fallback to free provider due to error*"
-                except Exception as fallback_error:
-                    logger.error(f"Fallback provider also failed: {fallback_error}")
-                    # Return user-friendly error message
-                    error_response = "❌ I'm having trouble processing your request right now. Please try again later or contact an administrator."
-                    self.conversation_history.append({'role': 'assistant', 'content': error_response})
-                    return error_response
+                else:
+                    providers[name] = APIProvider(
+                        model, HTTPTransport(model, self.settings.request_timeout)
+                    )
             else:
-                # Already using free provider, return error
-                error_response = "❌ The free provider is currently unavailable. Please try again later."
-                self.conversation_history.append({'role': 'assistant', 'content': error_response})
-                return error_response
-    
-    async def generate_image(self, prompt: str, model: Optional[str] = None) -> str:
-        """Generate image using current provider"""
-        provider = self.provider_manager.get_provider()
-        
-        if not provider.supports_image_generation():
-            # Fallback to free provider for image generation
-            provider = self.provider_manager.get_provider(ProviderType.FREE)
-        
-        return await provider.generate_image(prompt, model)
-    
-    def reset_conversation_history(self):
-        """Reset conversation and persona"""
-        self.conversation_history = []
-        self.current_persona = "standard"
-        personas.current_persona = "standard"
-    
-    async def switch_persona(self, persona: str, user_id: Optional[str] = None) -> None:
-        """Switch to a different persona"""
-        self.reset_conversation_history()
-        self.current_persona = persona
-        personas.current_persona = persona
-        
-        # Add persona prompt to conversation (with permission check)
-        persona_prompt = personas.get_persona_prompt(persona, user_id)
-        self.conversation_history.append({'role': 'system', 'content': persona_prompt})
-        
-        # Get initial response with new persona
-        await self.handle_response("Hello! Please confirm you understand your new role.")
-    
-    def get_current_provider_info(self) -> Dict:
-        """Get information about current provider and model"""
-        provider = self.provider_manager.get_provider()
-        models = provider.get_available_models()
-        
-        return {
-            "provider": self.provider_manager.current_provider.value,
-            "current_model": self.current_model,
-            "available_models": models,
-            "supports_images": provider.supports_image_generation()
-        }
-    
-    def switch_provider(self, provider_type: ProviderType, model: Optional[str] = None):
-        """Switch to a different provider and optionally set model"""
-        self.provider_manager.set_current_provider(provider_type)
-        if model:
-            self.current_model = model
-        else:
-            # Set to first available model or auto
-            provider = self.provider_manager.get_provider()
-            models = provider.get_available_models()
-            self.current_model = models[0].name if models else "auto"
+                media[name] = MediaProvider(
+                    model,
+                    self.settings.attachment_bytes,
+                    HTTPTransport(model, self.settings.media_timeout),
+                )
+        self.service = ConversationService(self.settings, self.store, providers)
+        self.media = MediaService(self.settings, self.store, self.service, media)
+        self.search = ImageSearchService(self.settings, self.service, searches)
+        self.initialized = True
+        await self.prune_state()
+        self.maintenance = asyncio.create_task(self._maintenance())
+        await self.tree.sync()
 
+    async def prune_state(self) -> None:
+        await self.store.prune(self.settings.retention_days)
+        retained = await self.store.conversation_keys() | set(self.service.gate.tasks)
+        for provider in self.service.providers.values():
+            prune = getattr(provider, "prune_state", None)
+            if prune:
+                try:
+                    await prune(retained)
+                except BotError:
+                    logger.error(
+                        "CLI retention cleanup is pending; check the isolated runtime. It will be retried next maintenance cycle."
+                    )
 
-# Create singleton instance
-discordClient = DiscordClient()
+    async def _maintenance(self) -> None:
+        while True:
+            await asyncio.sleep(3600)
+            await self.prune_state()
+
+    async def scope(self, target: Any, *, private: bool | None = None) -> Scope:
+        if self.user is None:
+            raise BotError("Bot is not ready yet.")
+        owner = target.user if hasattr(target, "user") else target.author
+        if self.settings.allowed_user_ids and owner.id not in self.settings.allowed_user_ids:
+            raise BotError("This bot is restricted to configured users.")
+        channel = target.channel
+        if channel is None:
+            raise BotError("This Discord channel is unavailable.")
+        scope = Scope(self.user.id, target.guild.id if target.guild else 0, channel.id, owner.id)
+        return replace(
+            scope, private=await self.store.private(scope) if private is None else private
+        )
+
+    async def on_message(self, message: discord.Message) -> None:
+        if (
+            not self.initialized
+            or message.author.bot
+            or message.webhook_id
+            or message.channel.id not in self.settings.reply_channels
+        ):
+            return
+        if (
+            self.settings.allowed_user_ids
+            and message.author.id not in self.settings.allowed_user_ids
+        ):
+            return
+        scope = await self.scope(message, private=False)
+        if not await self.store.reply_enabled(scope):
+            return
+        try:
+            async with message.channel.typing():
+                result = await self.service.chat(scope, message.content)
+            text = result.text + (f"\n\n{result.notice}" if result.notice else "")
+            await send_text(message, text, private=False)
+        except BotError as error:
+            await send_text(message, str(error), private=False)
+        except asyncio.CancelledError:
+            await send_text(
+                message, "Request cancelled. Provider work may still be billed.", private=False
+            )
+        except Exception:
+            await send_text(
+                message, "The request failed. Contact the administrator.", private=False
+            )
+
+    async def close(self) -> None:
+        await self.cli_auth.close()
+        if self.maintenance:
+            self.maintenance.cancel()
+            await asyncio.gather(self.maintenance, return_exceptions=True)
+        if self.initialized:
+            await self.service.close()
+            await self.media.close()
+            await self.search.close()
+            await self.store.close()
+            self.initialized = False
+        await super().close()

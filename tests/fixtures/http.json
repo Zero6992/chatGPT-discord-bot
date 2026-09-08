@@ -1,0 +1,8 @@
+{
+  "openai": {"id":"resp_fixture","object":"response","status":"completed","output":[{"type":"message","role":"assistant","content":[{"type":"output_text","text":"Hello from the model.","annotations":[]}]}]},
+  "xai": {"id":"resp_fixture_xai","object":"response","status":"completed","output":[{"type":"message","role":"assistant","content":[{"type":"output_text","text":"Hello from the model.","annotations":[]}]}]},
+  "anthropic": {"id":"msg_fixture","type":"message","role":"assistant","content":[{"type":"thinking","thinking":"private reasoning","signature":"fixture"},{"type":"text","text":"Hello from the model."}],"stop_reason":"end_turn","usage":{"input_tokens":20,"output_tokens":8}},
+  "gemini": {"candidates":[{"content":{"role":"model","parts":[{"text":"private reasoning","thought":true},{"text":"Hello from the model."}]},"finishReason":"STOP"}],"usageMetadata":{"promptTokenCount":20,"candidatesTokenCount":8}},
+  "compatible": {"id":"chatcmpl_fixture","object":"chat.completion","choices":[{"index":0,"message":{"role":"assistant","content":"Hello from the model."},"finish_reason":"stop"}]},
+  "deepseek": {"id":"chatcmpl_fixture_deepseek","object":"chat.completion","choices":[{"index":0,"message":{"role":"assistant","content":"Hello from the model.","reasoning_content":"private reasoning"},"finish_reason":"stop"}]}
+}

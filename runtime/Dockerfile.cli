@@ -1,0 +1,30 @@
+# Build on a dedicated rootless Docker daemon. Never copy the application repo,
+# credentials, host configuration or existing human sessions into this image.
+FROM node:24-bookworm-slim
+ARG CLI_KIND
+ARG CLI_VERSION
+RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+RUN case "$CLI_KIND" in \
+      claude-cli) npm install -g "@anthropic-ai/claude-code@$CLI_VERSION" ;; \
+      codex-cli) npm install -g "@openai/codex@$CLI_VERSION" ;; \
+      grok-cli) GROK_HOME=/opt/grok npm install -g --allow-scripts=@xai-official/grok \
+          "@xai-official/grok@$CLI_VERSION" \
+          && ln -sf /opt/grok/bin/grok /usr/local/bin/grok ;; \
+      *) exit 1 ;; \
+    esac && npm cache clean --force
+LABEL io.chatgptbot.cli=$CLI_KIND io.chatgptbot.account-auth="1"
+COPY account-runtime.mjs /opt/chatgptbot/account-runtime.mjs
+RUN mkdir -p /work /account /state/home /state/claude /state/codex /state/grok /state/config /state/data \
+    && chown -R 65532:65532 /state && chmod 700 /state
+ENV HOME=/state/home CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1
+WORKDIR /work
+USER 65532:65532
+# Grok ships a compressed native binary. Materialize it at build time using its
+# official installer, not in bounded writable conversation storage at runtime.
+RUN case "$CLI_KIND" in \
+      claude-cli) claude --version ;; \
+      codex-cli) codex --version ;; \
+      grok-cli) grok --version ;; \
+      *) exit 1 ;; \
+    esac

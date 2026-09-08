@@ -1,0 +1,52 @@
+[build-system]
+requires = ["setuptools>=77,<83"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "discord-ai-conversations"
+version = "4.0.0"
+description = "Discord conversations with official APIs, local models and isolated CLI backends"
+readme = "README.md"
+requires-python = ">=3.12,<3.15"
+license = "GPL-2.0-only"
+dependencies = [
+  "discord.py==2.7.1",
+  "python-dotenv==1.2.3",
+  "httpx==0.28.1",
+  "aiosqlite==0.22.1",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest==9.1.1", "pytest-asyncio==1.4.0", "ruff==0.16.6",
+  "mypy==2.3.1", "build==1.6.0", "pip-audit==2.10.1",
+]
+
+[project.scripts]
+discord-ai-bot = "main:main"
+cli-auth = "src.cli_accounts:main"
+
+[tool.setuptools]
+packages = ["src", "utils"]
+py-modules = ["main"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra --strict-markers -m 'not live'"
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+markers = ["live: explicitly opted-in live provider tests (may incur charges)"]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I", "UP", "B"]
+
+[tool.mypy]
+python_version = "3.12"
+files = ["src", "utils", "main.py"]
+check_untyped_defs = true
+disallow_untyped_defs = true
+warn_unused_ignores = true
