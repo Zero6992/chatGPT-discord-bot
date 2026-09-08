@@ -168,3 +168,22 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 .idea/
 Pipfile*
+config.toml
+data/
+.ruff_cache/
+.cli-runtime/
+
+# Private configuration, credentials and local maintenance records
+.env.*
+!.env.example
+config.local.toml
+config.*.local.toml
+.claude/settings.local.json
+/todo.md
+/.local/
+/docs/attribution.md
+*.sqlite3
+*.sqlite3-wal
+*.sqlite3-shm
+auth.json
+.credentials.json

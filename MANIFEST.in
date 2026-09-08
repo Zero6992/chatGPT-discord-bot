@@ -1,0 +1,11 @@
+include config.example.toml .env.example requirements.txt requirements-dev.txt
+include config.account.example.toml
+include Dockerfile docker-compose.yml
+include docs/architecture.md docs/cli.md docs/migration.md docs/providers.md docs/verification.md
+graft runtime
+graft scripts
+graft tests
+exclude todo.md docs/attribution.md .env config.toml config.local.toml config.*.local.toml
+prune .local
+prune data
+global-exclude __pycache__ *.py[cod]
