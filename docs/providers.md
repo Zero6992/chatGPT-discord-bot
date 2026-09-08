@@ -22,9 +22,11 @@ listed adapters have offline contract coverage; see the
 Account login requires a personal bot restricted to that owner. No API fallback,
 shared subscription or CLI media path is enabled. See [CLI setup and billing](cli.md)
 for exact versions, native login commands and deployment restrictions. Native
-account login and fixed two-turn text/session tests passed for all three CLIs in
-temporary restricted containers. Local `status` alone checks storage; the configured
-bot runner and user-triggered Discord CLI commands still need live verification.
+account login and fixed two-turn text/session tests passed for all three CLIs.
+The bot's Docker Desktop runner and command callbacks also passed real CLI tests,
+including reopening SQLite and resuming the explicit session in a new container.
+Local `status` alone checks storage; user-triggered Discord delivery remains a
+manual deployment check.
 
 OpenAI uses the [Responses API](https://developers.openai.com/api/docs/guides/text)
 and [GPT-5.6 Terra model contract](https://developers.openai.com/api/docs/models/gpt-5.6-terra).

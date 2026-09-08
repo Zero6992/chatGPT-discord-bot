@@ -4,6 +4,7 @@ import hashlib
 import json
 import os
 import re
+import stat
 import tomllib
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -66,6 +67,9 @@ class Backend:
     proxy_url: str = ""
     docker_socket: str = ""
     auth_profile: str = ""
+    docker_mode: str = "rootless"
+    seccomp_profile: str = ""
+    seccomp_sha256: str = ""
 
     def key(self) -> str:
         value = os.environ.get(self.api_key_env, "") if self.api_key_env else ""
@@ -119,6 +123,34 @@ class Settings:
     system_prompt: str = "You are a helpful assistant."
 
 
+def verified_seccomp_profile(backend: Backend) -> str:
+    """Validate the administrator's pinned, default-deny Desktop profile."""
+    try:
+        path = Path(backend.seccomp_profile)
+        if (
+            not path.is_absolute()
+            or not re.fullmatch(r"[a-f0-9]{64}", backend.seccomp_sha256)
+            or not stat.S_ISREG(path.stat().st_mode)
+        ):
+            raise ValueError("profile")
+        with path.open("rb") as stream:
+            data = stream.read(1024 * 1024 + 1)
+        profile = json.loads(data)
+        if (
+            len(data) > 1024 * 1024
+            or hashlib.sha256(data).hexdigest() != backend.seccomp_sha256
+            or profile.get("defaultAction") != "SCMP_ACT_ERRNO"
+            or not isinstance(profile.get("syscalls"), list)
+            or not profile["syscalls"]
+        ):
+            raise ValueError("profile")
+        return str(path)
+    except (OSError, ValueError, TypeError, AttributeError):
+        raise BotError(
+            "Docker Desktop CLI requires a reviewed default-deny seccomp JSON profile with its matching SHA-256."
+        ) from None
+
+
 def _keys(data: dict[str, Any], allowed: set[str], label: str) -> None:
     if set(data) - allowed:
         raise BotError(f"Unknown {label} configuration field; see docs/migration.md.")
@@ -170,8 +202,21 @@ def load_settings(path: Path) -> Settings:
                     raise BotError(
                         "CLI backends require an isolated internal proxy network and version."
                     )
-                if not re.fullmatch(r"/run/user/[0-9]+/docker\.sock", backend.docker_socket):
-                    raise BotError("CLI backends require an explicit rootless Docker socket.")
+                if backend.docker_mode == "rootless":
+                    if not re.fullmatch(r"/run/user/[0-9]+/docker\.sock", backend.docker_socket):
+                        raise BotError("CLI backends require an explicit rootless Docker socket.")
+                    if backend.seccomp_profile or backend.seccomp_sha256:
+                        raise BotError("Rootless CLI uses the daemon's active seccomp profile.")
+                elif backend.docker_mode == "desktop":
+                    if not re.fullmatch(
+                        r"/(?:[a-zA-Z0-9_.-]+/)*docker\.sock", backend.docker_socket
+                    ):
+                        raise BotError("Docker Desktop CLI requires an explicit local Unix socket.")
+                    seccomp_path = str((path.parent / backend.seccomp_profile).resolve())
+                    backend = Backend(**{**backend.__dict__, "seccomp_profile": seccomp_path})
+                    verified_seccomp_profile(backend)
+                else:
+                    raise BotError("CLI docker_mode must be rootless or desktop.")
                 proxy = urlsplit(backend.proxy_url)
                 if (
                     proxy.scheme != "http"
@@ -184,6 +229,12 @@ def load_settings(path: Path) -> Settings:
                 ):
                     raise BotError("CLI backends require an internal HTTP CONNECT proxy URL.")
             else:
+                if (
+                    backend.docker_mode != "rootless"
+                    or backend.seccomp_profile
+                    or backend.seccomp_sha256
+                ):
+                    raise BotError("Docker runtime fields are only supported for CLI backends.")
                 parsed = urlsplit(url)
                 if (
                     parsed.scheme not in {"http", "https"}
@@ -308,6 +359,13 @@ def load_settings(path: Path) -> Settings:
             raise BotError(
                 "CLI account login requires a personal bot: allowed_user_ids must contain only the account owner."
             )
+        if any(
+            backend.kind in CLI_KINDS
+            and backend.docker_mode == "desktop"
+            and settings.allowed_user_ids != (backend.owner_id,)
+            for backend in backends.values()
+        ):
+            raise BotError("Docker Desktop CLI requires a personal bot restricted to its owner.")
         profiles = [str(Path(backend.auth_profile).resolve()) for backend in account_backends]
         if len(profiles) != len(set(profiles)):
             raise BotError(

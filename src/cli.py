@@ -21,7 +21,7 @@ from src.cli_accounts import (
     login_arguments,
     logout_arguments,
 )
-from src.config import Model
+from src.config import Model, verified_seccomp_profile
 from src.domain import BotError, Capability, Completion, Message, Session
 from src.providers import text_result
 
@@ -29,6 +29,29 @@ CODEX_DISABLED_CODE_MODE_NOTICE = (
     "Code Mode is unavailable because code-mode host is disabled. "
     "Code mode will fail closed; enable `features.code_mode_host` and install `codex-code-mode-host`."
 )
+
+DESKTOP_ISOLATION_PROBE = r"""
+const fs = require('fs');
+const status = fs.readFileSync('/proc/self/status', 'utf8');
+const value = key => status.match(new RegExp('^' + key + ':\\s*(.*)$', 'm'))?.[1];
+const read = name => fs.readFileSync('/sys/fs/cgroup/' + name, 'utf8').trim();
+const root = fs.readFileSync('/proc/self/mountinfo', 'utf8').split('\n')
+  .map(line => line.split(' ')).find(fields => fields[4] === '/');
+const cpu = read('cpu.max').split(' ').map(Number);
+const report = {
+  uid: process.getuid(), seccomp: value('Seccomp'), no_new_privs: value('NoNewPrivs'),
+  capabilities: value('CapEff'), root_readonly: root?.[5].split(',').includes('ro') === true,
+  memory: read('memory.max'), pids: read('pids.max'), cpu: read('cpu.max'),
+  account_owned: fs.statSync('/account').uid === 65532,
+};
+report.passed = report.uid === 65532 && report.seccomp === '2' && report.no_new_privs === '1'
+  && report.capabilities === '0000000000000000' && report.root_readonly && report.account_owned
+  && Number(report.memory) > 0 && Number(report.memory) <= 1073741824
+  && Number(report.pids) > 0 && Number(report.pids) <= 128
+  && cpu.length === 2 && cpu[0] > 0 && cpu[1] > 0 && cpu[0] <= cpu[1];
+console.log(JSON.stringify(report));
+if (!report.passed) process.exitCode = 1;
+"""
 
 
 @dataclass(frozen=True)
@@ -309,11 +332,12 @@ class DockerRunner:
         self.model, self.timeout = model, timeout
         self.namespace = hashlib.sha256(namespace.encode()).hexdigest()[:16]
         self.verified = False
+        self.isolation: dict[str, Any] | None = None
         self.verify_lock = asyncio.Lock()
         self.profile = AccountProfile(model.backend) if model.backend.auth == "account" else None
 
     def base(self, name: str, *, network: str = "none") -> list[str]:
-        return [
+        argv = [
             "docker",
             "run",
             "--rm",
@@ -351,6 +375,15 @@ class DockerRunner:
             "--env",
             "CLAUDE_CODE_DISABLE_ARTIFACT=1",
         ]
+        if self.model.backend.docker_mode == "desktop":
+            argv.extend(
+                [
+                    "--security-opt=seccomp=" + verified_seccomp_profile(self.model.backend),
+                    "--memory-swap=1g",
+                    "--log-driver=none",
+                ]
+            )
+        return argv
 
     def proxy_environment(self) -> list[str]:
         return [
@@ -452,15 +485,24 @@ class DockerRunner:
                 if not isinstance(options, list) or not all(isinstance(o, str) for o in options):
                     raise ValueError("options")
             except (ValueError, KeyError, TypeError):
-                raise BotError("CLI backends require a verified rootless Docker daemon.") from None
-            if info.code or "name=rootless" not in options:
-                raise BotError("CLI backends require a rootless Docker daemon.")
-            if not any(o.startswith("name=seccomp,profile=") for o in options) or any(
-                "unconfined" in o for o in options
-            ):
-                raise BotError("CLI runtime requires an active seccomp profile.")
+                raise BotError(
+                    "CLI backends require a verified rootless or Desktop Docker daemon."
+                ) from None
+            desktop = backend.docker_mode == "desktop"
+            if desktop:
+                verified_seccomp_profile(backend)
+                if info.code or runtime.get("OperatingSystem") != "Docker Desktop":
+                    raise BotError("Desktop CLI mode requires the Docker Desktop Linux daemon.")
+            else:
+                if backend.docker_mode != "rootless" or info.code or "name=rootless" not in options:
+                    raise BotError("CLI backends require a rootless Docker daemon.")
+                if not any(o.startswith("name=seccomp,profile=") for o in options) or any(
+                    "unconfined" in o for o in options
+                ):
+                    raise BotError("CLI runtime requires an active seccomp profile.")
             if (
-                runtime.get("CgroupDriver") != "systemd"
+                runtime.get("CgroupDriver")
+                not in ({"systemd", "cgroupfs"} if desktop else {"systemd"})
                 or runtime.get("CgroupVersion") != "2"
                 or any(
                     runtime.get(field) is not True
@@ -468,7 +510,7 @@ class DockerRunner:
                 )
             ):
                 raise BotError(
-                    "CLI runtime requires cgroup v2 with systemd and enforced CPU, memory and PID limits."
+                    "CLI runtime requires cgroup v2 and enforced CPU, memory and PID limits; rootless mode also requires systemd."
                 )
             network = await self.docker(
                 ["docker", "network", "inspect", backend.network], timeout=15
@@ -497,6 +539,8 @@ class DockerRunner:
                 raise BotError(
                     "CLI image is missing, has implicit volumes, or lacks the required runtime label."
                 ) from None
+            if desktop:
+                await self.verify_isolation()
             binary = arguments(self.model, None)[0]
             probes = [
                 (["--version"], [backend.cli_version]),
@@ -567,6 +611,32 @@ class DockerRunner:
                 finally:
                     await self.cleanup(name)
             self.verified = True
+
+    async def verify_isolation(self) -> None:
+        name = "bot-isolation-" + uuid.uuid4().hex
+        try:
+            result = await self.docker(
+                [
+                    *self.base(name),
+                    "--entrypoint",
+                    "node",
+                    self.model.backend.image,
+                    "-e",
+                    DESKTOP_ISOLATION_PROBE,
+                ],
+                timeout=20,
+            )
+            try:
+                report = json.loads(result.stdout)
+                if result.code or report.get("passed") is not True:
+                    raise ValueError("isolation")
+            except (ValueError, TypeError, AttributeError):
+                raise BotError(
+                    "CLI isolation probe failed; check the image's account directory, seccomp and effective resource limits."
+                ) from None
+            self.isolation = report
+        finally:
+            await self.cleanup(name)
 
     async def account_status(self) -> bool:
         assert self.profile is not None

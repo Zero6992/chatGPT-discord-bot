@@ -1,6 +1,9 @@
 # PERSONAL bot only. Replace every owner/user ID, image digest, and socket UID.
 # Native login: local cli-auth for all three; Discord /cli_auth for Codex/Grok.
 # No API keys, OAuth tokens, or existing host credential paths belong in this file.
+# API and account CLI sections may coexist; keep the personal-bot owner restriction.
+# docker_mode defaults to "rootless". Docker Desktop also requires seccomp_profile
+# and seccomp_sha256; follow docs/cli.md#docker-desktop-setup for each CLI backend.
 [bot]
 default_model = "codex_account"
 allowed_user_ids = [123456789]

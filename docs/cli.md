@@ -46,12 +46,17 @@ Documented boundaries checked 2026-09-08:
 
 ## Provision the runtime
 
-The bot never executes a host coding agent with a Discord prompt. Use Linux/WSL,
-a **dedicated rootless Docker daemon with active seccomp, systemd and cgroup v2**,
-and an explicit socket
-such as `/run/user/1000/docker.sock`. The default Compose service has no Docker
-socket; run the CLI-enabled bot as a host process owned by the daemon's user.
-Never mount that socket into an inference container.
+The bot runs coding agents inside containers. Choose a daemon explicitly in each
+CLI backend. The default Compose service has no Docker socket; run the CLI-enabled
+bot as a Linux/WSL host process with access to the selected daemon. The socket
+is never mounted into an inference container.
+
+| `docker_mode` | Runtime requirements |
+| --- | --- |
+| `rootless` (default) | Dedicated rootless daemon, active seccomp, systemd and cgroup v2; socket such as `/run/user/1000/docker.sock` |
+| `desktop` | Docker Desktop Linux daemon, cgroup v2, explicit hash-pinned seccomp profile, and successful in-container isolation probes; personal bot only |
+
+### Rootless setup
 
 Rootless alone does not establish resource isolation. Preflight also requires
 `CgroupDriver=systemd`, `CgroupVersion=2` and true `MemoryLimit`, `CpuCfsQuota` and
@@ -82,7 +87,47 @@ the distribution. Microsoft documents the
 [WSL systemd setup and restart](https://learn.microsoft.com/en-us/windows/wsl/systemd).
 After reopening WSL, confirm systemd is PID 1 and start/provision the rootless
 daemon. A non-systemd daemon or installing the UID helper packages alone does
-not satisfy this bot's runtime requirements.
+not satisfy rootless mode's runtime requirements. Set `DOCKER_HOST` to the
+selected socket for the build and network commands below:
+
+```bash
+export DOCKER_HOST=unix:///run/user/1000/docker.sock
+```
+
+### Docker Desktop setup
+
+An already running [Docker Desktop WSL backend](https://docs.docker.com/desktop/features/wsl/)
+can be used without changing the distribution's init system. This mode is
+restricted to a personal bot whose `allowed_user_ids` contains only the CLI owner.
+Access to the selected Docker daemon remains an administrator privilege.
+
+Obtain and review Docker's [default seccomp profile](https://docs.docker.com/engine/security/seccomp/#pass-a-profile-for-a-container),
+save the JSON on the bot host, and calculate its hash with
+`sha256sum /absolute/path/to/seccomp.json`. Configure each CLI backend explicitly:
+
+```toml
+docker_mode = "desktop"
+docker_socket = "/var/run/docker.sock"
+seccomp_profile = "/absolute/path/to/seccomp.json"
+seccomp_sha256 = "REPLACE_WITH_THE_64_HEX_SHA256"
+```
+
+The bot requires a matching hash and `defaultAction = "SCMP_ACT_ERRNO"`, supplies
+the profile to every container, and rejects profile changes before execution.
+Preflight verifies Docker Desktop identification, effective seccomp and
+no-new-privileges, UID 65532, no capabilities, a read-only root, the owned account
+directory, and CPU/memory/PID limits read from inside the container. It accepts
+Desktop's cgroupfs driver with cgroup v2. Each inference container is limited to
+one CPU, 1 GiB of memory, no extra swap and 128 PIDs. Container log storage is
+disabled; only the bounded application subprocess pipes receive CLI output.
+
+Use Docker's Unix socket for the following setup commands:
+
+```bash
+export DOCKER_HOST=unix:///var/run/docker.sock
+```
+
+### Images and restricted network
 
 Build one image per CLI with `runtime/Dockerfile.cli`. Account mode requires its
 fixed helper and `io.chatgptbot.account-auth=1` label; older images are rejected.
@@ -93,7 +138,6 @@ at build time, avoiding executable installation in conversation storage. Every
 image must pass a version check under its non-root user during the build.
 
 ```bash
-export DOCKER_HOST=unix:///run/user/1000/docker.sock
 docker info --format '{{json .SecurityOptions}}'
 docker info --format '{{.CgroupDriver}} {{.CgroupVersion}} memory={{.MemoryLimit}} cpu={{.CpuCfsQuota}} pids={{.PidsLimit}}'
 docker build -f runtime/Dockerfile.cli --build-arg CLI_KIND=codex-cli \
@@ -338,8 +382,8 @@ Interactive commands and generic headless support do not establish an exact
 programmatic media contract. Grok video under ZDR requires administrator-supplied
 storage; do not silently change privacy settings to enable it.
 
-The configured persistent bot runtime requires effective resource controls;
-WSL under legacy init does not satisfy its systemd/cgroup preflight.
+Both configured runtime modes require effective resource controls. Rootless mode
+requires systemd; explicit Docker Desktop mode uses its own verified Linux daemon.
 Native account login and isolated manual text checks have passed.
 Before exposing CLI media, verify the approved account's actual tools,
 headless structured artifact output, provider billing and narrowly allowed tool

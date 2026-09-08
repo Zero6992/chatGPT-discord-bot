@@ -53,6 +53,10 @@ dropped. No automatic provider fallback exists. Native CLI details and isolated
 runtime checks live only in `src/cli.py`; SQLite remains independent of those
 native transcripts. The request holds only the matching native UUID and context
 fingerprint, and persists session uncertainty before executing externally.
+The default CLI runtime is a dedicated rootless daemon. Explicit personal-bot
+Docker Desktop mode pins a seccomp profile by hash and verifies the effective
+in-container controls before invoking the native CLI. Both modes use the same
+tool restrictions, scoped state, argument construction and cleanup paths.
 
 `src/cli_accounts.py` provides local native login administration and an owner-bound
 profile containing non-secret revision/status metadata. Account mode requires a

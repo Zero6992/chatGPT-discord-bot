@@ -222,8 +222,10 @@ Account mode requires `allowed_user_ids` to contain only the account owner; shar
 subscription access is disabled. Use official API backends for shared services.
 
 Start with [config.account.example.toml](config.account.example.toml) and follow the
-[CLI setup guide](docs/cli.md) to provision pinned images, a dedicated rootless
-Docker daemon, systemd/cgroup v2 resource controls, seccomp and restricted egress.
+[CLI setup guide](docs/cli.md) to provision pinned images and restricted egress.
+Choose a dedicated rootless Docker daemon, or explicit Docker Desktop mode for a
+personal bot. Both require resource controls and seccomp; Desktop mode uses a
+reviewed, hash-pinned profile and probes the effective container controls.
 The bot refuses CLI execution when required isolation is unavailable.
 
 Once the runtime is ready, the owner can initiate Codex or Grok device login:
@@ -246,12 +248,19 @@ All three CLIs support local `login`, `status` and `logout` administration.
 Credentials stay in dedicated runtime storage; no OAuth token belongs in `.env`
 or a Discord message. Re-login preserves bot history and invalidates old sessions.
 
+API and CLI aliases can coexist in one configuration. Copy the needed backend and
+model sections from the account example into your API configuration, retaining the
+personal-bot ownership restriction. The `/provider` menu lists **Claude Code**,
+**Codex CLI** and **Grok CLI** alongside API models. Select `claude_account`,
+`codex_account` or `grok_account` to use the configured native CLI authentication;
+switching retains your text history.
+
 `auth = "account"` uses applicable plan allowances and any enabled extra usage.
 `auth = "api"` is billed separately to the API key owner. Subscriptions do not imply
 unlimited automation or media access. CLI image/video generation and image search
 are not implemented. See [provider-specific restrictions](docs/cli.md#authentication-and-deployment).
-Native account text/session checks have passed; the persistent bot runtime's
-incoming Discord command flow still needs live verification.
+Native account chat and session resumption have live verification with the bot's
+container runner. Check command delivery in your own Discord deployment.
 
 ## Images, video and image search
 
