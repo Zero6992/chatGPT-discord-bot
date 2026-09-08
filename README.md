@@ -153,7 +153,7 @@ and the CLI and media limitations below before enabling a backend.
 | --- | --- |
 | `/chat message` | Send a message in your current conversation |
 | `/models` | List configured models, capabilities and authentication modes |
-| `/provider model` | Change the chat model for your conversation |
+| `/provider [model]` | Show the current backend/model ID, or select a configured chat alias |
 | `/private`, `/public` | Choose the audience and its separate history |
 | `/switchpersona persona` | Change the conversation's personality |
 | `/reset` | Clear the current history, native session state and media job mappings |
@@ -196,6 +196,13 @@ Switching model, provider or persona preserves retained text and reconstructs
 context when native session reuse is inappropriate. Failed or cancelled generation
 does not add a turn. `/reset` restores the default model and persona, while keeping
 CLI login. Use `/cli_auth action:logout model:ALIAS` to sign out.
+
+Use `/provider` without arguments to check the configured alias, backend, model ID
+and authentication mode without making a model request. Each chat includes the
+current model configuration in its system context, so retained self-introductions
+from previous models should not carry over as the new model's identity. A model's
+own description is not a reliable routing check; local/custom model IDs are the
+administrator's configuration, not verified model provenance.
 
 Keep the database on persistent disk and run one bot process per database. Stop
 the bot before copying it, or use SQLite's backup API. Protect backups as private
@@ -343,6 +350,7 @@ as skipped. API credits, plan allowances or enabled extra usage may be consumed.
 | --- | --- |
 | Slash commands do not appear | Confirm the bot is running, the installation has `applications.commands`, and startup synchronization succeeded |
 | Missing credential or unavailable model | Check the selected alias, its `api_key_env`, the model ID and provider access |
+| Wrong model identity after switching | Run `/provider` in the same channel and private/public conversation to check the configured backend/model; retained replies may describe a previous model |
 | HTTP 429 | Check provider billing, quota and rate limits before trying again |
 | Old configuration rejected | Apply the [migration guide](docs/migration.md); outdated fields are intentionally rejected |
 | Local endpoint unreachable in Docker | Use a reachable HTTPS endpoint; container loopback is not the host |

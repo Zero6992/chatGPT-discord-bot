@@ -75,19 +75,29 @@ def create_bot(settings: Settings) -> DiscordClient:
         await send_text(interaction, "\n".join(lines), private=scope.private)
 
     @client.tree.command(
-        name="provider", description="Switch this conversation to a configured chat model alias"
+        name="provider", description="Show or change this conversation's configured chat model"
     )
-    async def provider(interaction: discord.Interaction, model: str) -> None:
+    async def provider(interaction: discord.Interaction, model: str | None = None) -> None:
         scope = await begin(interaction)
-        await client.service.switch(scope, model)
+        selected = (
+            await client.service.current_model(scope)
+            if model is None
+            else await client.service.switch(scope, model)
+        )
         auth = (
             "CLI account / plan usage"
-            if settings.models[model].backend.auth == "account"
-            else "configured API/local backend"
+            if selected.backend.auth == "account"
+            else ("API key" if selected.backend.auth == "api" else "Local/custom, no API key")
+        )
+        notice = (
+            "\nRetained text history will be reconstructed for the next turn."
+            if model is not None
+            else ""
         )
         await send_text(
             interaction,
-            f"Selected {model} ({auth}). Retained text history will be reconstructed for the next turn.",
+            f"Current model alias: {selected.name}\nBackend: {selected.backend.kind}\n"
+            f"Model ID: {selected.model}\nAccess: {auth}{notice}",
             private=scope.private,
         )
 

@@ -78,6 +78,23 @@ def context_fingerprint(model: Model, messages: list[Message]) -> str:
     return hashlib.sha256((model.fingerprint() + content).encode()).hexdigest()
 
 
+def model_instructions(model: Model) -> str:
+    identity = json.dumps(
+        {"backend": model.backend.kind, "model_id": model.model}, ensure_ascii=False
+    )
+    instructions = (
+        f"Current model configuration (from the bot): {identity}\n"
+        "When asked which backend or model is handling this turn, report this configuration. "
+        "Retained replies may come from other models; do not adopt their identity claims "
+        "or a persona as your actual model identity."
+    )
+    if model.backend.kind == "compatible":
+        instructions += (
+            " For a local/custom backend, the configured model ID does not verify its developer."
+        )
+    return instructions
+
+
 class ConversationService:
     def __init__(self, settings: Settings, store: Store, providers: dict[str, ChatProvider]):
         self.settings = settings
@@ -128,7 +145,9 @@ class ConversationService:
                 guard = getattr(provider, "auth_guard", None)
                 async with guard() if guard else nullcontext():
                     messages = budget_context(
-                        self.prompt(conversation.persona, scope),
+                        self.prompt(conversation.persona, scope)
+                        + "\n\n"
+                        + model_instructions(model),
                         conversation.turns,
                         prompt,
                         self.settings.context_bytes,
@@ -141,9 +160,7 @@ class ConversationService:
                         notice = "Context was reconstructed from retained bot history."
                     # Persist uncertainty before external work, so restart never reuses a partially advanced session.
                     await self.store.invalidate_session(scope.key)
-                    result = await self.providers[model.name].complete(
-                        messages, session, conversation_id=scope.key
-                    )
+                    result = await provider.complete(messages, session, conversation_id=scope.key)
                     conversation.turns.extend(
                         [Message("user", prompt), Message("assistant", result.text)]
                     )
@@ -165,13 +182,19 @@ class ConversationService:
                 "Request timed out; history was preserved. No automatic retry was made."
             ) from None
 
-    async def switch(self, scope: Scope, name: str) -> None:
-        self.model(name, scope)
+    async def current_model(self, scope: Scope) -> Model:
+        async with self.gate.hold(scope.key):
+            conversation = await self.conversation(scope)
+            return self.model(conversation.model, scope)
+
+    async def switch(self, scope: Scope, name: str) -> Model:
+        model = self.model(name, scope)
         async with self.gate.hold(scope.key):
             conversation = await self.conversation(scope)
             conversation.model = name
             conversation.session = None
             await self.store.save(conversation)
+            return model
 
     async def persona(self, scope: Scope, name: str) -> None:
         self.prompt(name, scope)  # Validate before changing anything.

@@ -32,6 +32,13 @@ slots needed by unrelated conversations. Locks are removed when no requests use
 them. Admission and deadlines bound queued work. Attachment input downloads occur
 inside media admission, before any paid submission.
 
+Every chat includes the selected backend kind and model ID in its system context.
+Retained replies remain intact and may come from previous models; their identity
+claims are not treated as current routing metadata. `/provider` without an alias
+reads the scoped selection under the same conversation lock and makes no provider
+request. Endpoint URLs, credentials and account identifiers are not included in
+the identity context or status response.
+
 `src/storage.py` stores successful user/assistant pairs atomically as one row
 update. Keys hash bot ID, guild/DM namespace, channel/thread ID, user ID and audience.
 Persona/model changes preserve retained text but invalidate native sessions. An

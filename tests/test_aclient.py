@@ -4,7 +4,7 @@ from dataclasses import replace
 import pytest
 
 from src.domain import BotError, Message
-from src.service import ConversationService, budget_context
+from src.service import ConversationService, budget_context, model_instructions
 from src.storage import Scope, Store
 
 SCOPE = Scope(1, 2, 3, 4)
@@ -88,17 +88,39 @@ async def test_switch_preserves_history_but_reconstructs_session(service):
 
 
 async def test_budget_reconstructs_and_retains_successful_pairs(service):
-    service.settings = replace(service.settings, context_bytes=200, max_turns=2)
+    # Keep the same space for turns while accounting for the fixed identity instructions.
+    identity_bytes = len(("\n\n" + model_instructions(service.settings.models["local"])).encode())
+    service.settings = replace(service.settings, context_bytes=200 + identity_bytes, max_turns=2)
     for n in range(6):
         await service.chat(SCOPE, "question " + str(n))
     conversation = await service.conversation(SCOPE)
     assert len(conversation.turns) == 4
     messages = service.providers["local"].calls[-1][0]
-    assert [m.role for m in messages] in [
-        ["system", "user"],
-        ["system", "user", "assistant", "user"],
-    ]
+    assert [m.role for m in messages] == ["system", "user", "assistant", "user"]
+    assert messages[1].content == "question 4"
     assert messages[-1].content == "question 5"
+
+
+async def test_identity_instructions_count_towards_context_budget(service):
+    service.settings = replace(service.settings, context_bytes=200)
+    with pytest.raises(BotError, match="context budget"):
+        await service.chat(SCOPE, "hello")
+    assert service.providers["local"].calls == []
+
+
+async def test_local_identity_uses_configured_id_without_private_backend_configuration(service):
+    model = service.settings.models["local"]
+    service.settings.models["local"] = replace(
+        model,
+        backend=replace(model.backend, account="private-account", owner_id=123456789),
+    )
+    await service.chat(SCOPE, "What model are you?")
+    system = service.providers["local"].calls[-1][0][0].content
+    assert '"backend": "compatible"' in system
+    assert '"model_id": "fixture-model"' in system
+    assert "does not verify its developer" in system
+    for private_value in (model.backend.base_url, "private-account", "123456789"):
+        assert private_value not in system
 
 
 def test_context_rejects_oversized_system_and_utf8():
