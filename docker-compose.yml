@@ -1,29 +1,20 @@
-version: "3.8"
-
 services:
-  chatgpt-discord-bot:
-    build: 
-      context: .
-      dockerfile: Dockerfile
-    image: chatgpt-discord-bot:latest
-    container_name: chatgpt-discord-bot
-    env_file:
-      - .env
-    restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
+  bot:
+    build: .
+    env_file: .env
+    environment:
+      BOT_CONFIG: /app/config.toml
+    volumes:
+      - ./config.toml:/app/config.toml:ro
+      - ./data:/app/data
     read_only: true
     tmpfs:
-      - /tmp
-      - /app/.cache
-    networks:
-      - bot-network
+      - /tmp:size=64m,noexec,nosuid
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    restart: unless-stopped
     logging:
-      driver: "json-file"
+      driver: json-file
       options:
-        max-size: "10m"
+        max-size: 10m
         max-file: "3"
-
-networks:
-  bot-network:
-    driver: bridge

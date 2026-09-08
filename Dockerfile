@@ -1,42 +1,12 @@
 FROM python:3.12-slim
-
-# Set environment variables
-ENV PYTHONUNBUFFERED=1 \
-    PYTHONDONTWRITEBYTECODE=1 \
-    PIP_NO_CACHE_DIR=1 \
-    PIP_DISABLE_PIP_VERSION_CHECK=1
-
-# Create app directory
+ENV PYTHONUNBUFFERED=1 PYTHONDONTWRITEBYTECODE=1 PIP_NO_CACHE_DIR=1
 WORKDIR /app
-
-# Install system dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    gcc \
-    && rm -rf /var/lib/apt/lists/*
-
-# Create non-root user
-RUN useradd -m -r -u 1001 botuser && \
-    mkdir -p /app/.cache && \
-    chown -R botuser:botuser /app
-
-# Copy requirements first for better caching
-COPY --chown=botuser:botuser requirements.txt .
-
-# Install Python dependencies
+RUN groupadd -g 1001 bot && useradd -r -u 1001 -g bot bot && mkdir /data && chown bot:bot /data
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
-
-# Copy application code
-COPY --chown=botuser:botuser . .
-
-# Create system prompt file if it doesn't exist
-RUN touch system_prompt.txt && chown botuser:botuser system_prompt.txt
-
-# Switch to non-root user
-USER botuser
-
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-  CMD python -c "import discord; print('Bot container healthy')" || exit 1
-
-# Run the bot
+COPY pyproject.toml README.md LICENSE main.py ./
+COPY src ./src
+COPY utils ./utils
+RUN pip install --no-deps .
+USER 1001:1001
 CMD ["python", "main.py"]
