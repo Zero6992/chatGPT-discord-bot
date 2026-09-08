@@ -182,6 +182,7 @@ config.*.local.toml
 /todo.md
 /.local/
 /docs/attribution.md
+/docs/verification.md
 *.sqlite3
 *.sqlite3-wal
 *.sqlite3-shm
