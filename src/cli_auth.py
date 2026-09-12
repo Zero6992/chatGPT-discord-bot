@@ -28,9 +28,9 @@ class CLIAuth:
             model is None
             or model.backend.auth != "account"
             or model.backend.owner_id != owner
-            or self.settings.allowed_user_ids != (owner,)
+            or (self.settings.allowed_user_ids and owner not in self.settings.allowed_user_ids)
         ):
-            raise BotError("Choose an account CLI alias owned by you on a personal bot.")
+            raise BotError("Choose an account CLI alias owned by you and permitted by the bot.")
         return model
 
     async def execute(

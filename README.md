@@ -19,8 +19,8 @@ with independent private and public conversations.
 
 - **Multiple providers:** official APIs and administrator-configured custom endpoints.
 - **Local models:** connect Ollama, LM Studio, vLLM or another compatible chat server.
-- **Personal CLI access:** use your own eligible Codex, Claude Code or Grok Build
-  account through an isolated, owner-only backend.
+- **CLI account access:** connect Codex, Claude Code or Grok Build through an
+  isolated runtime. Everyone can chat by default in every backend mode.
 - **Persistent conversations:** switch models and personas, resume after a restart,
   and reset or delete your history from Discord.
 - **Images and video:** generate images, edit attachments, create videos, or search
@@ -81,13 +81,12 @@ Edit the existing `[bot]` section of `config.toml`:
 ```toml
 [bot]
 default_model = "openai"
-allowed_user_ids = [123456789] # Replace with your Discord user ID.
+allowed_user_ids = [] # Everyone can chat; this is the default in every mode.
 ```
 
 Keep the other example settings and backend/model sections. The `openai` alias
-uses `gpt-5.6-terra`; model IDs are configurable. Enable Discord's Developer Mode
-to copy your user ID. An empty `allowed_user_ids` list permits anyone who can
-access the bot, so configure access before sharing API usage.
+uses `gpt-5.6-terra`; model IDs are configurable. To restrict chat, enter the allowed
+Discord user IDs in `allowed_user_ids`. Enable Discord's Developer Mode to copy IDs.
 
 **To start with a local model**, keep `default_model = "local"`, set the model ID
 under `[models.local]` to one installed on your server, and choose its base URL:
@@ -132,12 +131,16 @@ channel, or `/private` to return to your separate private conversation.
 | xAI Grok | Text chat; image search; text-to-video | `XAI_API_KEY` |
 | DeepSeek | Text chat | `DEEPSEEK_API_KEY` |
 | Local/custom servers | Compatible text Chat Completions | Optional administrator-configured key |
-| Codex, Claude Code, Grok Build CLI | Isolated text conversations and explicit session resumption | API key or native account login; owner-only |
+| Codex, Claude Code, Grok Build CLI | Isolated text conversations and explicit session resumption | API key or native account login |
 
 Configure model IDs, aliases and supported parameters in TOML. New model aliases
 do not require Python changes. Each alias declares its capabilities; chat, search
 and media use separate aliases. Unsupported settings fail explicitly.
 Configuration changes require restarting the bot.
+
+All backend modes allow everyone to chat by default. Leave `bot.allowed_user_ids`
+empty or omit it; set Discord user IDs there only when you want to limit access.
+CLI `owner_id` controls account login, status, logout and cancellation.
 
 Text chat accepts text only. Vision, audio, streaming and general agent tools are
 not exposed. Long replies arrive as a text attachment to preserve formatting.
@@ -217,15 +220,17 @@ Discord or data retained by a provider. See [storage and migration](docs/migrati
 
 ## CLI account and subscription login
 
-Use your own eligible Codex, Claude Code or Grok Build account for a **personal bot**.
-Account mode requires `allowed_user_ids` to contain only the account owner; shared
-subscription access is disabled. Use official API backends for shared services.
+Connect a Codex, Claude Code or Grok Build account through its native CLI login.
+CLI account mode follows the same chat permissions as API and local modes:
+`allowed_user_ids = []` (the default) allows everyone to chat. Each user's history
+and native sessions remain separate. Account administration requires the backend's
+configured `owner_id`.
 
 Start with [config.account.example.toml](config.account.example.toml) and follow the
 [CLI setup guide](docs/cli.md) to provision pinned images and restricted egress.
-Choose a dedicated rootless Docker daemon, or explicit Docker Desktop mode for a
-personal bot. Both require resource controls and seccomp; Desktop mode uses a
-reviewed, hash-pinned profile and probes the effective container controls.
+Choose a dedicated rootless Docker daemon or explicit Docker Desktop mode.
+Both require resource controls and seccomp; Desktop mode uses a reviewed,
+hash-pinned profile and probes the effective container controls.
 The bot refuses CLI execution when required isolation is unavailable.
 
 Once the runtime is ready, the owner can initiate Codex or Grok device login:
@@ -249,9 +254,8 @@ Credentials stay in dedicated runtime storage; no OAuth token belongs in `.env`
 or a Discord message. Re-login preserves bot history and invalidates old sessions.
 
 API and CLI aliases can coexist in one configuration. Copy the needed backend and
-model sections from the account example into your API configuration, retaining the
-personal-bot ownership restriction. The `/provider` menu lists **Claude Code**,
-**Codex CLI** and **Grok CLI** alongside API models. Select `claude_account`,
+model sections from the account example into your API configuration. The `/provider`
+menu lists **Claude Code**, **Codex CLI** and **Grok CLI** alongside API models. Select `claude_account`,
 `codex_account` or `grok_account` to use the configured native CLI authentication;
 switching retains your text history.
 
@@ -316,7 +320,7 @@ directly on the host when using the documented CLI runtime.
 
 Version 4 changes configuration and conversation storage. Unofficial free-provider
 aggregators, browser-cookie authentication and hidden fallbacks have been removed.
-Use an official API, a local/custom endpoint or a supported personal CLI backend.
+Use an official API, a local/custom endpoint or a supported CLI backend.
 Legitimate official API free tiers remain supported.
 
 Follow the [migration guide](docs/migration.md) for environment-variable mappings,

@@ -53,17 +53,18 @@ dropped. No automatic provider fallback exists. Native CLI details and isolated
 runtime checks live only in `src/cli.py`; SQLite remains independent of those
 native transcripts. The request holds only the matching native UUID and context
 fingerprint, and persists session uncertainty before executing externally.
-The default CLI runtime is a dedicated rootless daemon. Explicit personal-bot
+The default CLI runtime is a dedicated rootless daemon. Explicit
 Docker Desktop mode pins a seccomp profile by hash and verifies the effective
 in-container controls before invoking the native CLI. Both modes use the same
 tool restrictions, scoped state, argument construction and cleanup paths.
 
 `src/cli_accounts.py` provides local native login administration and an owner-bound
-profile containing non-secret revision/status metadata. Account mode requires a
-single-user bot. An account lease spans context fingerprinting, native execution
-and history commit, preventing a concurrent re-login from attaching an answer to
-the wrong account revision. It also serializes native credential refresh across
-model aliases and conversations. `runtime/account-runtime.mjs` transfers only
+profile containing non-secret revision/status metadata. Chat access defaults to
+everyone in all modes, with an optional `allowed_user_ids` list. Only the backend
+owner can administer account login. An account lease spans context fingerprinting,
+native execution and history commit, preventing a concurrent re-login from attaching
+an answer to the wrong account revision. It also serializes native credential refresh
+across model aliases and conversations. `runtime/account-runtime.mjs` transfers only
 allowlisted native credential files between two bot-owned volumes inside Docker;
 transcripts remain scoped to their conversation. Native CLI binaries perform all
 authentication and refresh; the Python service never reads OAuth tokens.

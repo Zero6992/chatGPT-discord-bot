@@ -120,7 +120,7 @@ def create_bot(settings: Settings) -> DiscordClient:
         async def challenge(value: DeviceChallenge) -> None:
             await progress(
                 interaction,
-                f"Sign in to your personal {model} CLI runtime at <{value.url}>\n"
+                f"Sign in to your {model} CLI runtime at <{value.url}>\n"
                 f"Device code: `{value.code}`\n"
                 "Complete approval on the official website for the login you just started. "
                 "Do not paste codes or tokens into Discord. This request expires within 10 minutes.",
@@ -140,12 +140,11 @@ def create_bot(settings: Settings) -> DiscordClient:
         interaction: discord.Interaction, current: str
     ) -> list[app_commands.Choice[str]]:
         return [
-            app_commands.Choice(name=name, value=name)
-            for name, model in settings.models.items()
+            app_commands.Choice(name=model.name, value=model.name)
+            for model in visible_models(settings, interaction.user.id)
             if model.backend.auth == "account"
             and model.backend.owner_id == interaction.user.id
-            and settings.allowed_user_ids == (interaction.user.id,)
-            and current.lower() in name.lower()
+            and current.lower() in model.name.lower()
         ][:25]
 
     @client.tree.command(

@@ -19,9 +19,10 @@ listed adapters have offline contract coverage; see the
 | `compatible` | Administrator base URL + `/chat/completions`; optional Bearer key | Text chat only |
 | `codex-cli`, `claude-cli`, `grok-cli` | Unmodified CLI in an isolated runtime; explicit API key or owner's native account/plan login | Text chat only; explicit native sessions |
 
-Account login requires a personal bot restricted to that owner. No API fallback,
-shared subscription or CLI media path is enabled. See [CLI setup and billing](cli.md)
-for exact versions, native login commands and deployment restrictions. Native
+All modes allow everyone to chat by default; `bot.allowed_user_ids` can optionally
+restrict access. Only the configured backend owner can administer CLI account login.
+No API fallback or CLI media path is enabled. See [CLI setup and billing](cli.md)
+for exact versions, native login commands and runtime requirements. Native
 account login and fixed two-turn text/session tests passed for all three CLIs.
 The bot's Docker Desktop runner and command callbacks also passed real CLI tests,
 including reopening SQLite and resuming the explicit session in a new container.

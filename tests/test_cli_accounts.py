@@ -45,7 +45,7 @@ def account_config(kind="codex-cli"):
     return f'''
 [bot]
 default_model = "personal"
-allowed_user_ids = [4]
+allowed_user_ids = []
 [backends.personal]
 kind = "{kind}"
 auth = "account"
@@ -64,28 +64,33 @@ capabilities = ["chat"]
 
 
 @pytest.mark.parametrize("kind", KINDS)
-def test_account_config_needs_no_api_key(tmp_path, kind):
+@pytest.mark.parametrize("users", [None, [], [4], [4, 5], [5]])
+def test_account_config_needs_no_api_key_and_accepts_optional_allowlist(tmp_path, kind, users):
     path = tmp_path / "config.toml"
-    path.write_text(account_config(kind))
+    path.write_text(
+        account_config(kind).replace(
+            "allowed_user_ids = []", "" if users is None else f"allowed_user_ids = {users}"
+        )
+    )
     settings = load_settings(path)
     backend = settings.models["personal"].backend
     assert backend.key() == "" and backend.auth == "account"
     assert Path(backend.auth_profile) == tmp_path / "data/personal-login"
-    assert settings.allowed_user_ids == (backend.owner_id,)
+    assert settings.allowed_user_ids == tuple(users or [])
+    assert backend.owner_id == 4
 
 
 @pytest.mark.parametrize(
     "before,after",
     [
-        ("allowed_user_ids = [4]", "allowed_user_ids = []"),
-        ("allowed_user_ids = [4]", "allowed_user_ids = [4, 5]"),
-        ("owner_id = 4", "owner_id = 5"),
+        ("owner_id = 4", "owner_id = 0"),
+        ("owner_id = 4", "owner_id = true"),
         ('auth = "account"', 'auth = "account"\napi_key_env = "OPENAI_API_KEY"'),
         ('auth = "account"', 'auth = "account"\nbase_url = "https://other.example"'),
         ('auth_profile = "data/personal-login"', 'auth_profile = ""'),
     ],
 )
-def test_account_config_rejects_shared_or_mixed_auth(tmp_path, before, after):
+def test_account_config_rejects_invalid_owner_or_mixed_auth(tmp_path, before, after):
     path = tmp_path / "config.toml"
     path.write_text(account_config().replace(before, after))
     with pytest.raises(BotError):
@@ -103,6 +108,7 @@ def test_account_example_and_duplicate_profile_rejection(tmp_path):
     settings = load_settings(path)
     assert {m.backend.kind for m in settings.models.values()} == set(KINDS)
     assert all(m.backend.auth == "account" for m in settings.models.values())
+    assert settings.allowed_user_ids == ()
     path.write_text(example.replace("data/cli-auth/claude", "data/cli-auth/codex"))
     with pytest.raises(BotError, match="profile"):
         load_settings(path)

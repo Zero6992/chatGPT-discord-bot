@@ -7,7 +7,7 @@ from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager, nullcontext
 
 from src import personas
-from src.config import CLI_KINDS, Model, Settings
+from src.config import Model, Settings
 from src.domain import BotError, Capability, ChatProvider, Completion, Message, Session
 from src.storage import Conversation, Scope, Store
 
@@ -109,8 +109,6 @@ class ConversationService:
             raise BotError("Model alias is unavailable; use /models to select a configured model.")
         model = self.settings.models[name]
         model.require(capability)
-        if model.backend.kind in CLI_KINDS and scope.user_id != model.backend.owner_id:
-            raise BotError("This CLI backend is restricted to its configured account owner.")
         return model
 
     async def conversation(self, scope: Scope) -> Conversation:

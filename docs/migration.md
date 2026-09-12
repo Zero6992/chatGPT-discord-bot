@@ -67,8 +67,11 @@ legacy data.
 Existing API/local configurations and schema version 1 remain valid. To enable
 subscription/account mode, merge the needed blocks from
 [config.account.example.toml](../config.account.example.toml) and follow
-[CLI provisioning and login](cli.md). Restrict the entire bot to the account owner,
-rebuild pinned CLI images with the account helper, and configure the account proxy.
+[CLI provisioning and login](cli.md). Rebuild pinned CLI images with the account
+helper and configure the account proxy. All modes now allow everyone to chat by
+default. Existing nonempty `bot.allowed_user_ids` lists still restrict access;
+clear the list or remove that setting to open chat to everyone. Keep `owner_id`
+on each CLI backend for account administration.
 Use a fresh private `auth_profile` metadata directory for each backend. Do not
 import an existing personal CLI credential cache or overwrite the database.
 
@@ -80,8 +83,8 @@ retention keep account login; `/cli_auth action:logout model:ALIAS` or local
 `cli-auth logout ALIAS` signs out. Codex/Grok device login can now be initiated
 through the always-private `/cli_auth` command; Claude login remains in the local
 terminal. No additional OAuth token environment variable or database migration is
-needed. Shared subscription bots remain unsupported; CLI media is not exposed
-by this bot (see [native capability boundaries](cli.md#media-and-image-search-boundaries)).
+needed. CLI media is not exposed by this bot (see
+[native capability boundaries](cli.md#media-and-image-search-boundaries)).
 
 ## Image search and xAI video aliases
 

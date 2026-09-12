@@ -22,8 +22,9 @@ async def test_lifecycle_initializes_once_and_closes(settings):
     assert maintenance.done() and not client.initialized
 
 
-async def test_bot_and_webhook_filters_then_real_auto_reply(settings, service):
-    settings = replace(settings, reply_channels=(3,), allowed_user_ids=(4,))
+@pytest.mark.parametrize("allowed", [(), (4,)])
+async def test_bot_and_webhook_filters_then_real_auto_reply(settings, service, allowed):
+    settings = replace(settings, reply_channels=(3,), allowed_user_ids=allowed)
     client = DiscordClient(settings)
     client._connection.user = SimpleNamespace(id=1)
     client.store = service.store
@@ -61,12 +62,13 @@ async def test_bot_and_webhook_filters_then_real_auto_reply(settings, service):
     await client.close()
 
 
-async def test_cli_owner_is_enforced_before_execution(service):
+async def test_cli_allowlist_is_enforced_before_execution(service):
     model = service.settings.models["local"]
     service.settings.models["cli"] = replace(
         model, name="cli", backend=Backend("cli", "claude-cli", owner_id=5)
     )
-    with pytest.raises(BotError, match="owner"):
+    service.settings = replace(service.settings, allowed_user_ids=(5,))
+    with pytest.raises(BotError, match="restricted"):
         await service.switch(Scope(1, 2, 3, 4), "cli")
     assert service.providers["local"].calls == []
 

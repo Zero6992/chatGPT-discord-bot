@@ -44,7 +44,6 @@ def auth_settings(settings, tmp_path):
     first = replace(settings.models["local"], backend=backend, parameters={})
     return replace(
         settings,
-        allowed_user_ids=(4,),
         models={"local": first, "alias": replace(first, name="alias")},
     )
 
@@ -257,12 +256,14 @@ async def test_failed_relogin_rotates_and_disables_previous_profile(auth_setting
     assert calls[-1][1:3] == ["rm", "-f"]
 
 
-async def test_owner_checks_and_claude_local_only(auth_settings):
-    manager = CLIAuth(auth_settings)
+@pytest.mark.parametrize("allowed", [(), (4,), (4, 5)])
+@pytest.mark.parametrize("action", ["login", "status", "logout", "cancel"])
+async def test_owner_checks_and_claude_local_only(auth_settings, allowed, action):
+    manager = CLIAuth(replace(auth_settings, allowed_user_ids=allowed))
     native = AsyncMock()
     manager.runners["personal"] = SimpleNamespace(account_action=native)
     with pytest.raises(BotError, match="owned by you"):
-        await manager.execute("login", "local", 5, AsyncMock())
+        await manager.execute(action, "local", 5, AsyncMock())
     with pytest.raises(BotError):
         await manager.execute("login", "not-configured", 4, AsyncMock())
     model = auth_settings.models["local"]
@@ -274,6 +275,30 @@ async def test_owner_checks_and_claude_local_only(auth_settings):
     assert "src.cli_accounts login local" in result
     native.assert_not_awaited()
     await manager.close()
+
+
+@pytest.mark.parametrize("allowed", [(), (4,), (4, 5), (5,)])
+async def test_account_administration_respects_owner_and_optional_allowlist(auth_settings, allowed):
+    client = create_bot(replace(auth_settings, allowed_user_ids=allowed))
+    native = AsyncMock(return_value={"configured": True})
+    client.cli_auth.runners["personal"] = SimpleNamespace(account_action=native)
+    autocomplete = client.tree.get_command("cli_auth")._params["model"].autocomplete
+    try:
+        for user_id in (4, 5):
+            choices = await autocomplete(SimpleNamespace(user=SimpleNamespace(id=user_id)), "")
+            permitted = user_id == 4 and (not allowed or user_id in allowed)
+            if permitted:
+                assert {choice.value for choice in choices} == {"local", "alias"}
+                assert "configured" in await client.cli_auth.execute(
+                    "status", "local", user_id, AsyncMock()
+                )
+            else:
+                assert choices == []
+                with pytest.raises(BotError, match="owned by you"):
+                    await client.cli_auth.execute("status", "local", user_id, AsyncMock())
+        assert native.await_count == int(not allowed or 4 in allowed)
+    finally:
+        await client.close()
 
 
 async def test_alias_duplicate_cancel_and_shutdown_wait_for_cleanup(auth_settings):

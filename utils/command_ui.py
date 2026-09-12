@@ -31,11 +31,7 @@ COLOUR = 0x5865F2
 def visible_models(settings: Settings, user_id: int) -> list[Model]:
     if settings.allowed_user_ids and user_id not in settings.allowed_user_ids:
         return []
-    return [
-        model
-        for model in settings.models.values()
-        if model.backend.kind not in CLI_KINDS or model.backend.owner_id == user_id
-    ]
+    return list(settings.models.values())
 
 
 def model_choices(

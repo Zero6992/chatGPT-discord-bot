@@ -44,26 +44,39 @@ def desktop_config(model):
         f"{key} = {json.dumps(value)}" for key, value in backend.__dict__.items() if key != "name"
     )
     return (
-        '[bot]\ndefault_model = "cli"\nallowed_user_ids = [4]\n'
+        '[bot]\ndefault_model = "cli"\nallowed_user_ids = []\n'
         "[backends.desktop]\n" + fields + "\n"
         '[models.cli]\nbackend = "desktop"\nmodel = "fixture-model"\ncapabilities = ["chat"]\n'
     )
 
 
-def test_desktop_configuration_is_explicit_and_resolves_profile(desktop_model, tmp_path):
+@pytest.mark.parametrize("auth", ["api", "account"])
+@pytest.mark.parametrize("users", [None, [], [4], [4, 9]])
+def test_desktop_configuration_is_explicit_and_resolves_profile(
+    desktop_model, tmp_path, auth, users
+):
+    if auth == "api":
+        desktop_model = replace(
+            desktop_model,
+            backend=replace(
+                desktop_model.backend, auth="api", auth_profile="", api_key_env="FIXTURE_KEY"
+            ),
+        )
     path = tmp_path / "config.toml"
     path.write_text(
-        desktop_config(desktop_model).replace(desktop_model.backend.seccomp_profile, "seccomp.json")
+        desktop_config(desktop_model)
+        .replace(desktop_model.backend.seccomp_profile, "seccomp.json")
+        .replace("allowed_user_ids = []", "" if users is None else f"allowed_user_ids = {users}")
     )
-    configured = load_settings(path).models["cli"].backend
+    settings = load_settings(path)
+    configured = settings.models["cli"].backend
+    assert settings.allowed_user_ids == tuple(users or [])
     assert configured.docker_mode == "desktop"
     assert configured.seccomp_profile == desktop_model.backend.seccomp_profile
     assert verified_seccomp_profile(configured) == configured.seccomp_profile
 
 
-@pytest.mark.parametrize(
-    "mutation", ["mode", "socket", "hash", "default_allow", "missing", "shared"]
-)
+@pytest.mark.parametrize("mutation", ["mode", "socket", "hash", "default_allow", "missing"])
 def test_unsafe_desktop_configuration_rejected(desktop_model, tmp_path, mutation):
     model = desktop_model
     if mutation == "mode":
@@ -83,11 +96,8 @@ def test_unsafe_desktop_configuration_rejected(desktop_model, tmp_path, mutation
         )
     elif mutation == "missing":
         (tmp_path / "seccomp.json").unlink()
-    text = desktop_config(model)
-    if mutation == "shared":
-        text = text.replace("allowed_user_ids = [4]", "allowed_user_ids = [4, 9]")
     path = tmp_path / "config.toml"
-    path.write_text(text)
+    path.write_text(desktop_config(model))
     with pytest.raises(BotError):
         load_settings(path)
 

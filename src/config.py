@@ -355,17 +355,6 @@ def load_settings(path: Path) -> Settings:
                 raise BotError(f"{key} must contain positive Discord IDs.")
         settings = Settings(models=models, **bot)
         account_backends = [backend for backend in backends.values() if backend.auth == "account"]
-        if any(settings.allowed_user_ids != (backend.owner_id,) for backend in account_backends):
-            raise BotError(
-                "CLI account login requires a personal bot: allowed_user_ids must contain only the account owner."
-            )
-        if any(
-            backend.kind in CLI_KINDS
-            and backend.docker_mode == "desktop"
-            and settings.allowed_user_ids != (backend.owner_id,)
-            for backend in backends.values()
-        ):
-            raise BotError("Docker Desktop CLI requires a personal bot restricted to its owner.")
         profiles = [str(Path(backend.auth_profile).resolve()) for backend in account_backends]
         if len(profiles) != len(set(profiles)):
             raise BotError(

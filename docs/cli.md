@@ -8,10 +8,13 @@ paths require separate capability, billing and artifact verification described b
 
 ## Authentication and deployment
 
-Account mode is for a **personal, self-hosted bot with one owner**. Set
-`bot.allowed_user_ids = [OWNER_ID]` and that same `owner_id` on every account backend.
-A configuration allowing additional users is rejected, including for its API aliases.
-Shared services should use official APIs under the applicable agreement.
+All modes allow everyone to chat by default, including CLI API-key and account
+login on rootless Docker or Docker Desktop. Leave `bot.allowed_user_ids = []` or
+omit it. Set a nonempty list only when you want to restrict chat to those users.
+Each backend's `owner_id` controls account login, status, logout and cancellation;
+the owner must also be allowed by any configured user list. Conversation history
+and native sessions stay separate for each user. Provider account and plan terms
+still apply independently of the bot's chat permissions.
 
 | Mode | Login | Usage and billing |
 | --- | --- | --- |
@@ -36,13 +39,12 @@ Documented boundaries checked 2026-09-08:
   end user to sign in to the unmodified binary with their own subscription. They
   prohibit third-party Claude.ai login implementations and credential pooling.
   Here, the owner completes Anthropic's native flow in a private local terminal.
-  Discord has no login form, token input or OAuth API. This implementation serves
-  only that owner, not a service routing other subscribers' credentials.
+  Discord has no login form, token input or OAuth API. Account credentials stay in
+  the backend's dedicated runtime storage; chat access uses `allowed_user_ids`.
 - **Grok Build:** [official documentation](https://docs.x.ai/build/overview) describes
   native account sign-in and headless integrations. The official
   [authentication guide](https://github.com/xai-org/grok-build/blob/main/crates/codegen/xai-grok-pager/docs/user-guide/02-authentication.md)
   documents device login, storage and refresh. xAI controls account/plan eligibility.
-  Shared subscription deployment is not established and remains disabled.
 
 ## Provision the runtime
 
@@ -54,7 +56,7 @@ is never mounted into an inference container.
 | `docker_mode` | Runtime requirements |
 | --- | --- |
 | `rootless` (default) | Dedicated rootless daemon, active seccomp, systemd and cgroup v2; socket such as `/run/user/1000/docker.sock` |
-| `desktop` | Docker Desktop Linux daemon, cgroup v2, explicit hash-pinned seccomp profile, and successful in-container isolation probes; personal bot only |
+| `desktop` | Docker Desktop Linux daemon, cgroup v2, explicit hash-pinned seccomp profile, and successful in-container isolation probes |
 
 ### Rootless setup
 
@@ -97,8 +99,8 @@ export DOCKER_HOST=unix:///run/user/1000/docker.sock
 ### Docker Desktop setup
 
 An already running [Docker Desktop WSL backend](https://docs.docker.com/desktop/features/wsl/)
-can be used without changing the distribution's init system. This mode is
-restricted to a personal bot whose `allowed_user_ids` contains only the CLI owner.
+can be used without changing the distribution's init system. Chat access follows
+`allowed_user_ids`, with everyone allowed by default.
 Access to the selected Docker daemon remains an administrator privilege.
 
 Obtain and review Docker's [default seccomp profile](https://docs.docker.com/engine/security/seccomp/#pass-a-profile-for-a-container),

@@ -16,6 +16,7 @@ poll_interval = 10
 attachment_bytes = 8388608
 input_chars = 4000
 reply_channels = []
+# Empty or omitted allows everyone to chat in every backend mode.
 allowed_user_ids = []
 admin_user_ids = []
 system_prompt = "You are a helpful assistant."
@@ -113,4 +114,4 @@ parameters = { max_output_tokens = 4096, thinking = "disabled" }
 
 # See docs/cli.md for isolated CLI provisioning. CLI backends are absent/disabled
 # by default. See config.account.example.toml for native account/subscription
-# login on a personal bot. CLI media remains unsupported.
+# login. CLI media remains unsupported.

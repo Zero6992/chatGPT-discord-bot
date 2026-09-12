@@ -11,7 +11,7 @@ from src.domain import Capability
 from utils.command_ui import ModelPages, model_choices, model_pages, visible_models
 
 
-def catalog(settings):
+def catalog(settings, cli_auth="api"):
     models = dict(settings.models)
     for name, kind, caps in (
         ("claude_account", "claude-cli", {Capability.CHAT}),
@@ -27,20 +27,25 @@ def catalog(settings):
             settings.models["local"],
             name=name,
             model="model-" + name,
-            backend=Backend(name, kind, auth="api", owner_id=4),
+            backend=Backend(
+                name, kind, auth=cli_auth if kind.endswith("-cli") else "api", owner_id=4
+            ),
             capabilities=frozenset(caps),
         )
     return replace(settings, models=models)
 
 
 @pytest.mark.parametrize("private", [True, False])
-async def test_models_and_help_use_embeds_and_preserve_visibility(settings, service, private):
+@pytest.mark.parametrize("user_id", [4, 99])
+async def test_models_and_help_use_embeds_and_preserve_visibility(
+    settings, service, private, user_id
+):
     settings = catalog(settings)
     client = create_bot(settings)
     client._connection.user = SimpleNamespace(id=1)
     client.store, client.service = service.store, service
     target = SimpleNamespace(
-        user=SimpleNamespace(id=4),
+        user=SimpleNamespace(id=user_id),
         guild=SimpleNamespace(id=2),
         channel=SimpleNamespace(id=3),
         response=SimpleNamespace(defer=AsyncMock(), send_message=AsyncMock()),
@@ -104,12 +109,17 @@ async def test_registered_model_menus_filter_capabilities_and_attachment(
         await client.close()
 
 
-def test_cli_options_are_owner_only_and_searchable_by_cli_name(settings):
-    settings = catalog(settings)
-    choices = model_choices(settings, 4, Capability.CHAT, "Claude Code")
+@pytest.mark.parametrize("auth", ["api", "account"])
+@pytest.mark.parametrize("user_id", [4, 99])
+def test_cli_options_allow_everyone_and_are_searchable_by_cli_name(settings, auth, user_id):
+    settings = catalog(settings, auth)
+    choices = model_choices(settings, user_id, Capability.CHAT, "Claude Code")
     assert [choice.value for choice in choices] == ["claude_account"]
-    assert {choice.value for choice in model_choices(settings, 99, Capability.CHAT, "")} == {
-        "local"
+    assert {choice.value for choice in model_choices(settings, user_id, Capability.CHAT, "")} == {
+        "local",
+        "claude_account",
+        "codex_account",
+        "grok_account",
     }
     assert visible_models(replace(settings, allowed_user_ids=(4,)), 99) == []
 
