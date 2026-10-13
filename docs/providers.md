@@ -143,3 +143,42 @@ HTTP is allowed only on loopback; use an HTTPS reverse proxy for other hosts.
 URLs with embedded credentials, query strings or fragments are rejected. Provider
 origins are fixed for official adapters. Discord commands can select configured
 aliases but cannot alter URLs, credentials or model IDs.
+
+### Hosted compatible endpoint example
+
+A hosted server can be configured the same way when it implements the wire
+subsets above. [LivePair](https://livepairai.com) (`https://livepairai.com/v1/agent`,
+Bearer `lp_` key, per-call pricing) implements Chat Completions for its text
+catalog and the OpenAI Images request/response shape (`POST
+/images/generations`, `n=1`, `size` mapped to aspect ratio) for its
+text-to-image catalog; model IDs are listed by `GET /v1/agent/models`.
+
+```toml
+[backends.livepair-chat]
+kind = "compatible"
+base_url = "https://livepairai.com/v1/agent"
+api_key_env = "LIVEPAIR_API_KEY"
+
+[models.livepair-chat]
+backend = "livepair-chat"
+model = "deepseek/deepseek-v3.2"
+capabilities = ["chat"]
+parameters = { max_output_tokens = 2048 }
+
+[backends.livepair-image]
+kind = "openai"
+base_url = "https://livepairai.com/v1/agent"
+api_key_env = "LIVEPAIR_API_KEY"
+
+[models.livepair-image]
+backend = "livepair-image"
+model = "seedream-5.0"
+capabilities = ["text-to-image"]
+parameters = { size = "1024x1024" }
+```
+
+Only the subsets shown are implemented by that server: `chat` works through the
+`compatible` adapter and `text-to-image` through the `openai` image adapter.
+Responses sessions, tools, `images/edits` (so no `image-to-image`), video and
+other OpenAI surfaces are not mapped — do not configure those capabilities
+against it.
